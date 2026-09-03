@@ -3,6 +3,7 @@
 一次 chat turn 的编排:会话恢复 → 语言检测 → 市场路由 → 意图识别(二段式)
 → 澄清/锁定 → 引导卡执行 → 持久化 → 返回响应。
 """
+import re, difflib
 from . import config, intent as intent_mod, cards as card_mod, compliance, debug
 from .state import StateStore
 from .langdetect import detect_language
@@ -62,7 +63,8 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     # 1) 语言检测(跟随用户;拉丁/其它语言用 LLM 兜底检测)
     lang = detect_language(message, market=session.market, hint=lang_hint or session.language,
                            llm_detect=getattr(_llm, "detects_language", None))
-    if not session.language:
+    # 语言跟随用户:会话语言随最近一次检测更新(仅用于中性消息的兜底语言;当前消息语言始终由提示词优先)
+    if lang:
         session.language = lang
 
     # 2a) 用户消息里明确说市场(如"印度市场")→ 该市场(manual)
@@ -157,10 +159,12 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
             session.lock_intent(new_intent, conf)
             reply = card_mod.run_card(session, message, kb, lang)
 
-    # 4) 输出过滤(§8.4 输出侧):命中禁区提示以官方为准
-    clean_reply, flagged = compliance.output_filter(reply.get("reply", ""))
+    # 4) 回复质量(禁AI感 + 去重 + 长度硬限) → 输出过滤(禁区)
+    raw_reply = _polish_reply(reply.get("reply", ""), session.history)
+    clean_reply, flagged = compliance.output_filter(raw_reply)
     if flagged:
-        reply["reply"] = clean_reply + "\n\n(Please refer to official AION policy for confirmed terms.)"
+        clean_reply = clean_reply + "\n\n(Please refer to official AION policy for confirmed terms.)"
+    reply["reply"] = clean_reply
 
     session.persist()
     session.append_turn(message, reply.get("reply", ""), session.intent, reply.get("emotion", 0))
@@ -205,6 +209,46 @@ def _fallback_text(intent, lang):
          "th": "ฉันช่วยเรื่อง AION UT ได้ รบกวนลองใหม่ หรือสอบถามสเปก ตัวแทนจำหน่าย หรือการใช้งาน",
          "es": "Puedo ayudarle con el AION UT. ¿Podría reformular? Pregunte por especificaciones, concesionarios o uso."}
     return m.get(lang, m["en"])
+
+
+_SENT_SPLIT = r"(?<=[。！？!?])|(?<=\.)(?=\s|$)"   # 。！？!? 后即切; ASCII 句点仅在跟空格/结尾时切(避免拆小数 4.6)
+
+
+def _sents(text):
+    parts = re.split(_SENT_SPLIT, text or "")
+    return [p.strip() for p in parts if p.strip()]
+
+
+def _dedup_lead(new_text, history):
+    """话术去重(售前框架参考):若新回复首句与近几轮 bot 回复首句几乎相同,裁掉重复的首句。"""
+    if not new_text or not history:
+        return new_text
+    recent = [h.get("bot", "") for h in history[-3:] if h.get("bot")]
+    if not recent:
+        return new_text
+    new_sents = _sents(new_text)
+    if not new_sents or len(new_sents) < 2:
+        return new_text
+    for rbot in recent:
+        r_sents = _sents(rbot)
+        if not r_sents:
+            continue
+        n0, r0 = new_sents[0], r_sents[0]
+        if n0 and r0 and difflib.SequenceMatcher(None, n0, r0).ratio() >= config.REPEAT_SIM_THRESHOLD:
+            new_sents = new_sents[1:]   # 首句与前面重复,裁掉;保留后文实质内容
+            break
+    trimmed = " ".join(new_sents)
+    return trimmed if trimmed.strip() else new_text
+
+
+def _polish_reply(text, history):
+    """回复质量后处理(单次 LLM 调用内完成,不额外调模型):
+    ①禁 AI 感/机器感 ②话术去重 ③长度硬限。失败/空时原样返回。"""
+    if not text:
+        return text
+    text, _ = compliance.strip_ai_phrases(text)
+    text = _dedup_lead(text, history)
+    return compliance.truncate_reply(text, config.REPLY_MAX_CHARS)
 
 
 def _history_str(history, n=4):

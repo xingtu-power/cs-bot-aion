@@ -135,12 +135,21 @@ class DeepSeekLLM(BaseLLM):
         - history: 最近对话(用于理解追问,避免重复介绍)。
         - 语言: 按用户消息语言回复;无语言则沿用 conv_lang。不写死语言码。"""
         prompt = (f"You are an AION car customer-support bot.\nSituation: {state_desc or 'handle the customer message.'}\n"
-                  f"Reply in the SAME language as the customer. If this message has no language of its own "
-                  f"(e.g. just a phone number), reply in the language the customer has been using"
-                  f"{f' ({conv_lang})' if conv_lang else ''}.\n"
+                  f"Reply in the SAME language as the customer's CURRENT message — that language ALWAYS wins. "
+                  f"If the customer writes in English, reply in English, even if the whole conversation so far was "
+                  f"in another language and even if the facts are in English. Never keep using an earlier "
+                  f"conversation language when the customer switches languages. Only fall back to "
+                  f"{f'the conversation language ({conv_lang})' if conv_lang else 'the conversation language'} "
+                  f"when THIS message is language-neutral (e.g. 'yes', 'ok', 'thanks' or just a phone number).\n"
                   f"Do NOT repeat things you already said in the conversation. Understand follow-up questions in context.\n"
                   f"Respond to what the customer actually said (answer a question, or continue guiding as needed). "
-                  f"Use ONLY the facts below; do not invent numbers or claims.\n\n")
+                  f"Use ONLY the facts below; do not invent numbers or claims.\n"
+                  f"Be concise and natural: keep the reply within about {config.REPLY_DAILY_MAX} characters, "
+                  f"never exceed {config.REPLY_MAX_CHARS}.\n"
+                  f"NEVER reveal that you are an AI, robot, assistant or language model; do not use phrases like "
+                  f"'according to the search results', 'the system shows', 'based on the data'.\n"
+                  f"If a previous reply already covered this, phrase it differently or answer more briefly — "
+                  f"do not repeat the same sentences verbatim.\n\n")
         if history:
             prompt += f"Recent conversation:\n{history}\n\n"
         prompt += (f"Facts:\n{context or '(none)'}\n\nCustomer message: {message}\n\n"

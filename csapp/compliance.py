@@ -109,3 +109,45 @@ def output_filter(reply):
     if hits:
         return reply, True
     return reply, False
+
+
+# ---------------- 回复质量:禁 AI 感 / 机器感表达 ----------------
+# 参考售前通用框架 Self-check:删除「根据查询结果/系统显示/工具返回」等机器感表达、
+# 删除暴露 AI/机器人身份的表达。
+AI_REVEAL_PATTERNS = [
+    r"(?i)\baccording to (the )?(search results?|data|information|results?)\b[,\s]*",
+    r"(?i)\b(the system shows?|system query shows?|search results? show|the results? show)\b[,\s]*",
+    r"(?i)\bbased on (the )?(search results?|data|information)\b[,\s]*",
+    r"(?i)\b(as an? ai( assistant)?|i('m| am) an? ai|i am a robot|as a language model)\b[,\s]*",
+    r"根据(查询结果|系统显示|搜索结果|工具返回|门店信息|查询到的信息)[，,]*",
+    r"系统(查询)?显示[，,]*",
+    r"(作为)?(一个)?(ai|人工智能)(助手)?[，,]*",
+]
+
+
+def strip_ai_phrases(text):
+    """去掉 AI/机器人身份与机器感表达;返回 (clean_text, changed)。"""
+    clean = text
+    changed = False
+    for pat in AI_REVEAL_PATTERNS:
+        new = re.sub(pat, "", clean)
+        if new != clean:
+            changed = True
+            clean = new
+    return clean.strip(), changed
+
+
+# ---------------- 回复质量:长度硬限 ----------------
+def truncate_reply(text, max_chars):
+    """超限时在句读边界截断,保留完整句意;返回截断后的文本。"""
+    if not text:
+        return text
+    if len(text) <= max_chars:
+        return text
+    piece = text[:max_chars]
+    # 在句读处回退到最近一句边界
+    for sep in ("。", "！", "？", ". ", "! ", "? ", " …"):
+        idx = piece.rfind(sep)
+        if idx > 0:
+            return piece[: idx + len(sep)].rstrip()
+    return piece.rstrip()

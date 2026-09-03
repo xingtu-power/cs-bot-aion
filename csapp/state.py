@@ -28,6 +28,7 @@ class Session:
         self.emotion_score = 0             # 1-5 情绪分
         self.step_index = 0                # 引导卡步骤
         self.collected = {"phone": None, "email": None, "model": None, "concern": None}
+        self.step_asks = {}              # 槽位追问计数(键:"intent:step",跨轮保留)
         self.clarify_rounds = 0
         self.total_rounds = 0
         self.escalated = False

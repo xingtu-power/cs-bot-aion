@@ -25,6 +25,14 @@ EMOTION_ESCALATE_SCORE = 4          # 情绪分 >= 4 转人工
 EMOTION_ESCALATE_CONSECUTIVE = 3    # 连续两轮 >= 3 也转人工
 EMOTION_GAP = 3                     # 紧急意图下 >=3 即转人工
 
+# ---- 回复质量护栏(售前通用框架参考) ----
+REPLY_DAILY_MAX = int(os.environ.get("CSAPP_REPLY_DAILY_MAX", "220"))   # 日常建议长度(提示词目标)
+REPLY_MAX_CHARS = int(os.environ.get("CSAPP_REPLY_MAX_CHARS", "300"))   # 绝对上限(硬截断)
+REPEAT_SIM_THRESHOLD = 0.80          # 与近几轮 bot 回复相似度 > 此值判重复
+
+# ---- 槽位收集护栏 ----
+SLOT_MAX_ASK = 3                     # 单槽位追问上限,超限转人工(避免反复要手机号/确认)
+
 # ---- 语言检测 ----
 # 脚本 -> 语言 的强启发式(覆盖目标市场):泰文脚本->th,中文->zh,拉丁->en/其它,
 # 再结合市场上下文修正。

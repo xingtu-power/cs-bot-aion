@@ -46,6 +46,24 @@ CARD = {
 }
 
 
+def _slot_expect(expect):
+    """该 expect 是否需要用户输入(可被追问累计)。"""
+    return expect in ("contact", "concern", "confirm", "consent_rescue")
+
+
+# 槽位超限/无法满足时的交接兜底(非卡片引导话术;与 pipeline 的 inject/clarify 兜底一致)
+_HANDOFF = {
+    "en": "I've tried a few times but still need your details. Let me connect you to an AION specialist.",
+    "th": "ฉันพยายามหลายครั้งแล้วแต่ยังได้ข้อมูลไม่ครบ ขอเชื่อมต่อให้คุณกับผู้เชี่ยวชาญ AION",
+    "es": "He intentado varias veces pero aún necesito sus datos. Le conectaré con un especialista de AION.",
+    "zh": "我尝试了几次仍未能获取您的信息，帮您转接 AION 专员。",
+}
+
+
+def _handoff(lang):
+    return _HANDOFF.get(lang, _HANDOFF["en"])
+
+
 def _collect_contact(session, text):
     t = text.strip().lower()
     email = re.search(r"[\w.+-]+@[\w-]+\.[\w.]+", t)
@@ -122,6 +140,20 @@ def run_card(session, message, kb, lang):
     step = min(session.step_index or 0, len(steps) - 1)
     sd = steps[step]
     received, goal_hit = _check(sd["expect"], session, message, kb)
+
+    # 槽位追问上限(售前框架参考):需用户输入的槽位,若一直未满足则累计;超限转人工,避免反复讨要。
+    if _slot_expect(sd["expect"]) and not received:
+        asks = getattr(session, "step_asks", None) or {}
+        key = f"{intent}:{step}"
+        asks[key] = asks.get(key, 0) + 1
+        session.step_asks = asks
+        max_ask = sd.get("max_ask", config.SLOT_MAX_ASK)
+        if asks[key] >= max_ask:
+            session.escalated = True
+            emotion = score_emotion(message, intent)
+            result = {"reply": _handoff(lang), "emotion": emotion, "intent": intent,
+                      "collected": session.collected, "advance": False, "escalate": True}
+            return result
 
     # 合规留资:收集联系方式且有效
     if received and sd.get("goal") and sd["expect"] == "contact":
