@@ -1,0 +1,216 @@
+"""LLM 抽象层(Phase 1 骨架)。
+
+可插拔:rule | deepseek | none。规则/模板作为兜底,保证骨架无 key 也能跑通。
+deepseek 提供用 dsh --profile headless 做语义确认/翻译(尽力而为,失败则回退规则)。
+"""
+import os, subprocess, json, re, time
+from . import config, debug
+
+
+class BaseLLM:
+    mode = "none"
+
+    def classify(self, text, context=""):
+        """返回 (intent, confidence, question, answer) 或 None。"""
+        return None
+
+    def confirm_intent(self, text):
+        """返回 (intent, confidence) 或 None。"""
+        return None
+
+    def detects_language(self, text):
+        """返回语言代码或 None(LLM 兜底用)。"""
+        return None
+
+    def localize(self, text, lang):
+        return text
+
+    def generates_reply(self, text, context):
+        return None
+
+
+class RuleLLM(BaseLLM):
+    mode = "rule"
+
+    def classify(self, text, context=""):
+        return None  # 规则模式不生成,交由关键词
+
+    def confirm_intent(self, text):
+        # 规则兜底:不覆盖关键词判断,返回 None 交由 intent.py 用关键词结果
+        return None
+
+    def detects_language(self, text):
+        return None
+
+    def generates_reply(self, text, context):
+        return None
+
+
+class DeepSeekLLM(BaseLLM):
+    """通过 dsh --profile headless 调用大模型(尽力而为)。"""
+
+    mode = "deepseek"
+
+    @staticmethod
+    def _load_key():
+        # 优先环境变量,否则读 web 写入的凭据
+        k = os.environ.get("DEEPSEEK_API_KEY", "")
+        if k:
+            return k
+        cred = os.path.expanduser("~/.dsh/.credentials.yaml")
+        try:
+            c = open(cred).read()
+            m = re.search(r'DEEPSEEK_API_KEY\s*[:=]\s*[\'"]?([^\'"\n#]+)', c)
+            return m.group(1).strip() if m else ""
+        except Exception:
+            return ""
+
+    _API = "https://api.deepseek.com/chat/completions"
+
+    def _api_call(self, prompt, timeout=60):
+        """直接调用 DeepSeek(OpenAI 兼容)API,免去每消息 boot agent 的开销(~0.7s)。"""
+        import urllib.request
+        key = self._load_key()
+        body = json.dumps({"model": "deepseek-chat",
+                           "messages": [{"role": "user", "content": prompt}],
+                           "max_tokens": 1024}).encode()
+        req = urllib.request.Request(self._API, data=body,
+                                     headers={"Authorization": "Bearer " + key,
+                                              "Content-Type": "application/json"})
+        r = json.loads(urllib.request.urlopen(req, timeout=timeout).read())
+        return r["choices"][0]["message"]["content"].strip()
+
+    def _run(self, prompt, timeout=90):
+        key = self._load_key()
+        if not key:
+            return None
+        # 优先直接 API(快);失败重试 N 次(退避),再回退 dsh headless
+        last_err = None
+        for attempt in range(3):
+            try:
+                out = self._api_call(prompt, timeout=60)
+                if out:
+                    return out
+            except Exception as e:
+                last_err = e
+                debug.record(evt="llm_api_retry", attempt=attempt + 1, err=str(e)[:120])
+                time.sleep(0.6 * (attempt + 1))
+        debug.record(evt="llm_api_failed", err=str(last_err)[:120])
+        env = dict(os.environ)
+        env["DSH_HOME"] = "/Users/mlhs/Documents/aigo/客服系统/tools/dsh_home"
+        env["DEEPSEEK_API_KEY"] = key
+        try:
+            out = subprocess.run(["dsh", "--profile", "headless", prompt],
+                                 capture_output=True, text=True, timeout=timeout, env=env)
+            return out.stdout.strip() or None
+        except Exception:
+            return None
+
+    def classify(self, text, context=""):
+        """一次 LLM 调用,合并:意图 / 置信度 / 是否在提问 / (若提问)顺带生成回答。
+        context: 本地化知识库上下文(RAG retrieval 结果)。
+        返回 (intent, confidence, question, answer) 或 None。answer 仅当 question=true 时给出。"""
+        prompt = ("You are an AION car customer-support bot. Given a customer message and some facts, "
+                  "produce: (1) intent in [product-inquiry, dealer-lookup, usage-guide, emergency, after-sales, other]; "
+                  "(2) question: whether the user is asking a question or making a request that deserves a direct answer, "
+                  "vs merely answering the bot's prompt; "
+                  "(3) if question is true, answer: write a concise, friendly answer in the user's language, "
+                  "using ONLY the facts below (do not invent numbers/claims). If question is false, set answer to null.\n\n"
+                  f"Facts:\n{context or '(none)'}\n\nMessage: {text}\n\n"
+                  'Reply JSON {"intent":"...","confidence":0.0,"question":true|false,"answer":null|"..."} only.')
+        out = self._run(prompt)
+        if not out:
+            return None
+        try:
+            start = out.find("{")
+            d = json.loads(out[start:out.rfind("}") + 1])
+            return (d.get("intent"), float(d.get("confidence", 0.0)),
+                    bool(d.get("question", True)), d.get("answer"))
+        except Exception:
+            return None
+
+    def respond(self, message, context="", state_desc="", conv_lang="en", history=None):
+        """每轮一次 LLM 调用:返回 {intent, confidence, question, response}。
+        - state_desc: 当前卡片步骤的描述。
+        - history: 最近对话(用于理解追问,避免重复介绍)。
+        - 语言: 按用户消息语言回复;无语言则沿用 conv_lang。不写死语言码。"""
+        prompt = (f"You are an AION car customer-support bot.\nSituation: {state_desc or 'handle the customer message.'}\n"
+                  f"Reply in the SAME language as the customer. If this message has no language of its own "
+                  f"(e.g. just a phone number), reply in the language the customer has been using"
+                  f"{f' ({conv_lang})' if conv_lang else ''}.\n"
+                  f"Do NOT repeat things you already said in the conversation. Understand follow-up questions in context.\n"
+                  f"Respond to what the customer actually said (answer a question, or continue guiding as needed). "
+                  f"Use ONLY the facts below; do not invent numbers or claims.\n\n")
+        if history:
+            prompt += f"Recent conversation:\n{history}\n\n"
+        prompt += (f"Facts:\n{context or '(none)'}\n\nCustomer message: {message}\n\n"
+                   'Reply JSON {"intent":"...","confidence":0.0,"question":true|false,"response":"..."} only.')
+        debug.record(evt="llm_respond_input", message=message, conv_lang=conv_lang,
+                     state_desc=(state_desc or "")[:160], ctx_len=len(context or ""),
+                     hist_len=len(history or ""))
+        out = self._run(prompt)
+        debug.record(evt="llm_respond_raw", raw=(out or "")[:600])
+        if not out:
+            return None
+        try:
+            start = out.find("{")
+            d = json.loads(out[start:out.rfind("}") + 1])
+            res = (d.get("intent"), float(d.get("confidence", 0.0)),
+                   bool(d.get("question", True)), d.get("response") or "")
+            debug.record(evt="llm_respond_ok", intent=res[0], conf=res[1], q=res[2],
+                         resp_len=len(res[3] or ""))
+            return res
+        except Exception:
+            debug.record(evt="llm_respond_parse_fail", raw=(out or "")[:300])
+            return None
+
+    def confirm_intent(self, text):
+        """兼容旧接口:仅判意图/置信度/是否提问(不生成回答)。"""
+        r = self.classify(text, "")
+        return (r[0], r[1], r[2]) if r else None
+
+    def detects_language(self, text):
+        """LLM 检测任意语言(ISO 639-1),供其它语言兜底。失败返回 None。"""
+        out = self._run("Detect the language of this customer message. "
+                        "Reply ONLY the ISO 639-1 language code "
+                        "(e.g., en, th, zh, ms, id, vi, fr, de, ar...). \nMessage: " + text)
+        if out:
+            m = re.search(r"\b([a-z]{2})\b", out.lower())
+            return m.group(1) if m else None
+        return None
+
+    def translate(self, text):
+        # 泰/英等翻译(预留;用 LLM)
+        out = self._run(f"Translate to English, output only the translation:\n{text}")
+        return out
+
+    # 常用语言名(供 localize 提示);未知语言名直接传 code,LLM 通常能理解
+    _LANG_LABEL = {"zh": "Simplified Chinese", "th": "Thai", "en": "English",
+                   "ms": "Malay", "id": "Indonesian", "es": "Spanish"}
+
+    def localize(self, text, lang):
+        """把客服回复本地化成用户语言(保留所有事实/数字)。失败返回原文。"""
+        label = self._LANG_LABEL.get(lang, lang)
+        prompt = (f"Rewrite this customer-support reply in {label}. "
+                  f"Keep all facts, figures, options and citations' meaning. "
+                  f"Output ONLY the rewritten text, no explanation:\n{text}")
+        out = self._run(prompt)
+        return out or text
+
+    def answer(self, question, context, lang="en"):
+        """RAG 生成回答:用本地化知识库上下文,按用户语言生成,只基于给定事实。失败返回 None。"""
+        label = self._LANG_LABEL.get(lang, lang)
+        prompt = (f"You are an AION customer-support assistant. Answer the customer in {label}. "
+                  f"Use ONLY the facts below; do not invent numbers or claims. Be concise and friendly.\n\n"
+                  f"Facts:\n{context}\n\nCustomer question: {question}\n\nAnswer:")
+        out = self._run(prompt)
+        return (out or "").strip() or None
+
+
+def get_llm(mode=None):
+    mode = mode or config.LLM_MODE
+    if mode == "deepseek":
+        return DeepSeekLLM()
+    if mode == "rule":
+        return RuleLLM()
+    return BaseLLM()

@@ -1,0 +1,109 @@
+{
+  "version": "0.1",
+  "updated": "2026-09-01",
+  "markets": ["THA", "AU"],
+  "storage_language": "en",
+  "retrieval_language_mode": "follow_user",
+  "sources": [
+    {
+      "market": "THA",
+      "doc_type": "owner",
+      "kind": "pdf",
+      "language": "th",
+      "version": "owner_260515",
+      "effective_date": "2026-05-15",
+      "source_file": "data/泰国智能客服训练材料-260515/售后手册/1760688900428-AY2-G_AIONUT-LTH__Owner-Manual（right.pdf",
+      "doc_name": "AION UT 车主手册(泰文)"
+    },
+    {
+      "market": "THA",
+      "doc_type": "rescue",
+      "kind": "pdf",
+      "language": "th",
+      "version": "rescue_260515",
+      "effective_date": "2026-05-15",
+      "source_file": "data/泰国智能客服训练材料-260515/售后手册/1760688911005-AY2-G_AIONUT-LTH__Emergency-Rescue-M.pdf",
+      "doc_name": "AION UT 紧急救援指南(泰文)"
+    },
+    {
+      "market": "THA",
+      "doc_type": "quickstart",
+      "kind": "pdf",
+      "language": "th",
+      "version": "quickstart_260515",
+      "effective_date": "2026-05-15",
+      "source_file": "data/泰国智能客服训练材料-260515/售后手册/1760688932170-AY2-G_AIONUT-LTH__Quick-Start-Guide（.pdf",
+      "doc_name": "AION UT 快速指南(泰文)"
+    },
+    {
+      "market": "THA",
+      "doc_type": "spec",
+      "kind": "xlsx",
+      "language": "th",
+      "version": "spec_260515",
+      "effective_date": "2026-05-15",
+      "source_file": "data/泰国智能客服训练材料-260515/产品配置表/泰国UT配置表（泰文）.xlsx",
+      "doc_name": "泰国 UT 配置表(泰文)"
+    },
+    {
+      "market": "THA",
+      "doc_type": "dealer",
+      "kind": "xlsx",
+      "language": "en",
+      "version": "dealer_260515",
+      "effective_date": "2026-05-15",
+      "source_file": "data/泰国智能客服训练材料-260515/经销商信息/THA dealer.xlsx",
+      "doc_name": "泰国经销商(THA dealer)"
+    },
+    {
+      "market": "AU",
+      "doc_type": "owner",
+      "kind": "pdf",
+      "language": "en",
+      "version": "owner_0811",
+      "effective_date": "2026-08-11",
+      "source_file": "data/澳洲智能客服训练材料-260811/用户手册/AIONUT_Owners_Manual.pdf",
+      "doc_name": "AION UT Owners Manual (AU)"
+    },
+    {
+      "market": "AU",
+      "doc_type": "rescue",
+      "kind": "pdf",
+      "language": "en",
+      "version": "rescue_0811",
+      "effective_date": "2026-08-11",
+      "source_file": "data/澳洲智能客服训练材料-260811/用户手册/AIONUT_Emergency_Rescue_Guide_EN_E.pdf",
+      "doc_name": "AION UT Emergency Rescue Guide (AU)"
+    },
+    {
+      "market": "AU",
+      "doc_type": "quickstart",
+      "kind": "pdf",
+      "language": "en",
+      "version": "quickstart_0811",
+      "effective_date": "2026-08-11",
+      "source_file": "data/澳洲智能客服训练材料-260811/用户手册/AIONUT_Quick_start_guide.pdf",
+      "doc_name": "AION UT Quick Start Guide (AU)"
+    },
+    {
+      "market": "AU",
+      "doc_type": "spec",
+      "kind": "xlsx",
+      "language": "en",
+      "version": "spec_0811",
+      "effective_date": "2026-08-11",
+      "source_file": "data/澳洲智能客服训练材料-260811/产品配置表/aionut_spec_0811.xlsx",
+      "doc_name": "AION UT spec (AU) 0811"
+    },
+    {
+      "market": "AU",
+      "doc_type": "dealer",
+      "kind": "xlsx",
+      "language": "en",
+      "version": "dealer_0811",
+      "effective_date": "2026-08-11",
+      "source_file": "data/澳洲智能客服训练材料-260811/经销商信息/AUdealer.xlsx",
+      "doc_name": "澳洲经销商(AU dealer)"
+    }
+  ]
+}

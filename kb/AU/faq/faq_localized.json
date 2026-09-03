@@ -1,0 +1,131 @@
+{
+  "market": "AU",
+  "langs": [
+    "zh",
+    "en",
+    "th",
+    "es"
+  ],
+  "items": {
+    "faq-au-01": {
+      "en": "The AION UT range under comprehensive working conditions is 430 (WLTP), based on the official spec. Real-world range depends on driving conditions; confirm with the local dealer.",
+      "zh": "AION UT 综合工况续航为 430 公里（WLTP），以官方规格为准。实际续航取决于驾驶条件；请与当地经销商确认。",
+      "th": "ระยะทางขับขี่ของ AION UT ภายใต้สภาพการใช้งานโดยรวมคือ 430 (WLTP) อ้างอิงจากสเปกอย่างเป็นทางการ ระยะทางจริงขึ้นอยู่กับสภาพการขับขี่ โปรดยืนยันกับตัวแทนจำหน่ายในพื้นที่",
+      "es": "La autonomía del AION UT en condiciones de trabajo integrales es de 430 (WLTP), según la especificación oficial. La autonomía real depende de las condiciones de conducción; confírmelo con el concesionario local."
+    },
+    "faq-au-02": {
+      "en": "The AION UT is equipped with a 60 kWh battery.",
+      "zh": "AION UT 配备 60 kWh 电池。",
+      "th": "AION UT มาพร้อมแบตเตอรี่ความจุ 60 kWh",
+      "es": "El AION UT está equipado con una batería de 60 kWh."
+    },
+    "faq-au-03": {
+      "en": "Max power is 150 kW and max torque is 210 Nm.",
+      "zh": "最大功率为 150 kW，最大扭矩为 210 Nm。",
+      "th": "กำลังสูงสุดคือ 150 kW และแรงบิดสูงสุดคือ 210 Nm",
+      "es": "La potencia máxima es de 150 kW y el par máximo es de 210 Nm."
+    },
+    "faq-au-04": {
+      "en": "Max AC charging is 11 kw. Max DC fast charging is 87kw, and DC fast charging from 30% to 80% is about 24 min.",
+      "zh": "最大交流充电功率为 11 kW。最大直流快充功率为 87 kW，直流快充从 30% 充至 80% 约需 24 分钟。",
+      "th": "การชาร์จ AC สูงสุดคือ 11 kW การชาร์จเร็ว DC สูงสุดคือ 87 kW และการชาร์จเร็ว DC จาก 30% ถึง 80% ใช้เวลาประมาณ 24 นาที",
+      "es": "La carga máxima en CA es de 11 kW. La carga rápida máxima en CC es de 87 kW, y la carga rápida en CC del 30% al 80% tarda unos 24 minutos."
+    },
+    "faq-au-05": {
+      "en": "The AION UT seats 5 passengers.",
+      "zh": "AION UT 可容纳 5 名乘客。",
+      "th": "AION UT รองรับผู้โดยสาร 5 คน",
+      "es": "El AION UT tiene capacidad para 5 pasajeros."
+    },
+    "faq-au-06": {
+      "en": "The trunk volume is 321L/689L (standard volume block method).",
+      "zh": "后备厢容积为 321L/689L（标准容积块测量法）。",
+      "th": "ความจุท้ายรถคือ 321L/689L (วิธีวัดปริมาตรแบบมาตรฐาน)",
+      "es": "El volumen del maletero es de 321 L/689 L (método estándar de bloques de volumen)."
+    },
+    "faq-au-07": {
+      "en": "Length x Width x Height is 4270*1850*1575 (mm).",
+      "zh": "长 x 宽 x 高为 4270*1850*1575（mm）。",
+      "th": "ขนาด ยาว x กว้าง x สูง คือ 4270*1850*1575 (mm)",
+      "es": "El largo x ancho x alto es 4270*1850*1575 (mm)."
+    },
+    "faq-au-08": {
+      "en": "Refer to the Quick Start Guide / Owner's Manual for charging steps, including opening the charging port and plugging in AC or DC. The AION UT supports AC and DC charging.",
+      "zh": "充电步骤请参阅快速入门指南/车主手册，包括打开充电口以及插入交流或直流充电枪。AION UT 支持交流充电和直流充电。",
+      "th": "โปรดดูคู่มือเริ่มต้นใช้งานด่วน (Quick Start Guide) / คู่มือเจ้าของรถสำหรับขั้นตอนการชาร์จ รวมถึงการเปิดฝาช่องชาร์จและการเสียบสายชาร์จ AC หรือ DC AION UT รองรับการชาร์จทั้งแบบ AC และ DC",
+      "es": "Consulte la Guía de inicio rápido / el Manual del propietario para conocer los pasos de carga, incluida la apertura de la toma de carga y la conexión de CA o CC. El AION UT admite carga en CA y CC."
+    },
+    "faq-au-09": {
+      "en": "Refer to the Quick Start Guide for starting the vehicle, including using the smart key and the power button.",
+      "zh": "启动车辆的步骤请参阅快速入门指南，包括使用智能钥匙和电源按钮。",
+      "th": "โปรดดูคู่มือเริ่มต้นใช้งานด่วนสำหรับขั้นตอนการสตาร์ทรถ รวมถึงการใช้กุญแจอัจฉริยะและปุ่มสตาร์ทเครื่อง",
+      "es": "Consulte la Guía de inicio rápido para arrancar el vehículo, incluido el uso de la llave inteligente y el botón de encendido."
+    },
+    "faq-au-10": {
+      "en": "I can help locate your nearest dealer from our dealer network and arrange a test drive. Please share your city or postcode, and feel free to leave a contact for a dealer to follow up.",
+      "zh": "我可以帮您从我们的经销商网络中查找最近的经销商并安排试驾。请告知您的城市或邮政编码，也欢迎留下联系方式，方便经销商跟进。",
+      "th": "ฉันสามารถช่วยค้นหาตัวแทนจำหน่ายที่ใกล้ที่สุดจากเครือข่ายตัวแทนจำหน่ายของเราและนัดหมายทดลองขับได้ โปรดแจ้งเมืองหรือรหัสไปรษณีย์ของคุณ และสามารถฝากข้อมูลติดต่อไว้เพื่อให้ตัวแทนจำหน่ายติดต่อกลับได้",
+      "es": "Puedo ayudarle a localizar el concesionario más cercano de nuestra red de concesionarios y concertar una prueba de conducción. Comparta su ciudad o código postal y no dude en dejar un contacto para que un concesionario se ponga en contacto con usted."
+    },
+    "faq-au-11": {
+      "en": "Warranty terms are defined by the official GAC / AION policy. Please refer to the Owner's Manual or contact an authorised dealer for exact coverage and terms.",
+      "zh": "保修条款以广汽/AION 官方政策为准。具体保修范围与条款请参阅车主手册或联系授权经销商。",
+      "th": "เงื่อนไขการรับประกันกำหนดโดยนโยบายอย่างเป็นทางการของ GAC / AION โปรดดูคู่มือเจ้าของรถหรือติดต่อตัวแทนจำหน่ายที่ได้รับอนุญาตเพื่อดูรายละเอียดความคุ้มครองและเงื่อนไขที่แน่ชัด",
+      "es": "Los términos de la garantía los define la política oficial de GAC / AION. Consulte el Manual del propietario o póngase en contacto con un concesionario autorizado para conocer la cobertura y los términos exactos."
+    },
+    "faq-au-12": {
+      "en": "Service intervals are specified in the Owner's Manual. We recommend following the manual and booking service with an authorised dealer.",
+      "zh": "保养间隔在车主手册中有明确规定。我们建议遵循手册要求，并在授权经销商处预约保养服务。",
+      "th": "ช่วงเวลาเข้ารับบริการระบุไว้ในคู่มือเจ้าของรถ เราขอแนะนำให้ปฏิบัติตามคู่มือและนัดหมายเข้ารับบริการกับตัวแทนจำหน่ายที่ได้รับอนุญาต",
+      "es": "Los intervalos de mantenimiento se especifican en el Manual del propietario. Recomendamos seguir el manual y reservar el servicio con un concesionario autorizado."
+    },
+    "faq-au-13": {
+      "en": "The AION UT is offered in the Premium / Luxury variants. Please confirm availability with the local dealer.",
+      "zh": "AION UT 提供 Premium / Luxury 版本。请与当地经销商确认可购版本。",
+      "th": "AION UT มีให้เลือกในรุ่น Premium / Luxury โปรดยืนยันความพร้อมจำหน่ายกับตัวแทนจำหน่ายในพื้นที่",
+      "es": "El AION UT se ofrece en las variantes Premium / Luxury. Confirme la disponibilidad con el concesionario local."
+    },
+    "faq-au-14": {
+      "en": "Pricing is set by the local market and dealer. I can connect you with a dealer who can provide a personalised quote, or you can download the spec / brochure. Leave a contact for a dealer to follow up.",
+      "zh": "价格由当地市场和经销商制定。我可以为您对接经销商以获取个性化报价，您也可以下载规格/宣传手册。请留下联系方式，方便经销商跟进。",
+      "th": "ราคากำหนดโดยตลาดท้องถิ่นและตัวแทนจำหน่าย ฉันสามารถเชื่อมต่อคุณกับตัวแทนจำหน่ายเพื่อเสนอราคาเฉพาะบุคคล หรือคุณสามารถดาวน์โหลดสเปก/โบรชัวร์ได้ ฝากข้อมูลติดต่อไว้เพื่อให้ตัวแทนจำหน่ายติดต่อกลับ",
+      "es": "El precio lo fijan el mercado local y el concesionario. Puedo ponerle en contacto con un concesionario que le ofrezca un presupuesto personalizado, o puede descargar la ficha técnica / el folleto. Deje un contacto para que un concesionario se ponga en contacto con usted."
+    },
+    "faq-au-15": {
+      "en": "Colour availability varies by market and stock. Please check with an authorised dealer for the current colour options.",
+      "zh": "车身颜色因市场和库存而异。请向授权经销商查询当前可选的颜色。",
+      "th": "สีที่มีให้เลือกขึ้นอยู่กับตลาดและสต็อกสินค้า โปรดตรวจสอบตัวเลือกสีปัจจุบันกับตัวแทนจำหน่ายที่ได้รับอนุญาต",
+      "es": "La disponibilidad de colores varía según el mercado y el stock. Consulte con un concesionario autorizado las opciones de color actuales."
+    },
+    "faq-au-16": {
+      "en": "First make sure you and your passengers are safe and the vehicle is in a safe position. If you are unable to continue, immediately contact the official AION roadside assistance hotline for your region, which is listed in the Emergency Response Guide. I can also provide the nearest dealer / service centre.",
+      "zh": "首先请确保您和乘客安全，并将车辆停放在安全位置。如无法继续行驶，请立即拨打您所在地区的 AION 官方道路救援热线（列于应急响应指南中）。我也可以为您提供最近的经销商/服务中心。",
+      "th": "ขั้นแรก ตรวจสอบให้แน่ใจว่าคุณและผู้โดยสารปลอดภัยและรถอยู่ในตำแหน่งที่ปลอดภัย หากไม่สามารถเดินทางต่อไปได้ ให้ติดต่อสายด่วนช่วยเหลือฉุกเฉินบนถนนของ AION อย่างเป็นทางการในภูมิภาคของคุณทันที ซึ่งระบุไว้ในคู่มือตอบสนองฉุกเฉิน (Emergency Response Guide) ฉันยังสามารถแจ้งตัวแทนจำหน่าย/ศูนย์บริการที่ใกล้ที่สุดให้คุณได้",
+      "es": "Primero asegúrese de que usted y sus pasajeros están a salvo y de que el vehículo se encuentra en una posición segura. Si no puede continuar, póngase en contacto de inmediato con la línea de asistencia en carretera oficial de AION de su región, que figura en la Guía de respuesta a emergencias. También puedo facilitarle el concesionario / centro de servicio más cercano."
+    },
+    "faq-au-17": {
+      "en": "You can obtain the Owner's Manual, Emergency Response Guide and Quick Start Guide from the AION resources / your dealer. I can summarise specific guidance from the manual for you.",
+      "zh": "您可以从 AION 资源渠道/经销商处获取车主手册、应急响应指南和快速入门指南。我也可以为您概括手册中的具体指导内容。",
+      "th": "คุณสามารถรับคู่มือเจ้าของรถ คู่มือตอบสนองฉุกเฉิน และคู่มือเริ่มต้นใช้งานด่วนได้จากแหล่งข้อมูลของ AION / ตัวแทนจำหน่ายของคุณ ฉันสามารถสรุปคำแนะนำเฉพาะจากคู่มือให้คุณได้",
+      "es": "Puede obtener el Manual del propietario, la Guía de respuesta a emergencias y la Guía de inicio rápido de los recursos de AION / de su concesionario. Puedo resumirle orientaciones específicas del manual."
+    },
+    "faq-au-18": {
+      "en": "Towing procedures and restrictions are described in the Owner's Manual. Please follow the manual and contact the rescue service if needed.",
+      "zh": "牵引操作流程与限制在车主手册中有详细说明。请遵循手册操作，如有需要请联系救援服务。",
+      "th": "ขั้นตอนและข้อจำกัดในการลากรถระบุไว้ในคู่มือเจ้าของรถ โปรดปฏิบัติตามคู่มือและติดต่อบริการช่วยเหลือฉุกเฉินหากจำเป็น",
+      "es": "Los procedimientos y las restricciones de remolque se describen en el Manual del propietario. Siga el manual y póngase en contacto con el servicio de rescate si es necesario."
+    },
+    "faq-au-19": {
+      "en": "The correct tyre pressure is specified on the tyre placard and in the Owner's Manual. Please check your vehicle's label for the exact value.",
+      "zh": "正确的轮胎气压标示在轮胎标签和车主手册中。请查看您车辆上的标签以获取准确数值。",
+      "th": "แรงดันลมยางที่ถูกต้องระบุไว้บนป้ายแรงดันลมยางและในคู่มือเจ้าของรถ โปรดตรวจสอบป้ายบนรถของคุณเพื่อดูค่าที่แน่ชัด",
+      "es": "La presión correcta de los neumáticos se especifica en la etiqueta de los neumáticos y en el Manual del propietario. Compruebe la etiqueta de su vehículo para conocer el valor exacto."
+    },
+    "faq-au-20": {
+      "en": "Registration and insurance requirements vary by state. Please contact the relevant local transport authority and your insurer; your dealer can also guide you.",
+      "zh": "注册和保险要求因州而异。请联系当地相关交通管理部门和您的保险公司；您的经销商也可以为您提供指导。",
+      "th": "ข้อกำหนดในการจดทะเบียนและประกันภัยแตกต่างกันไปในแต่ละรัฐ โปรดติดต่อหน่วยงานขนส่งท้องถิ่นที่เกี่ยวข้องและบริษัทประกันของคุณ ตัวแทนจำหน่ายของคุณก็สามารถให้คำแนะนำได้เช่นกัน",
+      "es": "Los requisitos de matriculación y seguro varían según el estado. Póngase en contacto con la autoridad de transporte local correspondiente y con su aseguradora; su concesionario también puede orientarle."
+    }
+  }
+}

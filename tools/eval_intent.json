@@ -1,0 +1,40 @@
+{
+  "note": "意图识别黄金评测集(Phase 1)。market=AU,语言=en(含少量 th/zh 边界)。intent 为 ground truth。",
+  "market": "AU",
+  "cases": [
+    {"id": "p1", "intent": "product-inquiry", "message": "What is the driving range of the AION UT?"},
+    {"id": "p2", "intent": "product-inquiry", "message": "How much does the AION UT cost?"},
+    {"id": "p3", "intent": "product-inquiry", "message": "What specs are on the Luxury trim?"},
+    {"id": "p4", "intent": "product-inquiry", "message": "What is the battery capacity?"},
+    {"id": "p5", "intent": "product-inquiry", "message": "What colours are available?"},
+
+    {"id": "d1", "intent": "dealer-lookup", "message": "Where is my nearest AION dealer?"},
+    {"id": "d2", "intent": "dealer-lookup", "message": "I'd like to book a test drive"},
+    {"id": "d3", "intent": "dealer-lookup", "message": "Is there a showroom in Sydney?"},
+    {"id": "d4", "intent": "dealer-lookup", "message": "What are the dealer opening hours?"},
+
+    {"id": "u1", "intent": "usage-guide", "message": "How do I charge the car?"},
+    {"id": "u2", "intent": "usage-guide", "message": "How do I start the vehicle?"},
+    {"id": "u3", "intent": "usage-guide", "message": "Where is the charging port?"},
+    {"id": "u4", "intent": "usage-guide", "message": "How do I connect the AION app?"},
+
+    {"id": "e1", "intent": "emergency", "message": "My car won't start!"},
+    {"id": "e2", "intent": "emergency", "message": "I've broken down on the highway"},
+    {"id": "e3", "intent": "emergency", "message": "Emergency rescue, please help"},
+    {"id": "e4", "intent": "emergency", "message": "My battery is dead and I'm stuck"},
+
+    {"id": "s1", "intent": "after-sales", "message": "What is the warranty coverage?"},
+    {"id": "s2", "intent": "after-sales", "message": "When is the first service due?"},
+    {"id": "s3", "intent": "after-sales", "message": "Where can I get a replacement part?"},
+    {"id": "s4", "intent": "after-sales", "message": "My brakes need servicing"},
+
+    {"id": "o1", "intent": "other", "message": "hi there"},
+    {"id": "o2", "intent": "other", "message": "thank you so much"},
+    {"id": "o3", "intent": "other", "message": "what's the weather like today"},
+    {"id": "o4", "intent": "other", "message": "you are a great assistant"},
+
+    {"id": "b1", "intent": "product-inquiry", "message": "I'm looking for a car"},
+    {"id": "b2", "intent": "dealer-lookup", "message": "Can you help me buy one?"},
+    {"id": "b3", "intent": "usage-guide", "message": "How does it work?"}
+  ]
+}

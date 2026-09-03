@@ -1,0 +1,256 @@
+{"model": "AION UT", "variant": "500 Premium", "category": "ข้อมูลพื้นฐาน", "field": "ความยาว X ความกว้าง X ความสูง (มิลลิเมตร)", "field_norm": "ความยาว x ความกว้าง x ความสูง มิลลิเมตร", "value": "4270*1850*1575", "unit": "มิลลิเมตร"}
+{"model": "AION UT", "variant": "420 Standard", "category": "ข้อมูลพื้นฐาน", "field": "ความยาว X ความกว้าง X ความสูง (มิลลิเมตร)", "field_norm": "ความยาว x ความกว้าง x ความสูง มิลลิเมตร", "value": "4270*1850*1575", "unit": "มิลลิเมตร"}
+{"model": "AION UT", "variant": "500 Premium", "category": "ข้อมูลพื้นฐาน", "field": "ความกว้างฐานล้อหน้า (มิลลิเมตร)", "field_norm": "ความกว้างฐานล้อหน้า มิลลิเมตร", "value": "1600", "unit": "มิลลิเมตร"}
+{"model": "AION UT", "variant": "420 Standard", "category": "ข้อมูลพื้นฐาน", "field": "ความกว้างฐานล้อหน้า (มิลลิเมตร)", "field_norm": "ความกว้างฐานล้อหน้า มิลลิเมตร", "value": "1600", "unit": "มิลลิเมตร"}
+{"model": "AION UT", "variant": "500 Premium", "category": "ข้อมูลพื้นฐาน", "field": "ความกว้างฐานล้อหลัง (มิลลิเมตร)", "field_norm": "ความกว้างฐานล้อหลัง มิลลิเมตร", "value": "1600", "unit": "มิลลิเมตร"}
+{"model": "AION UT", "variant": "420 Standard", "category": "ข้อมูลพื้นฐาน", "field": "ความกว้างฐานล้อหลัง (มิลลิเมตร)", "field_norm": "ความกว้างฐานล้อหลัง มิลลิเมตร", "value": "1600", "unit": "มิลลิเมตร"}
+{"model": "AION UT", "variant": "500 Premium", "category": "ข้อมูลพื้นฐาน", "field": "ระยะฐานล้อ (มิลลิเมตร)", "field_norm": "ระยะฐานล้อ มิลลิเมตร", "value": "2750", "unit": "มิลลิเมตร"}
+{"model": "AION UT", "variant": "420 Standard", "category": "ข้อมูลพื้นฐาน", "field": "ระยะฐานล้อ (มิลลิเมตร)", "field_norm": "ระยะฐานล้อ มิลลิเมตร", "value": "2750", "unit": "มิลลิเมตร"}
+{"model": "AION UT", "variant": "500 Premium", "category": "ข้อมูลพื้นฐาน", "field": "จำนวนที่นั่ง", "field_norm": "จำนวนที่นั่ง", "value": "5", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ข้อมูลพื้นฐาน", "field": "จำนวนที่นั่ง", "field_norm": "จำนวนที่นั่ง", "value": "5", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ข้อมูลพื้นฐาน", "field": "กำลังมอเตอร์สูงสุด (กิโลวัตต์)", "field_norm": "กำลังมอเตอร์สูงสุด กิโลวัตต์", "value": "150", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ข้อมูลพื้นฐาน", "field": "กำลังมอเตอร์สูงสุด (กิโลวัตต์)", "field_norm": "กำลังมอเตอร์สูงสุด กิโลวัตต์", "value": "100", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ข้อมูลพื้นฐาน", "field": "แรงบิดมอเตอร์สูงสุด (นิวตันเมตร)", "field_norm": "แรงบิดมอเตอร์สูงสุด นิวตันเมตร", "value": "210", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ข้อมูลพื้นฐาน", "field": "แรงบิดมอเตอร์สูงสุด (นิวตันเมตร)", "field_norm": "แรงบิดมอเตอร์สูงสุด นิวตันเมตร", "value": "145", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ข้อมูลพื้นฐาน", "field": "อัตราเร่ง 0-100 กม./ชม. (วินาที)", "field_norm": "อัตราเร่ง 0 100 กม ชม วินาที", "value": "7.3", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ข้อมูลพื้นฐาน", "field": "อัตราเร่ง 0-100 กม./ชม. (วินาที)", "field_norm": "อัตราเร่ง 0 100 กม ชม วินาที", "value": "11.6", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ข้อมูลพื้นฐาน", "field": "ระบบขับเคลื่อน", "field_norm": "ระบบขับเคลื่อน", "value": "FWD", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ข้อมูลพื้นฐาน", "field": "ระบบขับเคลื่อน", "field_norm": "ระบบขับเคลื่อน", "value": "FWD", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ข้อมูลพื้นฐาน", "field": "ระยะต่ำสุดจากพื้น (มิลลิเมตร) (ไม่บรรทุก/บรรทุกเต็มพิกัด)", "field_norm": "ระยะต่ำสุดจากพื้น มิลลิเมตร ไม่บรรทุก บรรทุกเต็มพิกัด", "value": "147mm(Unladen)/130mm(Laden)", "unit": "มิลลิเมตร"}
+{"model": "AION UT", "variant": "420 Standard", "category": "ข้อมูลพื้นฐาน", "field": "ระยะต่ำสุดจากพื้น (มิลลิเมตร) (ไม่บรรทุก/บรรทุกเต็มพิกัด)", "field_norm": "ระยะต่ำสุดจากพื้น มิลลิเมตร ไม่บรรทุก บรรทุกเต็มพิกัด", "value": "147mm(Unladen)/130mm(Laden)", "unit": "มิลลิเมตร"}
+{"model": "AION UT", "variant": "500 Premium", "category": "ข้อมูลพื้นฐาน", "field": "ความจุห้องเก็บสัมภาระท้าย (ลิตร) (วิธีวัดแบบแทนที่น้ำ)", "field_norm": "ความจุห้องเก็บสัมภาระท้าย ลิตร วิธีวัดแบบแทนที่น้ำ", "value": "440L", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ข้อมูลพื้นฐาน", "field": "ความจุห้องเก็บสัมภาระท้าย (ลิตร) (วิธีวัดแบบแทนที่น้ำ)", "field_norm": "ความจุห้องเก็บสัมภาระท้าย ลิตร วิธีวัดแบบแทนที่น้ำ", "value": "440L", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ข้อมูลพื้นฐาน", "field": "น้ำหนักรถเปล่า (กิโลกรัม)", "field_norm": "น้ำหนักรถเปล่า กิโลกรัม", "value": "1700", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ข้อมูลพื้นฐาน", "field": "น้ำหนักรถเปล่า (กิโลกรัม)", "field_norm": "น้ำหนักรถเปล่า กิโลกรัม", "value": "1580", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ข้อมูลพื้นฐาน", "field": "น้ำหนักรวมสูงสุดของรถเมื่อบรรทุกเต็ม (กิโลกรัม)", "field_norm": "น้ำหนักรวมสูงสุดของรถเมื่อบรรทุกเต็ม กิโลกรัม", "value": "2110", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ข้อมูลพื้นฐาน", "field": "น้ำหนักรวมสูงสุดของรถเมื่อบรรทุกเต็ม (กิโลกรัม)", "field_norm": "น้ำหนักรวมสูงสุดของรถเมื่อบรรทุกเต็ม กิโลกรัม", "value": "1990", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "แม็กกาซีนแบตเตอรี่ 2.0", "field_norm": "แม็กกาซีนแบตเตอรี่ 2 0", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "แม็กกาซีนแบตเตอรี่ 2.0", "field_norm": "แม็กกาซีนแบตเตอรี่ 2 0", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "ประเภทแบตเตอรี่", "field_norm": "ประเภทแบตเตอรี่", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "ประเภทแบตเตอรี่", "field_norm": "ประเภทแบตเตอรี่", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "ความจุแบตเตอรี่ (กิโลวัตต์-ชั่วโมง)", "field_norm": "ความจุแบตเตอรี่ กิโลวัตต์ ชั่วโมง", "value": "60", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "ความจุแบตเตอรี่ (กิโลวัตต์-ชั่วโมง)", "field_norm": "ความจุแบตเตอรี่ กิโลวัตต์ ชั่วโมง", "value": "50.27", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "ระยะทางที่สามารถขับขี่ได้ NEDC (กิโลเมตร)", "field_norm": "ระยะทางที่สามารถขับขี่ได้ nedc กิโลเมตร", "value": "500\n(NEDC)", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "ระยะทางที่สามารถขับขี่ได้ NEDC (กิโลเมตร)", "field_norm": "ระยะทางที่สามารถขับขี่ได้ nedc กิโลเมตร", "value": "420\n(NEDC)", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "อัตราสิ้นเปลืองพลังงานไฟฟ้า NEDC (กิโลวัตต์-ชั่วโมง/100กิโลเมตร)", "field_norm": "อัตราสิ้นเปลืองพลังงานไฟฟ้า nedc กิโลวัตต์ ชั่วโมง 100กิโลเมตร", "value": "14.0\n（NEDC）", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "อัตราสิ้นเปลืองพลังงานไฟฟ้า NEDC (กิโลวัตต์-ชั่วโมง/100กิโลเมตร)", "field_norm": "อัตราสิ้นเปลืองพลังงานไฟฟ้า nedc กิโลวัตต์ ชั่วโมง 100กิโลเมตร", "value": "13.3\n（NEDC）", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "มาตรฐานหัวชาร์จ EU", "field_norm": "มาตรฐานหัวชาร์จ eu", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "มาตรฐานหัวชาร์จ EU", "field_norm": "มาตรฐานหัวชาร์จ eu", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "กำลังชาร์จสูงสุดแบบ AC (กิโลวัตต์)", "field_norm": "กำลังชาร์จสูงสุดแบบ ac กิโลวัตต์", "value": "6.6 kW", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "กำลังชาร์จสูงสุดแบบ AC (กิโลวัตต์)", "field_norm": "กำลังชาร์จสูงสุดแบบ ac กิโลวัตต์", "value": "6.6 kW", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "ระบบจ่ายไฟออกสู่อุปกรณ์ภายนอก V2L", "field_norm": "ระบบจ่ายไฟออกสู่อุปกรณ์ภายนอก v2l", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "ระบบจ่ายไฟออกสู่อุปกรณ์ภายนอก V2L", "field_norm": "ระบบจ่ายไฟออกสู่อุปกรณ์ภายนอก v2l", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "กำลังชาร์จไฟฟ้า DC สูงสุด (กิโลวัตต์)", "field_norm": "กำลังชาร์จไฟฟ้า dc สูงสุด กิโลวัตต์", "value": "87kW", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "กำลังชาร์จไฟฟ้า DC สูงสุด (กิโลวัตต์)", "field_norm": "กำลังชาร์จไฟฟ้า dc สูงสุด กิโลวัตต์", "value": "70kW", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "เวลาในการชาร์จเร็วแบบ DC (30-80%)", "field_norm": "เวลาในการชาร์จเร็วแบบ dc 30 80%", "value": "24min", "unit": "30-80%"}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "เวลาในการชาร์จเร็วแบบ DC (30-80%)", "field_norm": "เวลาในการชาร์จเร็วแบบ dc 30 80%", "value": "24min", "unit": "30-80%"}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "ระบบชาร์จพลังงานกลับ (สามารถปรับระดับการชาร์จกลับได้)", "field_norm": "ระบบชาร์จพลังงานกลับ สามารถปรับระดับการชาร์จกลับได้", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบแบตเตอรี่และระยะทาง", "field": "ระบบชาร์จพลังงานกลับ (สามารถปรับระดับการชาร์จกลับได้)", "field_norm": "ระบบชาร์จพลังงานกลับ สามารถปรับระดับการชาร์จกลับได้", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ล้ออัลลอยขนาด 16 นิ้ว", "field_norm": "ล้ออัลลอยขนาด 16 นิ้ว", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ล้ออัลลอยขนาด 16 นิ้ว", "field_norm": "ล้ออัลลอยขนาด 16 นิ้ว", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ล้ออัลลอยขนาด 17 นิ้ว", "field_norm": "ล้ออัลลอยขนาด 17 นิ้ว", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ล้ออัลลอยขนาด 17 นิ้ว", "field_norm": "ล้ออัลลอยขนาด 17 นิ้ว", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ชุดซ่อมยางฉุกเฉิน", "field_norm": "ชุดซ่อมยางฉุกเฉิน", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ชุดซ่อมยางฉุกเฉิน", "field_norm": "ชุดซ่อมยางฉุกเฉิน", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "หูลากหน้า / หูลากหลัง", "field_norm": "หูลากหน้า หูลากหลัง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "หูลากหน้า / หูลากหลัง", "field_norm": "หูลากหน้า หูลากหลัง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ระบบกันสะเทือนด้านหน้าแบบแมคเฟอร์สันสตรัทอิสระ / ด้านหลังแบบทอร์ชันบีมกึ่งอิสระ", "field_norm": "ระบบกันสะเทือนด้านหน้าแบบแมคเฟอร์สันสตรัทอิสระ ด้านหลังแบบทอร์ชันบีมกึ่งอิสระ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ระบบกันสะเทือนด้านหน้าแบบแมคเฟอร์สันสตรัทอิสระ / ด้านหลังแบบทอร์ชันบีมกึ่งอิสระ", "field_norm": "ระบบกันสะเทือนด้านหน้าแบบแมคเฟอร์สันสตรัทอิสระ ด้านหลังแบบทอร์ชันบีมกึ่งอิสระ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "พวงมาลัยปรับได้ 2 ทิศทางแบบแมนนวล", "field_norm": "พวงมาลัยปรับได้ 2 ทิศทางแบบแมนนวล", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "พวงมาลัยปรับได้ 2 ทิศทางแบบแมนนวล", "field_norm": "พวงมาลัยปรับได้ 2 ทิศทางแบบแมนนวล", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "พวงมาลัยพาวเวอร์ไฟฟ้า EPS", "field_norm": "พวงมาลัยพาวเวอร์ไฟฟ้า eps", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "พวงมาลัยพาวเวอร์ไฟฟ้า EPS", "field_norm": "พวงมาลัยพาวเวอร์ไฟฟ้า eps", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ระบบเบรกดิสก์หน้า / ดิสก์หลัง", "field_norm": "ระบบเบรกดิสก์หน้า ดิสก์หลัง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ระบบเบรกดิสก์หน้า / ดิสก์หลัง", "field_norm": "ระบบเบรกดิสก์หน้า ดิสก์หลัง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "เบรกมือไฟฟ้า EPB", "field_norm": "เบรกมือไฟฟ้า epb", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "เบรกมือไฟฟ้า EPB", "field_norm": "เบรกมือไฟฟ้า epb", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ระบบเบรกมือไฟฟ้า (EPB)+ระบบ Autohold", "field_norm": "ระบบเบรกมือไฟฟ้า epb +ระบบ autohold", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ระบบเบรกมือไฟฟ้า (EPB)+ระบบ Autohold", "field_norm": "ระบบเบรกมือไฟฟ้า epb +ระบบ autohold", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ระบบควบคุมการลื่นไถล TCS", "field_norm": "ระบบควบคุมการลื่นไถล tcs", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ระบบควบคุมการลื่นไถล TCS", "field_norm": "ระบบควบคุมการลื่นไถล tcs", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ระบบควบคุมเสถียรภาพการทรงตัว VDC", "field_norm": "ระบบควบคุมเสถียรภาพการทรงตัว vdc", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ระบบควบคุมเสถียรภาพการทรงตัว VDC", "field_norm": "ระบบควบคุมเสถียรภาพการทรงตัว vdc", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ระบบช่วยออกตัวบนทางลาดชัน HHC", "field_norm": "ระบบช่วยออกตัวบนทางลาดชัน hhc", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ระบบช่วยออกตัวบนทางลาดชัน HHC", "field_norm": "ระบบช่วยออกตัวบนทางลาดชัน hhc", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ระบบเบรก ABS พร้อมระบบกระจายแรงเบรก EBD", "field_norm": "ระบบเบรก abs พร้อมระบบกระจายแรงเบรก ebd", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วงล่างและโครงสร้างตัวถัง", "field": "ระบบเบรก ABS พร้อมระบบกระจายแรงเบรก EBD", "field_norm": "ระบบเบรก abs พร้อมระบบกระจายแรงเบรก ebd", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายนอก", "field": "ฝาท้ายเปิด-ปิดแบบแมนนวล", "field_norm": "ฝาท้ายเปิด ปิดแบบแมนนวล", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายนอก", "field": "ฝาท้ายเปิด-ปิดแบบแมนนวล", "field_norm": "ฝาท้ายเปิด ปิดแบบแมนนวล", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายนอก", "field": "ฝาท้ายเปิด–ปิดด้วยไฟฟ้า", "field_norm": "ฝาท้ายเปิด–ปิดด้วยไฟฟ้า", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายนอก", "field": "ฝาท้ายเปิด–ปิดด้วยไฟฟ้า", "field_norm": "ฝาท้ายเปิด–ปิดด้วยไฟฟ้า", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายนอก", "field": "ปลดล็อคด้วยมือจับประตูแบบสัมผัส", "field_norm": "ปลดล็อคด้วยมือจับประตูแบบสัมผัส", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายนอก", "field": "ปลดล็อคด้วยมือจับประตูแบบสัมผัส", "field_norm": "ปลดล็อคด้วยมือจับประตูแบบสัมผัส", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายนอก", "field": "กระจกไฟฟ้าแถวหน้าและแถวที่สอง แบบวันทัช ขึ้น–ลงอัตโนมัติ พร้อมระบบป้องกันการหนีบ", "field_norm": "กระจกไฟฟ้าแถวหน้าและแถวที่สอง แบบวันทัช ขึ้น–ลงอัตโนมัติ พร้อมระบบป้องกันการหนีบ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายนอก", "field": "กระจกไฟฟ้าแถวหน้าและแถวที่สอง แบบวันทัช ขึ้น–ลงอัตโนมัติ พร้อมระบบป้องกันการหนีบ", "field_norm": "กระจกไฟฟ้าแถวหน้าและแถวที่สอง แบบวันทัช ขึ้น–ลงอัตโนมัติ พร้อมระบบป้องกันการหนีบ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายนอก", "field": "ระบบควบคุมกระจกผ่านแอปพลิเคชันมือถือ", "field_norm": "ระบบควบคุมกระจกผ่านแอปพลิเคชันมือถือ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายนอก", "field": "ระบบควบคุมกระจกผ่านแอปพลิเคชันมือถือ", "field_norm": "ระบบควบคุมกระจกผ่านแอปพลิเคชันมือถือ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายนอก", "field": "ที่ปัดน้ำฝนด้านหน้าแบบไร้โครง พร้อมระบบอัตโนมัติ", "field_norm": "ที่ปัดน้ำฝนด้านหน้าแบบไร้โครง พร้อมระบบอัตโนมัติ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายนอก", "field": "ที่ปัดน้ำฝนด้านหน้าแบบไร้โครง พร้อมระบบอัตโนมัติ", "field_norm": "ที่ปัดน้ำฝนด้านหน้าแบบไร้โครง พร้อมระบบอัตโนมัติ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายนอก", "field": "ที่ปัดน้ำฝนด้านหลัง", "field_norm": "ที่ปัดน้ำฝนด้านหลัง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายนอก", "field": "ที่ปัดน้ำฝนด้านหลัง", "field_norm": "ที่ปัดน้ำฝนด้านหลัง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายนอก", "field": "หลังคาพาโนรามิกซันรูฟ พร้อมม่านบังแดดไฟฟ้า", "field_norm": "หลังคาพาโนรามิกซันรูฟ พร้อมม่านบังแดดไฟฟ้า", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายนอก", "field": "หลังคาพาโนรามิกซันรูฟ พร้อมม่านบังแดดไฟฟ้า", "field_norm": "หลังคาพาโนรามิกซันรูฟ พร้อมม่านบังแดดไฟฟ้า", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายนอก", "field": "ลังคามาตรฐาน (ไม่มีซันรูฟ) พร้อมซับในหลังคาหุ้มผ้า", "field_norm": "ลังคามาตรฐาน ไม่มีซันรูฟ พร้อมซับในหลังคาหุ้มผ้า", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายนอก", "field": "ลังคามาตรฐาน (ไม่มีซันรูฟ) พร้อมซับในหลังคาหุ้มผ้า", "field_norm": "ลังคามาตรฐาน ไม่มีซันรูฟ พร้อมซับในหลังคาหุ้มผ้า", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายนอก", "field": "กระจกมองข้างพับไฟฟ้า", "field_norm": "กระจกมองข้างพับไฟฟ้า", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายนอก", "field": "กระจกมองข้างพับไฟฟ้า", "field_norm": "กระจกมองข้างพับไฟฟ้า", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายนอก", "field": "กระจกมองข้างพับอัตโนมัติ", "field_norm": "กระจกมองข้างพับอัตโนมัติ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายนอก", "field": "กระจกมองข้างพับอัตโนมัติ", "field_norm": "กระจกมองข้างพับอัตโนมัติ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "พวงมาลัยหุ้มวัสดุ PU", "field_norm": "พวงมาลัยหุ้มวัสดุ pu", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "พวงมาลัยหุ้มวัสดุ PU", "field_norm": "พวงมาลัยหุ้มวัสดุ pu", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "พวงมาลัยหุ้มวัสดุ PVC", "field_norm": "พวงมาลัยหุ้มวัสดุ pvc", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "พวงมาลัยหุ้มวัสดุ PVC", "field_norm": "พวงมาลัยหุ้มวัสดุ pvc", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "เบาะผู้ขับขี่ปรับมือ 6 ทิศทาง", "field_norm": "เบาะผู้ขับขี่ปรับมือ 6 ทิศทาง", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "เบาะผู้ขับขี่ปรับมือ 6 ทิศทาง", "field_norm": "เบาะผู้ขับขี่ปรับมือ 6 ทิศทาง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "เบาะผู้ขับขี่ปรับไฟฟ้า 6 ทิศทาง", "field_norm": "เบาะผู้ขับขี่ปรับไฟฟ้า 6 ทิศทาง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "เบาะผู้ขับขี่ปรับไฟฟ้า 6 ทิศทาง", "field_norm": "เบาะผู้ขับขี่ปรับไฟฟ้า 6 ทิศทาง", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "เบาะผู้ขับขี่พร้อมระบบระบายอากาศ", "field_norm": "เบาะผู้ขับขี่พร้อมระบบระบายอากาศ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "เบาะผู้ขับขี่พร้อมระบบระบายอากาศ", "field_norm": "เบาะผู้ขับขี่พร้อมระบบระบายอากาศ", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "เบาะผู้โดยสารปรับมือ 4 ทิศทาง", "field_norm": "เบาะผู้โดยสารปรับมือ 4 ทิศทาง", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "เบาะผู้โดยสารปรับมือ 4 ทิศทาง", "field_norm": "เบาะผู้โดยสารปรับมือ 4 ทิศทาง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "เบาะผู้โดยสารปรับไฟฟ้า 4 ทิศทาง", "field_norm": "เบาะผู้โดยสารปรับไฟฟ้า 4 ทิศทาง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "เบาะผู้โดยสารปรับไฟฟ้า 4 ทิศทาง", "field_norm": "เบาะผู้โดยสารปรับไฟฟ้า 4 ทิศทาง", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "เบาะผู้โดยสารพร้อมระบบระบายอากาศ", "field_norm": "เบาะผู้โดยสารพร้อมระบบระบายอากาศ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "เบาะผู้โดยสารพร้อมระบบระบายอากาศ", "field_norm": "เบาะผู้โดยสารพร้อมระบบระบายอากาศ", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "พนักพิงศีรษะกลางเบาะหลัง", "field_norm": "พนักพิงศีรษะกลางเบาะหลัง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "พนักพิงศีรษะกลางเบาะหลัง", "field_norm": "พนักพิงศีรษะกลางเบาะหลัง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "ที่วางแขนกลางเบาะหลัง", "field_norm": "ที่วางแขนกลางเบาะหลัง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "ที่วางแขนกลางเบาะหลัง", "field_norm": "ที่วางแขนกลางเบาะหลัง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "ช่องเก็บของใต้ที่พักแขนกลาง", "field_norm": "ช่องเก็บของใต้ที่พักแขนกลาง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "ช่องเก็บของใต้ที่พักแขนกลาง", "field_norm": "ช่องเก็บของใต้ที่พักแขนกลาง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "เบาะหลังพับแยก 60:40", "field_norm": "เบาะหลังพับแยก 60:40", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "เบาะหลังพับแยก 60:40", "field_norm": "เบาะหลังพับแยก 60:40", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "เบาะหนัง PVC", "field_norm": "เบาะหนัง pvc", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "เบาะหนัง PVC", "field_norm": "เบาะหนัง pvc", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "กระจกมองหลังปรับลดแสงแบบแมนนวล", "field_norm": "กระจกมองหลังปรับลดแสงแบบแมนนวล", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "กระจกมองหลังปรับลดแสงแบบแมนนวล", "field_norm": "กระจกมองหลังปรับลดแสงแบบแมนนวล", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "กระจกมองหลังปรับลดแสงอัตโนมัติ", "field_norm": "กระจกมองหลังปรับลดแสงอัตโนมัติ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "กระจกมองหลังปรับลดแสงอัตโนมัติ", "field_norm": "กระจกมองหลังปรับลดแสงอัตโนมัติ", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "แผงบังแดดผู้ขับขี่พร้อมกระจกและไฟ", "field_norm": "แผงบังแดดผู้ขับขี่พร้อมกระจกและไฟ", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "แผงบังแดดผู้ขับขี่พร้อมกระจกและไฟ", "field_norm": "แผงบังแดดผู้ขับขี่พร้อมกระจกและไฟ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "แผงบังแดดผู้ขับขี่พร้อมกระจก", "field_norm": "แผงบังแดดผู้ขับขี่พร้อมกระจก", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "แผงบังแดดผู้ขับขี่พร้อมกระจก", "field_norm": "แผงบังแดดผู้ขับขี่พร้อมกระจก", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "แผงบังแดดผู้โดยสารพร้อมกระจกและไฟ", "field_norm": "แผงบังแดดผู้โดยสารพร้อมกระจกและไฟ", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "แผงบังแดดผู้โดยสารพร้อมกระจกและไฟ", "field_norm": "แผงบังแดดผู้โดยสารพร้อมกระจกและไฟ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "แผงบังแดดผู้โดยสารพร้อมกระจก", "field_norm": "แผงบังแดดผู้โดยสารพร้อมกระจก", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "แผงบังแดดผู้โดยสารพร้อมกระจก", "field_norm": "แผงบังแดดผู้โดยสารพร้อมกระจก", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "กระจกส่องดูเด็กด้านหน้า", "field_norm": "กระจกส่องดูเด็กด้านหน้า", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "กระจกส่องดูเด็กด้านหน้า", "field_norm": "กระจกส่องดูเด็กด้านหน้า", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "ระบบปรับอากาศแบบฮีตปั๊ม", "field_norm": "ระบบปรับอากาศแบบฮีตปั๊ม", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "ระบบปรับอากาศแบบฮีตปั๊ม", "field_norm": "ระบบปรับอากาศแบบฮีตปั๊ม", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "ช่องแอร์สำหรับผู้โดยสารตอนหลัง", "field_norm": "ช่องแอร์สำหรับผู้โดยสารตอนหลัง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "ช่องแอร์สำหรับผู้โดยสารตอนหลัง", "field_norm": "ช่องแอร์สำหรับผู้โดยสารตอนหลัง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ภายใน", "field": "ไส้กรองอากาศ PM2.5", "field_norm": "ไส้กรองอากาศ pm2 5", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ภายใน", "field": "ไส้กรองอากาศ PM2.5", "field_norm": "ไส้กรองอากาศ pm2 5", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความปลอดภัย", "field": "เข็มขัดนิรภัยคู่หน้าพร้อมระบบผ่อนแรง", "field_norm": "เข็มขัดนิรภัยคู่หน้าพร้อมระบบผ่อนแรง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความปลอดภัย", "field": "เข็มขัดนิรภัยคู่หน้าพร้อมระบบผ่อนแรง", "field_norm": "เข็มขัดนิรภัยคู่หน้าพร้อมระบบผ่อนแรง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความปลอดภัย", "field": "เข็มขัดนิรภัยแถวสองแบบ 3 จุด", "field_norm": "เข็มขัดนิรภัยแถวสองแบบ 3 จุด", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความปลอดภัย", "field": "เข็มขัดนิรภัยแถวสองแบบ 3 จุด", "field_norm": "เข็มขัดนิรภัยแถวสองแบบ 3 จุด", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความปลอดภัย", "field": "เข็มขัดนิรภัยกลางแถวสองแบบ 3 จุด", "field_norm": "เข็มขัดนิรภัยกลางแถวสองแบบ 3 จุด", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความปลอดภัย", "field": "เข็มขัดนิรภัยกลางแถวสองแบบ 3 จุด", "field_norm": "เข็มขัดนิรภัยกลางแถวสองแบบ 3 จุด", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความปลอดภัย", "field": "ระบบเตือนคาดเข็มขัดนิรภัยคู่หน้า (ไฟและเสียง)", "field_norm": "ระบบเตือนคาดเข็มขัดนิรภัยคู่หน้า ไฟและเสียง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความปลอดภัย", "field": "ระบบเตือนคาดเข็มขัดนิรภัยคู่หน้า (ไฟและเสียง)", "field_norm": "ระบบเตือนคาดเข็มขัดนิรภัยคู่หน้า ไฟและเสียง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความปลอดภัย", "field": "ระบบเตือนคาดเข็มขัดนิรภัยสำหรับผู้โดยสารแถวที่สอง (ไฟและเสียงเตือน)", "field_norm": "ระบบเตือนคาดเข็มขัดนิรภัยสำหรับผู้โดยสารแถวที่สอง ไฟและเสียงเตือน", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความปลอดภัย", "field": "ระบบเตือนคาดเข็มขัดนิรภัยสำหรับผู้โดยสารแถวที่สอง (ไฟและเสียงเตือน)", "field_norm": "ระบบเตือนคาดเข็มขัดนิรภัยสำหรับผู้โดยสารแถวที่สอง ไฟและเสียงเตือน", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความปลอดภัย", "field": "ถุงลมนิรภัยคู่หน้า", "field_norm": "ถุงลมนิรภัยคู่หน้า", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความปลอดภัย", "field": "ถุงลมนิรภัยคู่หน้า", "field_norm": "ถุงลมนิรภัยคู่หน้า", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความปลอดภัย", "field": "ถุงลมนิรภัยด้านข้างคู่หน้า", "field_norm": "ถุงลมนิรภัยด้านข้างคู่หน้า", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความปลอดภัย", "field": "ถุงลมนิรภัยด้านข้างคู่หน้า", "field_norm": "ถุงลมนิรภัยด้านข้างคู่หน้า", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความปลอดภัย", "field": "ม่านถุงลมนิรภัยด้านข้าง (ครอบคลุมตลอดแนวห้องโดยสาร)", "field_norm": "ม่านถุงลมนิรภัยด้านข้าง ครอบคลุมตลอดแนวห้องโดยสาร", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความปลอดภัย", "field": "ม่านถุงลมนิรภัยด้านข้าง (ครอบคลุมตลอดแนวห้องโดยสาร)", "field_norm": "ม่านถุงลมนิรภัยด้านข้าง ครอบคลุมตลอดแนวห้องโดยสาร", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความปลอดภัย", "field": "จุดยึดเบาะนั่งนิรภัยสำหรับเด็ก ISOFIX", "field_norm": "จุดยึดเบาะนั่งนิรภัยสำหรับเด็ก isofix", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความปลอดภัย", "field": "จุดยึดเบาะนั่งนิรภัยสำหรับเด็ก ISOFIX", "field_norm": "จุดยึดเบาะนั่งนิรภัยสำหรับเด็ก isofix", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความปลอดภัย", "field": "ระบบล็อกป้องกันเด็ก", "field_norm": "ระบบล็อกป้องกันเด็ก", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความปลอดภัย", "field": "ระบบล็อกป้องกันเด็ก", "field_norm": "ระบบล็อกป้องกันเด็ก", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความปลอดภัย", "field": "ระบบเบรกอัตโนมัติขณะถอยหลัง", "field_norm": "ระบบเบรกอัตโนมัติขณะถอยหลัง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความปลอดภัย", "field": "ระบบเบรกอัตโนมัติขณะถอยหลัง", "field_norm": "ระบบเบรกอัตโนมัติขณะถอยหลัง", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความปลอดภัย", "field": "ระบบป้องกันการโจรกรรม (Engine Immobilizer + ระบบกันขโมยตัวรถ)", "field_norm": "ระบบป้องกันการโจรกรรม engine immobilizer + ระบบกันขโมยตัวรถ", "value": "●", "unit": "Engine Immobilizer + ระบบกันขโมยตัวรถ"}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความปลอดภัย", "field": "ระบบป้องกันการโจรกรรม (Engine Immobilizer + ระบบกันขโมยตัวรถ)", "field_norm": "ระบบป้องกันการโจรกรรม engine immobilizer + ระบบกันขโมยตัวรถ", "value": "●", "unit": "Engine Immobilizer + ระบบกันขโมยตัวรถ"}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความปลอดภัย", "field": "ระบบตรวจสอบแรงดันลมยาง TPMS", "field_norm": "ระบบตรวจสอบแรงดันลมยาง tpms", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความปลอดภัย", "field": "ระบบตรวจสอบแรงดันลมยาง TPMS", "field_norm": "ระบบตรวจสอบแรงดันลมยาง tpms", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบควบคุมความเร็วอัตโนมัติแบบแปรผัน (ACC)", "field_norm": "ระบบควบคุมความเร็วอัตโนมัติแบบแปรผัน acc", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบควบคุมความเร็วอัตโนมัติแบบแปรผัน (ACC)", "field_norm": "ระบบควบคุมความเร็วอัตโนมัติแบบแปรผัน acc", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบช่วยขับขี่แบบผสาน (ICA)", "field_norm": "ระบบช่วยขับขี่แบบผสาน ica", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบช่วยขับขี่แบบผสาน (ICA)", "field_norm": "ระบบช่วยขับขี่แบบผสาน ica", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบไฟสูงอัตโนมัติ (IHBC)", "field_norm": "ระบบไฟสูงอัตโนมัติ ihbc", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบไฟสูงอัตโนมัติ (IHBC)", "field_norm": "ระบบไฟสูงอัตโนมัติ ihbc", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบเตือนการชนด้านหน้า (FCW)", "field_norm": "ระบบเตือนการชนด้านหน้า fcw", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบเตือนการชนด้านหน้า (FCW)", "field_norm": "ระบบเตือนการชนด้านหน้า fcw", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบเบรกฉุกเฉินอัตโนมัติ (AEB)", "field_norm": "ระบบเบรกฉุกเฉินอัตโนมัติ aeb", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบเบรกฉุกเฉินอัตโนมัติ (AEB)", "field_norm": "ระบบเบรกฉุกเฉินอัตโนมัติ aeb", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบเตือนออกนอกเลน (LDW)", "field_norm": "ระบบเตือนออกนอกเลน ldw", "value": "●", "unit": "LDW"}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบเตือนออกนอกเลน (LDW)", "field_norm": "ระบบเตือนออกนอกเลน ldw", "value": "●", "unit": "LDW"}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบช่วยควบคุมรถให้อยู่ในเลน (LKA)", "field_norm": "ระบบช่วยควบคุมรถให้อยู่ในเลน lka", "value": "●", "unit": "LKA"}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบช่วยควบคุมรถให้อยู่ในเลน (LKA)", "field_norm": "ระบบช่วยควบคุมรถให้อยู่ในเลน lka", "value": "●", "unit": "LKA"}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบช่วยควบคุมรถฉุกเฉิน (ELK)", "field_norm": "ระบบช่วยควบคุมรถฉุกเฉิน elk", "value": "●", "unit": "ELK"}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบช่วยควบคุมรถฉุกเฉิน (ELK)", "field_norm": "ระบบช่วยควบคุมรถฉุกเฉิน elk", "value": "●", "unit": "ELK"}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบตรวจจับจุดอับสายตา (BSD)", "field_norm": "ระบบตรวจจับจุดอับสายตา bsd", "value": "●", "unit": "BSD"}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบตรวจจับจุดอับสายตา (BSD)", "field_norm": "ระบบตรวจจับจุดอับสายตา bsd", "value": "●", "unit": "BSD"}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบเตือนเปิดประตูเมื่อมีรถผ่าน (DOW)", "field_norm": "ระบบเตือนเปิดประตูเมื่อมีรถผ่าน dow", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบเตือนเปิดประตูเมื่อมีรถผ่าน (DOW)", "field_norm": "ระบบเตือนเปิดประตูเมื่อมีรถผ่าน dow", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบเตือนการชนด้านหลัง (RCW)", "field_norm": "ระบบเตือนการชนด้านหลัง rcw", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบเตือนการชนด้านหลัง (RCW)", "field_norm": "ระบบเตือนการชนด้านหลัง rcw", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบเตือนรถตัดผ่านขณะถอย (RCTA)", "field_norm": "ระบบเตือนรถตัดผ่านขณะถอย rcta", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบเตือนรถตัดผ่านขณะถอย (RCTA)", "field_norm": "ระบบเตือนรถตัดผ่านขณะถอย rcta", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "เซ็นเซอร์ช่วยจอดด้านหลัง 4 ตัว", "field_norm": "เซ็นเซอร์ช่วยจอดด้านหลัง 4 ตัว", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "เซ็นเซอร์ช่วยจอดด้านหลัง 4 ตัว", "field_norm": "เซ็นเซอร์ช่วยจอดด้านหลัง 4 ตัว", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "เซ็นเซอร์ช่วยจอดด้านหน้า 4 ตัว", "field_norm": "เซ็นเซอร์ช่วยจอดด้านหน้า 4 ตัว", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "เซ็นเซอร์ช่วยจอดด้านหน้า 4 ตัว", "field_norm": "เซ็นเซอร์ช่วยจอดด้านหน้า 4 ตัว", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบกล้องมองภาพรอบทิศทาง 360°", "field_norm": "ระบบกล้องมองภาพรอบทิศทาง 360°", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบกล้องมองภาพรอบทิศทาง 360°", "field_norm": "ระบบกล้องมองภาพรอบทิศทาง 360°", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ปิดเครื่องและปลดล็อคด้วยสัมผัสเดียวหลังจากการชน", "field_norm": "ปิดเครื่องและปลดล็อคด้วยสัมผัสเดียวหลังจากการชน", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ปิดเครื่องและปลดล็อคด้วยสัมผัสเดียวหลังจากการชน", "field_norm": "ปิดเครื่องและปลดล็อคด้วยสัมผัสเดียวหลังจากการชน", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบขับขี่แบบคันเร่งเดียว One-Pedal Driving", "field_norm": "ระบบขับขี่แบบคันเร่งเดียว one pedal driving", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบช่วยขับขี่อัจฉริยะ", "field": "ระบบขับขี่แบบคันเร่งเดียว One-Pedal Driving", "field_norm": "ระบบขับขี่แบบคันเร่งเดียว one pedal driving", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความบันเทิง", "field": "ระบบเชื่อมต่อ Bluetooth", "field_norm": "ระบบเชื่อมต่อ bluetooth", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความบันเทิง", "field": "ระบบเชื่อมต่อ Bluetooth", "field_norm": "ระบบเชื่อมต่อ bluetooth", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความบันเทิง", "field": "ฮอตสปอต Wi-Fi ในรถ", "field_norm": "ฮอตสปอต wi fi ในรถ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความบันเทิง", "field": "ฮอตสปอต Wi-Fi ในรถ", "field_norm": "ฮอตสปอต wi fi ในรถ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความบันเทิง", "field": "ระบบเชื่อมต่อฮอตสปอตจากโทรศัพท์", "field_norm": "ระบบเชื่อมต่อฮอตสปอตจากโทรศัพท์", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความบันเทิง", "field": "ระบบเชื่อมต่อฮอตสปอตจากโทรศัพท์", "field_norm": "ระบบเชื่อมต่อฮอตสปอตจากโทรศัพท์", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความบันเทิง", "field": "Apple CarPlay", "field_norm": "apple carplay", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความบันเทิง", "field": "Apple CarPlay", "field_norm": "apple carplay", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความบันเทิง", "field": "Android Auto", "field_norm": "android auto", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความบันเทิง", "field": "Android Auto", "field_norm": "android auto", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความบันเทิง", "field": "ระบบควบคุมรถผ่านแอปสมาร์ทโฟน", "field_norm": "ระบบควบคุมรถผ่านแอปสมาร์ทโฟน", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความบันเทิง", "field": "ระบบควบคุมรถผ่านแอปสมาร์ทโฟน", "field_norm": "ระบบควบคุมรถผ่านแอปสมาร์ทโฟน", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความบันเทิง", "field": "ระบบนำทางออนไลน์", "field_norm": "ระบบนำทางออนไลน์", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความบันเทิง", "field": "ระบบนำทางออนไลน์", "field_norm": "ระบบนำทางออนไลน์", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความบันเทิง", "field": "ระบบสั่งงานด้วยเสียงออนไลน์ (อังกฤษ/ไทย)", "field_norm": "ระบบสั่งงานด้วยเสียงออนไลน์ อังกฤษ ไทย", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความบันเทิง", "field": "ระบบสั่งงานด้วยเสียงออนไลน์ (อังกฤษ/ไทย)", "field_norm": "ระบบสั่งงานด้วยเสียงออนไลน์ อังกฤษ ไทย", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความบันเทิง", "field": "หน้าจอแสดงข้อมูลการขับขี่ LCD ขนาด 8.88 นิ้ว", "field_norm": "หน้าจอแสดงข้อมูลการขับขี่ lcd ขนาด 8 88 นิ้ว", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความบันเทิง", "field": "หน้าจอแสดงข้อมูลการขับขี่ LCD ขนาด 8.88 นิ้ว", "field_norm": "หน้าจอแสดงข้อมูลการขับขี่ lcd ขนาด 8 88 นิ้ว", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความบันเทิง", "field": "หน้าจอกลางระบบสัมผัสขนาด 14.6 นิ้ว", "field_norm": "หน้าจอกลางระบบสัมผัสขนาด 14 6 นิ้ว", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความบันเทิง", "field": "หน้าจอกลางระบบสัมผัสขนาด 14.6 นิ้ว", "field_norm": "หน้าจอกลางระบบสัมผัสขนาด 14 6 นิ้ว", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความบันเทิง", "field": "วิทยุ FM", "field_norm": "วิทยุ fm", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความบันเทิง", "field": "วิทยุ FM", "field_norm": "วิทยุ fm", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความบันเทิง", "field": "ระบบลำโพง 6 ตัว", "field_norm": "ระบบลำโพง 6 ตัว", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความบันเทิง", "field": "ระบบลำโพง 6 ตัว", "field_norm": "ระบบลำโพง 6 ตัว", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความบันเทิง", "field": "ช่องจ่ายไฟ 12V ด้านหน้า", "field_norm": "ช่องจ่ายไฟ 12v ด้านหน้า", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความบันเทิง", "field": "ช่องจ่ายไฟ 12V ด้านหน้า", "field_norm": "ช่องจ่ายไฟ 12v ด้านหน้า", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความบันเทิง", "field": "ช่อง USB ด้านหน้า (1 ช่อง Type-A + 1 ช่อง Type-C)", "field_norm": "ช่อง usb ด้านหน้า 1 ช่อง type a + 1 ช่อง type c", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความบันเทิง", "field": "ช่อง USB ด้านหน้า (1 ช่อง Type-A + 1 ช่อง Type-C)", "field_norm": "ช่อง usb ด้านหน้า 1 ช่อง type a + 1 ช่อง type c", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความบันเทิง", "field": "ช่อง USB ด้านหลัง (1 ช่อง Type-A)", "field_norm": "ช่อง usb ด้านหลัง 1 ช่อง type a", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความบันเทิง", "field": "ช่อง USB ด้านหลัง (1 ช่อง Type-A)", "field_norm": "ช่อง usb ด้านหลัง 1 ช่อง type a", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความบันเทิง", "field": "ระบบชาร์จโทรศัพท์แบบไร้สาย", "field_norm": "ระบบชาร์จโทรศัพท์แบบไร้สาย", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความบันเทิง", "field": "ระบบชาร์จโทรศัพท์แบบไร้สาย", "field_norm": "ระบบชาร์จโทรศัพท์แบบไร้สาย", "value": "━", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบความบันเทิง", "field": "ระบบฆ่าเชื้อภายในรถแบบสั่งงานระยะไกลด้วยปุ่มเดียว", "field_norm": "ระบบฆ่าเชื้อภายในรถแบบสั่งงานระยะไกลด้วยปุ่มเดียว", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบความบันเทิง", "field": "ระบบฆ่าเชื้อภายในรถแบบสั่งงานระยะไกลด้วยปุ่มเดียว", "field_norm": "ระบบฆ่าเชื้อภายในรถแบบสั่งงานระยะไกลด้วยปุ่มเดียว", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบไฟส่องสว่าง", "field": "ไฟหน้า LED", "field_norm": "ไฟหน้า led", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบไฟส่องสว่าง", "field": "ไฟหน้า LED", "field_norm": "ไฟหน้า led", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบไฟส่องสว่าง", "field": "ปรับระดับไฟหน้าด้วยมือ", "field_norm": "ปรับระดับไฟหน้าด้วยมือ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบไฟส่องสว่าง", "field": "ปรับระดับไฟหน้าด้วยมือ", "field_norm": "ปรับระดับไฟหน้าด้วยมือ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบไฟส่องสว่าง", "field": "ไฟหน้าหน่วงเวลาดับ", "field_norm": "ไฟหน้าหน่วงเวลาดับ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบไฟส่องสว่าง", "field": "ไฟหน้าหน่วงเวลาดับ", "field_norm": "ไฟหน้าหน่วงเวลาดับ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบไฟส่องสว่าง", "field": "ระบบเปิด-ปิดไฟหน้าอัตโนมัติ", "field_norm": "ระบบเปิด ปิดไฟหน้าอัตโนมัติ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบไฟส่องสว่าง", "field": "ระบบเปิด-ปิดไฟหน้าอัตโนมัติ", "field_norm": "ระบบเปิด ปิดไฟหน้าอัตโนมัติ", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบไฟส่องสว่าง", "field": "ไฟท้าย LED", "field_norm": "ไฟท้าย led", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบไฟส่องสว่าง", "field": "ไฟท้าย LED", "field_norm": "ไฟท้าย led", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบไฟส่องสว่าง", "field": "ไฟเบรก LED", "field_norm": "ไฟเบรก led", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบไฟส่องสว่าง", "field": "ไฟเบรก LED", "field_norm": "ไฟเบรก led", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบไฟส่องสว่าง", "field": "ไฟตัดหมอกหลัง LED", "field_norm": "ไฟตัดหมอกหลัง led", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบไฟส่องสว่าง", "field": "ไฟตัดหมอกหลัง LED", "field_norm": "ไฟตัดหมอกหลัง led", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบไฟส่องสว่าง", "field": "ไฟอ่านหนังสือหน้า-หลัง LED", "field_norm": "ไฟอ่านหนังสือหน้า หลัง led", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบไฟส่องสว่าง", "field": "ไฟอ่านหนังสือหน้า-หลัง LED", "field_norm": "ไฟอ่านหนังสือหน้า หลัง led", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "500 Premium", "category": "ระบบไฟส่องสว่าง", "field": "ไฟส่องสว่างห้องเก็บสัมภาระท้าย", "field_norm": "ไฟส่องสว่างห้องเก็บสัมภาระท้าย", "value": "●", "unit": ""}
+{"model": "AION UT", "variant": "420 Standard", "category": "ระบบไฟส่องสว่าง", "field": "ไฟส่องสว่างห้องเก็บสัมภาระท้าย", "field_norm": "ไฟส่องสว่างห้องเก็บสัมภาระท้าย", "value": "━", "unit": ""}

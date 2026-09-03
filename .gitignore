@@ -1,0 +1,21 @@
+# 运行态数据(会话/业务库/调试日志)
+data/
+
+# 内嵌第三方库(需 pip 安装)
+tools/pylib/
+tools/_lib/
+
+# 模型/依赖缓存(需下载/安装)
+tools/emb_cache/
+tools/hf_cache/
+tools/pipcache/
+tools/dsh_home/
+
+# 向量索引为派生产物(可用 tools/embed_index.py 重建)
+kb/*/vectors/*.npz
+
+# 生成物/系统文件
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store

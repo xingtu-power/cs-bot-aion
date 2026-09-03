@@ -1,0 +1,9 @@
+{
+  "market": "AU",
+  "version": "dealer_0811",
+  "effective_date": "2026-08-11",
+  "source": "data/澳洲智能客服训练材料-260811/经销商信息/AUdealer.xlsx",
+  "count": 38,
+  "avg_lat": -32.3691,
+  "doc_name": "澳洲经销商(AU dealer)"
+}

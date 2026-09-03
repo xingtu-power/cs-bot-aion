@@ -1,0 +1,56 @@
+[
+  {
+    "doc_type": "owner",
+    "market": "THA",
+    "version": "owner_260515",
+    "pages_total": 227,
+    "segments": 221,
+    "chars": 300172,
+    "out": "/Users/mlhs/Documents/aigo/客服系统/kb/THA/docs/owner_260515.jsonl"
+  },
+  {
+    "doc_type": "rescue",
+    "market": "THA",
+    "version": "rescue_260515",
+    "pages_total": 33,
+    "segments": 33,
+    "chars": 21519,
+    "out": "/Users/mlhs/Documents/aigo/客服系统/kb/THA/docs/rescue_260515.jsonl"
+  },
+  {
+    "doc_type": "quickstart",
+    "market": "THA",
+    "version": "quickstart_260515",
+    "pages_total": 2,
+    "segments": 2,
+    "chars": 6996,
+    "out": "/Users/mlhs/Documents/aigo/客服系统/kb/THA/docs/quickstart_260515.jsonl"
+  },
+  {
+    "doc_type": "owner",
+    "market": "AU",
+    "version": "owner_0811",
+    "pages_total": 334,
+    "segments": 327,
+    "chars": 380881,
+    "out": "/Users/mlhs/Documents/aigo/客服系统/kb/AU/docs/owner_0811.jsonl"
+  },
+  {
+    "doc_type": "rescue",
+    "market": "AU",
+    "version": "rescue_0811",
+    "pages_total": 36,
+    "segments": 35,
+    "chars": 26553,
+    "out": "/Users/mlhs/Documents/aigo/客服系统/kb/AU/docs/rescue_0811.jsonl"
+  },
+  {
+    "doc_type": "quickstart",
+    "market": "AU",
+    "version": "quickstart_0811",
+    "pages_total": 10,
+    "segments": 8,
+    "chars": 6815,
+    "out": "/Users/mlhs/Documents/aigo/客服系统/kb/AU/docs/quickstart_0811.jsonl"
+  }
+]

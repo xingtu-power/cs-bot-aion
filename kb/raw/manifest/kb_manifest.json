@@ -1,0 +1,108 @@
+{
+  "markets": {
+    "AU": {
+      "docs": [
+        {
+          "file": "owner_0811.jsonl",
+          "doc_type": "owner",
+          "version": "owner_0811",
+          "language": "en",
+          "segments": 327,
+          "chars": 380881
+        },
+        {
+          "file": "quickstart_0811.jsonl",
+          "doc_type": "quickstart",
+          "version": "quickstart_0811",
+          "language": "en",
+          "segments": 8,
+          "chars": 6815
+        },
+        {
+          "file": "rescue_0811.jsonl",
+          "doc_type": "rescue",
+          "version": "rescue_0811",
+          "language": "en",
+          "segments": 35,
+          "chars": 26553
+        }
+      ],
+      "spec": {
+        "market": "AU",
+        "model": "AION UT",
+        "version": "spec_0811",
+        "effective_date": "2026-08-11",
+        "source": "data/澳洲智能客服训练材料-260811/产品配置表/aionut_spec_0811.xlsx",
+        "variants": [
+          "Premium",
+          "Luxury"
+        ],
+        "category_count": 9,
+        "rows": 248,
+        "doc_name": "AION UT spec (AU) 0811"
+      },
+      "dealers": {
+        "market": "AU",
+        "version": "dealer_0811",
+        "effective_date": "2026-08-11",
+        "source": "data/澳洲智能客服训练材料-260811/经销商信息/AUdealer.xlsx",
+        "count": 38,
+        "avg_lat": -32.3691,
+        "doc_name": "澳洲经销商(AU dealer)"
+      },
+      "faq": 20
+    },
+    "THA": {
+      "docs": [
+        {
+          "file": "owner_260515.jsonl",
+          "doc_type": "owner",
+          "version": "owner_260515",
+          "language": "th",
+          "segments": 221,
+          "chars": 300172
+        },
+        {
+          "file": "quickstart_260515.jsonl",
+          "doc_type": "quickstart",
+          "version": "quickstart_260515",
+          "language": "th",
+          "segments": 2,
+          "chars": 6996
+        },
+        {
+          "file": "rescue_260515.jsonl",
+          "doc_type": "rescue",
+          "version": "rescue_260515",
+          "language": "th",
+          "segments": 33,
+          "chars": 21519
+        }
+      ],
+      "spec": {
+        "market": "THA",
+        "model": "AION UT",
+        "version": "spec_260515",
+        "effective_date": "2026-05-15",
+        "source": "data/泰国智能客服训练材料-260515/产品配置表/泰国UT配置表（泰文）.xlsx",
+        "variants": [
+          "500 Premium",
+          "420 Standard"
+        ],
+        "category_count": 9,
+        "rows": 256,
+        "doc_name": "泰国 UT 配置表(泰文)"
+      },
+      "dealers": {
+        "market": "THA",
+        "version": "dealer_260515",
+        "effective_date": "2026-05-15",
+        "source": "data/泰国智能客服训练材料-260515/经销商信息/THA dealer.xlsx",
+        "count": 70,
+        "avg_lat": 14.09466,
+        "doc_name": "泰国经销商(THA dealer)"
+      },
+      "faq": 18
+    }
+  }
+}

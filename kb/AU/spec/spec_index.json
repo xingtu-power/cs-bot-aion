@@ -1,0 +1,1247 @@
+{
+  "market": "AU",
+  "model": "AION UT",
+  "version": "spec_0811",
+  "fields": {
+    "length width height mm": {
+      "category": "Basic Information",
+      "unit": "mm",
+      "field": "Length×Width×Height（mm）",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "4270*1850*1575",
+        "Luxury": "4270*1850*1575"
+      }
+    },
+    "wheelbase mm": {
+      "category": "Basic Information",
+      "unit": "mm",
+      "field": "Wheelbase（mm）",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "2750",
+        "Luxury": "2750"
+      }
+    },
+    "seating capacity": {
+      "category": "Basic Information",
+      "unit": "",
+      "field": "Seating Capacity",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "5",
+        "Luxury": "5"
+      }
+    },
+    "max power kw": {
+      "category": "Basic Information",
+      "unit": "kw",
+      "field": "Max.  Power(kw)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "150",
+        "Luxury": "150"
+      }
+    },
+    "max torque nm": {
+      "category": "Basic Information",
+      "unit": "Nm",
+      "field": "Max. Torque(Nm)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "210",
+        "Luxury": "210"
+      }
+    },
+    "0 100km h acceleration time s": {
+      "category": "Basic Information",
+      "unit": "s",
+      "field": "0-100km/h acceleration time (s)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "7.3",
+        "Luxury": "7.3"
+      }
+    },
+    "drive mode": {
+      "category": "Basic Information",
+      "unit": "",
+      "field": "Drive Mode",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "FWD",
+        "Luxury": "FWD"
+      }
+    },
+    "ground clearance mm unladen laden": {
+      "category": "Basic Information",
+      "unit": "mm",
+      "field": "Ground Clearance(mm)（Unladen/Laden）",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "147mm(Unladen)/\n130mm(Laden)",
+        "Luxury": "147mm(Unladen)/\n130mm(Laden)"
+      }
+    },
+    "trunk volume——standard volume block method l": {
+      "category": "Basic Information",
+      "unit": "L",
+      "field": "*Trunk Volume——Standard volume block method  (L)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "321L/689L",
+        "Luxury": "321L/689L"
+      }
+    },
+    "curb weight kg": {
+      "category": "Basic Information",
+      "unit": "KG",
+      "field": "Curb weight(KG)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "1670",
+        "Luxury": "1700"
+      }
+    },
+    "magazine battery": {
+      "category": "Battery and Range",
+      "unit": "",
+      "field": "Magazine Battery",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "type of battery lfp": {
+      "category": "Battery and Range",
+      "unit": "",
+      "field": "Type of Battery  LFP",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "battery capacity kwh": {
+      "category": "Battery and Range",
+      "unit": "kWh",
+      "field": "Battery Capacity(kWh)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "60",
+        "Luxury": "60"
+      }
+    },
+    "range under comprehensive working conditions km": {
+      "category": "Battery and Range",
+      "unit": "km",
+      "field": "Range Under Comprehensive Working Conditions(km)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "430 (WLTP)",
+        "Luxury": "430 (WLTP)"
+      }
+    },
+    "vehicle consumption combined kwh 100km": {
+      "category": "Battery and Range",
+      "unit": "kWh/100km",
+      "field": "Vehicle Consumption-combined（kWh/100km）",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "16.4 (WLTP)",
+        "Luxury": "16.4 (WLTP)"
+      }
+    },
+    "eu charger standard": {
+      "category": "Battery and Range",
+      "unit": "",
+      "field": "EU Charger Standard",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "max ac charging power": {
+      "category": "Battery and Range",
+      "unit": "",
+      "field": "Max. AC Charging Power",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "11 kw",
+        "Luxury": "11 kw"
+      }
+    },
+    "vehicle to load v2l": {
+      "category": "Battery and Range",
+      "unit": "V2L",
+      "field": "Vehicle-to-Load(V2L)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "max dc fast charging power kw": {
+      "category": "Battery and Range",
+      "unit": "kW",
+      "field": "Max DC Fast Charging Power (kW)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "87kw",
+        "Luxury": "87kw"
+      }
+    },
+    "dc fast charging time 30 80%": {
+      "category": "Battery and Range",
+      "unit": "30-80%",
+      "field": "DC Fast Charging Time(30-80%)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "24min",
+        "Luxury": "24min"
+      }
+    },
+    "215 55r17 aluminum alloy wheel": {
+      "category": "Chassis System",
+      "unit": "",
+      "field": "215/55R17 Aluminum Alloy Wheel",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "tire repair kit": {
+      "category": "Chassis System",
+      "unit": "",
+      "field": "Tire Repair Kit",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "front mcpherson independent suspension rear torsion beam non independent suspension": {
+      "category": "Chassis System",
+      "unit": "",
+      "field": "Front McPherson independent suspension, rear torsion beam non-independent suspension",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "manual 2 way adjustment of steering column": {
+      "category": "Chassis System",
+      "unit": "",
+      "field": "Manual 2-way adjustment of steering column",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "eps electric power steering": {
+      "category": "Chassis System",
+      "unit": "",
+      "field": "EPS electric power steering",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "front disc brake rear disc brake": {
+      "category": "Chassis System",
+      "unit": "",
+      "field": "Front  disc brake, rear disc brake",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "epb electronic parking brake": {
+      "category": "Chassis System",
+      "unit": "Electronic Parking Brake ",
+      "field": "EPB(Electronic Parking Brake )",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "autohold": {
+      "category": "Chassis System",
+      "unit": "",
+      "field": "AutoHold",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "tcs traction control system": {
+      "category": "Chassis System",
+      "unit": "Traction control system",
+      "field": "TCS(Traction control system)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "vdc vehicle dynamics control": {
+      "category": "Chassis System",
+      "unit": "Vehicle dynamics control ",
+      "field": "VDC(Vehicle dynamics control )",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "hhc hill hold control": {
+      "category": "Chassis System",
+      "unit": "Hill Hold Control ",
+      "field": "HHC(Hill Hold Control )",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "abs+ebd": {
+      "category": "Chassis System",
+      "unit": "",
+      "field": "ABS+EBD",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "manual liftgate": {
+      "category": "Exterior",
+      "unit": "",
+      "field": "Manual Liftgate",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "━"
+      }
+    },
+    "power liftgate": {
+      "category": "Exterior",
+      "unit": "",
+      "field": "Power  Liftgate",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "━",
+        "Luxury": "●"
+      }
+    },
+    "front and second row one touch up and down power windows anti pinch": {
+      "category": "Exterior",
+      "unit": "",
+      "field": "Front And Second Row One-Touch Up And Down Power Windows（Anti-Pinch）",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "remote window control via mobile app": {
+      "category": "Exterior",
+      "unit": "",
+      "field": "Remote Window Control via Mobile App",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "frameless front wiper with auto sensing": {
+      "category": "Exterior",
+      "unit": "",
+      "field": "Frameless Front wiper with Auto-Sensing",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "rear wiper": {
+      "category": "Exterior",
+      "unit": "",
+      "field": "Rear wiper",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "panoramic sunroof with electric sunshade": {
+      "category": "Exterior",
+      "unit": "",
+      "field": "Panoramic Sunroof with Electric Sunshade",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "━",
+        "Luxury": "●"
+      }
+    },
+    "manual folding side mirrors": {
+      "category": "Exterior",
+      "unit": "",
+      "field": "Manual -Folding Side Mirrors",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "━"
+      }
+    },
+    "power folding side mirrors": {
+      "category": "Exterior",
+      "unit": "",
+      "field": "Power-Folding Side Mirrors",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "━",
+        "Luxury": "●"
+      }
+    },
+    "outside rear view mirrior automatically folds": {
+      "category": "Exterior",
+      "unit": "",
+      "field": "Outside rear view mirrior automatically folds",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "━",
+        "Luxury": "●"
+      }
+    },
+    "front seats seatbelts with dual pretensioner and force limiters": {
+      "category": "Safety",
+      "unit": "",
+      "field": "Front Seats Seatbelts with Dual-Pretensioner and Force Limiters",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "second row side seat with single stage pretensioners and force limiters": {
+      "category": "Safety",
+      "unit": "",
+      "field": "Second row side seat with single-stage  Pretensioners and Force Limiters",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "second row middle seat 3 point safety belt": {
+      "category": "Safety",
+      "unit": "",
+      "field": "Second row middle seat 3-point safety belt",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "front row seatbelts with unfastened reminders light and sound": {
+      "category": "Safety",
+      "unit": "Light and Sound",
+      "field": "Front Row Seatbelts with Unfastened Reminders(Light and Sound)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "rear row seatbelts with unfastened reminders light and sound": {
+      "category": "Safety",
+      "unit": "Light and Sound",
+      "field": "Rear Row Seatbelts with Unfastened Reminders(Light and Sound)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "dual front airbags": {
+      "category": "Safety",
+      "unit": "",
+      "field": "Dual Front Airbags",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "dual front side airbags": {
+      "category": "Safety",
+      "unit": "",
+      "field": "Dual Front Side Airbags",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "side curtain airbags": {
+      "category": "Safety",
+      "unit": "",
+      "field": "Side Curtain Airbags",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "center airbag": {
+      "category": "Safety",
+      "unit": "",
+      "field": "Center Airbag",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "isofix child safety seat fixtures": {
+      "category": "Safety",
+      "unit": "",
+      "field": "ISOFIX Child Safety Seat Fixtures",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "child locker": {
+      "category": "Safety",
+      "unit": "",
+      "field": "Child Locker",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "e call": {
+      "category": "Safety",
+      "unit": "",
+      "field": "E-CALL",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "mcb": {
+      "category": "Safety",
+      "unit": "",
+      "field": "MCB",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "alcohol lock interface": {
+      "category": "Safety",
+      "unit": "",
+      "field": "Alcohol lock interface",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "engine immobilizer + vehicle anti theft system": {
+      "category": "Safety",
+      "unit": "",
+      "field": "Engine Immobilizer + Vehicle Anti-Theft System",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "tire pressure monitor system indirect": {
+      "category": "Safety",
+      "unit": "",
+      "field": "Tire Pressure Monitor System (indirect)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "adaptive cruise control system acc": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "",
+      "field": "Adaptive Cruise Control System（ACC）",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "integrated cruise assistance ica": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "",
+      "field": "Integrated Cruise Assistance（ICA）",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "intelligent high beam control ihbc": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "",
+      "field": "Intelligent High Beam Control(IHBC)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "forward collision warning fcw": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "",
+      "field": "Forward Collision Warning（FCW）",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "automatic emergency braking aeb": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "",
+      "field": "Automatic Emergency Braking（AEB）",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "lane departure warning ldw": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "LDW",
+      "field": "Lane Departure Warning（LDW）",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "lane keeping assist lka": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "LKA",
+      "field": "Lane Keeping Assist (LKA)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "emergency lane keeping elk": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "ELK",
+      "field": "Emergency Lane Keeping (ELK)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "traffic sign recognition tsr": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "TSR",
+      "field": "Traffic Sign Recognition (TSR)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "intelligent speed limit control islc": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "ISLC",
+      "field": "Intelligent Speed Limit Control (ISLC)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "blind spot detection bsd": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "BSD",
+      "field": "Blind Spot Detection（BSD）",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "door open warning dow": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "",
+      "field": "Door Open Warning（DOW）",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "rear collision warning rcw": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "",
+      "field": "Rear Collision Warning (RCW)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "rear cross traffic alert rcta": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "",
+      "field": "Rear Cross Traffic Alert (RCTA)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "rear cross traffic braking rctb": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "",
+      "field": "Rear Cross Traffic Braking (RCTB)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "front cross traffic alert fcta": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "",
+      "field": "Front Cross Traffic Alert (FCTA)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "front cross traffic braking fctb": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "",
+      "field": "Front Cross Traffic Braking (FCTB)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "rear parking sensors": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "",
+      "field": "Rear Parking Sensors",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "front parking sensors": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "",
+      "field": "Front Parking Sensors",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "surround view camera system": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "",
+      "field": "Surround View Camera System",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "child presence detection cpd": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "",
+      "field": "Child Presence Detection (CPD)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "driver monitoring system dms": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "DMS",
+      "field": "Driver Monitoring System (DMS)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "occupant monitoring system oms": {
+      "category": "Intelligent Driving Assistance",
+      "unit": "OMS",
+      "field": "Occupant Monitoring System (OMS)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "bluetooth": {
+      "category": "Entertainment",
+      "unit": "",
+      "field": "Bluetooth",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "in car wi fi hotspot": {
+      "category": "Entertainment",
+      "unit": "",
+      "field": "In-car Wi-Fi hotspot",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "connect car to phone's hotspot": {
+      "category": "Entertainment",
+      "unit": "",
+      "field": "Connect car to phone's hotspot",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "apple carplay": {
+      "category": "Entertainment",
+      "unit": "",
+      "field": "Apple Carplay",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "android auto": {
+      "category": "Entertainment",
+      "unit": "",
+      "field": "Android Auto",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "smartphone app remote control": {
+      "category": "Entertainment",
+      "unit": "",
+      "field": "Smartphone APP Remote Control",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "online navigation valid for three years after activation": {
+      "category": "Entertainment",
+      "unit": "Valid for three years after activation",
+      "field": "Online Navigation\n(Valid for three years after activation)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "online voice control english thai": {
+      "category": "Entertainment",
+      "unit": "English/Thai",
+      "field": "Online Voice Control (English/Thai)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "8 88 inch lcd instrument": {
+      "category": "Entertainment",
+      "unit": "",
+      "field": "8.88-Inch LCD Instrument",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "14 6 inch touch control central screen": {
+      "category": "Entertainment",
+      "unit": "",
+      "field": "14.6-Inch  Touch Control Central Screen",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "dab + fm": {
+      "category": "Entertainment",
+      "unit": "",
+      "field": "DAB + FM",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "6 sepakers": {
+      "category": "Entertainment",
+      "unit": "",
+      "field": "6 Sepakers",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "front row 12v power supply": {
+      "category": "Entertainment",
+      "unit": "",
+      "field": "Front-Row 12V Power Supply",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "front 1 type a & 1 type c": {
+      "category": "Entertainment",
+      "unit": "",
+      "field": "Front 1 Type A  & 1  Type-C",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "rear 1 type a": {
+      "category": "Entertainment",
+      "unit": "",
+      "field": "Rear 1 Type A",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "━",
+        "Luxury": "●"
+      }
+    },
+    "wireless phone charging": {
+      "category": "Entertainment",
+      "unit": "",
+      "field": "Wireless Phone Charging",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "━",
+        "Luxury": "●"
+      }
+    },
+    "led headlights": {
+      "category": "Lights",
+      "unit": "",
+      "field": "LED Headlights",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "daytime running light": {
+      "category": "Lights",
+      "unit": "",
+      "field": "Daytime running light",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "automatic headlight": {
+      "category": "Lights",
+      "unit": "",
+      "field": "Automatic headlight",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "led rear position light": {
+      "category": "Lights",
+      "unit": "",
+      "field": "LED Rear Position Light",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "led brake light": {
+      "category": "Lights",
+      "unit": "",
+      "field": "LED Brake Light",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "rear led fog light": {
+      "category": "Lights",
+      "unit": "",
+      "field": "Rear LED Fog Light",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "led front and rear roof reading lights": {
+      "category": "Lights",
+      "unit": "",
+      "field": "LED Front and rear roof reading lights",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "trunk light": {
+      "category": "Lights",
+      "unit": "",
+      "field": "Trunk light",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "pvc steering wheel material": {
+      "category": "Interior",
+      "unit": "",
+      "field": "PVC steering wheel material",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "heated steering wheel": {
+      "category": "Interior",
+      "unit": "",
+      "field": "Heated Steering Wheel",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "6 way power adjustable driver seat": {
+      "category": "Interior",
+      "unit": "",
+      "field": "6-Way Power Adjustable Driver Seat",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "driver seat heated": {
+      "category": "Interior",
+      "unit": "",
+      "field": "Driver Seat heated",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "driver seat ventilation": {
+      "category": "Interior",
+      "unit": "",
+      "field": "Driver Seat ventilation",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "━",
+        "Luxury": "●"
+      }
+    },
+    "4 way power adjustable passenger seat": {
+      "category": "Interior",
+      "unit": "",
+      "field": "4-Way Power Adjustable Passenger Seat",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "passenger seat heated": {
+      "category": "Interior",
+      "unit": "",
+      "field": "Passenger Seat heated",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "rear seat central headrest": {
+      "category": "Interior",
+      "unit": "",
+      "field": "Rear seat central headrest",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "rear seat center armrest": {
+      "category": "Interior",
+      "unit": "",
+      "field": "Rear seat center armrest",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "4 6 split folding": {
+      "category": "Interior",
+      "unit": "",
+      "field": "4/6 Split Folding",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "pvc seats": {
+      "category": "Interior",
+      "unit": "",
+      "field": "PVC Seats",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "manual anti glare interior rearview mirror": {
+      "category": "Interior",
+      "unit": "",
+      "field": "Manual Anti-glare Interior Rearview Mirror",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "━"
+      }
+    },
+    "auto anti glare interior rearview mirror": {
+      "category": "Interior",
+      "unit": "",
+      "field": "Auto Anti-glare Interior Rearview Mirror",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "━",
+        "Luxury": "●"
+      }
+    },
+    "driver seat sun visor small vanity mirror with light": {
+      "category": "Interior",
+      "unit": "Small Vanity Mirror  With Light",
+      "field": "Driver Seat  Sun Visor(Small Vanity Mirror  With Light)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "passenger seat sun visor small vanity mirror with light": {
+      "category": "Interior",
+      "unit": "Small Vanity Mirror  With Light",
+      "field": "Passenger Seat Sun Visor(Small Vanity Mirror  With Light)",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "luggage compartment cover": {
+      "category": "Interior",
+      "unit": "",
+      "field": "Luggage Compartment Cover",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "heat pump": {
+      "category": "Interior",
+      "unit": "",
+      "field": "Heat Pump",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "rear air vents": {
+      "category": "Interior",
+      "unit": "",
+      "field": "Rear Air Vents",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    },
+    "pm2 5 filter": {
+      "category": "Interior",
+      "unit": "",
+      "field": "PM2.5 Filter",
+      "model": "AION UT",
+      "variants": {
+        "Premium": "●",
+        "Luxury": "●"
+      }
+    }
+  }
+}

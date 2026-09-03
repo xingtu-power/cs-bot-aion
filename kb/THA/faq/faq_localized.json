@@ -1,0 +1,119 @@
+{
+  "market": "THA",
+  "langs": [
+    "zh",
+    "en",
+    "th",
+    "es"
+  ],
+  "items": {
+    "faq-tha-01": {
+      "th": "AION UT วิ่งได้ไกล 500\n(NEDC) ตามมาตรฐาน NEDC (อ้างอิงจากสเปกอย่างเป็นทางการ)",
+      "zh": "AION UT 续航里程 500 公里（NEDC），依据 NEDC 标准（参考官方规格）",
+      "en": "The AION UT has a range of 500 km (NEDC) according to the NEDC standard (based on official specifications)",
+      "es": "AION UT puede recorrer 500 (NEDC) según el estándar NEDC (según las especificaciones oficiales)."
+    },
+    "faq-tha-02": {
+      "th": "AION UT ติดตั้งแบตเตอรี่ 60 kWh",
+      "zh": "AION UT 搭载 60 kWh 电池",
+      "en": "The AION UT is equipped with a 60 kWh battery",
+      "es": "AION UT está equipado con una batería de 60 kWh."
+    },
+    "faq-tha-03": {
+      "th": "กำลังสูงสุด 150 kW แรงบิดสูงสุด 210 Nm",
+      "zh": "最大功率 150 kW，最大扭矩 210 Nm",
+      "en": "Maximum power 150 kW, maximum torque 210 Nm",
+      "es": "Potencia máxima de 150 kW y par máximo de 210 Nm."
+    },
+    "faq-tha-04": {
+      "th": "ชาร์จ AC สูงสุด 6.6 kW ชาร์จ DC สูงสุด 87kW",
+      "zh": "交流充电最高 6.6 kW，直流充电最高 87 kW",
+      "en": "AC charging up to 6.6 kW, DC charging up to 87 kW",
+      "es": "Carga AC máxima de 6.6 kW y carga DC máxima de 87 kW."
+    },
+    "faq-tha-05": {
+      "th": "AION UT มี 5 ที่นั่ง",
+      "zh": "AION UT 有 5 个座位",
+      "en": "The AION UT has 5 seats",
+      "es": "AION UT tiene 5 asientos."
+    },
+    "faq-tha-06": {
+      "th": "ดูขั้นตอนการชาร์จในคู่มือการใช้งานขั้นต้น / คู่มือเจ้าของรถ รวมถึงการเปิดฝาช่องชาร์จและเสียบปลั๊ก",
+      "zh": "请参阅快速入门指南/车主手册中的充电步骤，包括打开充电口盖和插上插头",
+      "en": "See the charging steps in the quick start guide / owner's manual, including opening the charging port cover and plugging in",
+      "es": "Consulta los pasos de carga en la guía de inicio rápido / manual del propietario, incluido cómo abrir la tapa del puerto de carga y conectar el enchufe."
+    },
+    "faq-tha-07": {
+      "th": "ดูคู่มือการใช้งานขั้นต้นสำหรับการสตาร์ทรถ รวมถึงการใช้สมาร์ทคีย์",
+      "zh": "请参阅快速入门指南了解启动车辆的步骤，包括使用智能钥匙",
+      "en": "See the quick start guide for starting the vehicle, including using the smart key",
+      "es": "Consulta la guía de inicio rápido para arrancar el vehículo, incluido el uso de la llave inteligente."
+    },
+    "faq-tha-08": {
+      "th": "ฉันช่วยหาตัวแทนจำหน่ายที่ใกล้ที่สุดจากเครือข่ายของเราและนัดทดลองขับได้ รบกวนแชร์เมืองหรือรหัสไปรษณีย์ หรือฝากข้อมูลติดต่อเพื่อให้พนักงานติดต่อกลับ",
+      "zh": "我可以帮您从我们的经销商网络中查找最近的经销商并预约试驾。请分享您的城市或邮政编码，或留下联系方式以便工作人员回电",
+      "en": "I can help find the nearest dealer from our network and schedule a test drive. Please share your city or postal code, or leave your contact information so a staff member can get back to you",
+      "es": "Puedo ayudarte a encontrar el concesionario más cercano de nuestra red y a programar una prueba de manejo. Comparte tu ciudad o código postal, o deja tus datos de contacto para que un asesor se comunique contigo."
+    },
+    "faq-tha-09": {
+      "th": "เงื่อนไขการรับประกันกำหนดตามนโยบายอย่างเป็นทางการของ GAC / AION โปรดอ้างอิงจากคู่มือเจ้าของรถหรือติดต่อตัวแทนจำหน่ายที่ได้รับอนุญาต",
+      "zh": "保修条款以 GAC / AION 官方政策为准，请参阅车主手册或联系授权经销商",
+      "en": "Warranty terms are determined according to the official GAC / AION policy. Please refer to the owner's manual or contact an authorized dealer",
+      "es": "Las condiciones de garantía se determinan según la política oficial de GAC / AION. Consulta el manual del propietario o contacta con un concesionario autorizado."
+    },
+    "faq-tha-10": {
+      "th": "รอบการเข้ารับบริการระบุในคู่มือเจ้าของรถ แนะนำให้ปฏิบัติตามคู่มือและนัดหมายบริการกับตัวแทนจำหน่ายที่ได้รับอนุญาต",
+      "zh": "保养周期详见车主手册，建议遵循手册并预约授权经销商进行保养",
+      "en": "Service intervals are specified in the owner's manual. It is recommended to follow the manual and schedule service with an authorized dealer",
+      "es": "Los intervalos de servicio se indican en el manual del propietario. Se recomienda seguir el manual y programar el servicio con un concesionario autorizado."
+    },
+    "faq-tha-11": {
+      "th": "AION UT มีรุ่น 420 Standard / 500 Premium โปรดสอบถามความพร้อมกับตัวแทนจำหน่ายในพื้นที่",
+      "zh": "AION UT 提供 420 Standard / 500 Premium 版本，请咨询当地经销商确认现货情况",
+      "en": "The AION UT is available in 420 Standard / 500 Premium variants. Please check availability with your local dealer",
+      "es": "AION UT está disponible en las versiones 420 Standard / 500 Premium. Consulta la disponibilidad con el concesionario local."
+    },
+    "faq-tha-12": {
+      "th": "ราคากำหนดตามตลาดและตัวแทนจำหน่ายในพื้นที่ ฉันช่วยเชื่อมต่อกับตัวแทนจำหน่ายเพื่อขอใบเสนอราคา หรือดาวน์โหลดสเปกได้",
+      "zh": "价格由当地市场和经销商决定，我可以帮您联系经销商获取报价，也可以下载规格表",
+      "en": "Prices are determined by the local market and dealers. I can connect you with a dealer to request a quote, or you can download the specifications",
+      "es": "El precio se determina según el mercado y el concesionario local. Puedo conectarte con un concesionario para solicitar una cotización, o puedes descargar las especificaciones."
+    },
+    "faq-tha-13": {
+      "th": "สีขึ้นอยู่กับตลาดและสต็อก โปรดสอบถามตัวแทนจำหน่ายที่ได้รับอนุญาตสำหรับตัวเลือกสีปัจจุบัน",
+      "zh": "颜色因市场和库存而异，请咨询授权经销商了解当前可选颜色",
+      "en": "Colors depend on the market and stock. Please ask an authorized dealer for current color options",
+      "es": "Los colores dependen del mercado y del inventario. Consulta a un concesionario autorizado para conocer las opciones de color actuales."
+    },
+    "faq-tha-14": {
+      "th": "ก่อนอื่นโปรดตรวจสอบว่าคุณและผู้โดยสารปลอดภัยและรถอยู่ในตำแหน่งที่ปลอดภัย หากไม่สามารถไปต่อได้ ติดต่อสายด่วนช่วยเหลือฉุกเฉินอย่างเป็นทางการของ AION ตามภูมิภาคของคุณทันที ซึ่งระบุในคู่มือการตอบสนองฉุกเฉิน",
+      "zh": "首先请确保您和乘客的安全，并将车辆停在安全位置。若无法继续行驶，请立即拨打您所在地区 AION 官方紧急救援热线，该热线在《应急响应手册》中有说明",
+      "en": "First, please make sure you and your passengers are safe and the vehicle is in a safe location. If you cannot continue, immediately contact the official AION emergency assistance hotline for your region, as specified in the emergency response manual",
+      "es": "Primero, asegúrate de que tú y los pasajeros estén a salvo y de que el vehículo esté en una posición segura. Si no puedes continuar, contacta de inmediato con la línea de asistencia de emergencia oficial de AION de tu región, que se indica en el manual de respuesta ante emergencias."
+    },
+    "faq-tha-15": {
+      "th": "คุณสามารถรับคู่มือเจ้าของรถ / คู่มือการตอบสนองฉุกเฉิน / คู่มือการใช้งานขั้นต้นได้จากตัวแทนจำหน่าย",
+      "zh": "您可以从经销商处获取《车主手册》/《应急响应手册》/《快速入门指南》",
+      "en": "You can obtain the owner's manual / emergency response manual / quick start guide from the dealer",
+      "es": "Puedes obtener el manual del propietario / manual de respuesta ante emergencias / guía de inicio rápido a través del concesionario."
+    },
+    "faq-tha-16": {
+      "th": "ขั้นตอนและข้อจำกัดในการลากรถระบุในคู่มือเจ้าของรถ โปรดปฏิบัติตามคู่มือและติดต่อบริการฉุกเฉินหากจำเป็น",
+      "zh": "拖车步骤和限制详见车主手册，请遵循手册，必要时联系紧急救援服务",
+      "en": "Towing procedures and restrictions are specified in the owner's manual. Please follow the manual and contact emergency services if necessary",
+      "es": "Los procedimientos y las restricciones de remolque se indican en el manual del propietario. Sigue el manual y contacta con los servicios de emergencia si es necesario."
+    },
+    "faq-tha-17": {
+      "th": "แรงดันลมยางที่ถูกต้องระบุบนป้ายยางและในคู่มือเจ้าของรถ โปรดตรวจสอบป้ายบนรถของคุณสำหรับค่าที่แน่นอน",
+      "zh": "正确的轮胎气压标注在轮胎标签和车主手册中，请查看您车辆上的标签获取准确数值",
+      "en": "The correct tire pressure is specified on the tire label and in the owner's manual. Please check the label on your vehicle for the exact values",
+      "es": "La presión correcta de los neumáticos se indica en la etiqueta de los neumáticos y en el manual del propietario. Consulta la etiqueta de tu vehículo para conocer el valor exacto."
+    },
+    "faq-tha-18": {
+      "th": "ข้อกำหนดการจดทะเบียนและประกันแตกต่างกันไปในแต่ละพื้นที่ โปรดติดต่อหน่วยงานขนส่งและบริษัทประกันที่เกี่ยวข้อง ตัวแทนจำหน่ายสามารถแนะนำได้",
+      "zh": "注册和保险要求因地区而异，请联系相关运输部门和保险公司，经销商可以为您提供建议",
+      "en": "Registration and insurance requirements vary by region. Please contact the relevant transport authority and insurance company; the dealer can provide guidance",
+      "es": "Los requisitos de registro y seguro varían según la región. Contacta con la autoridad de transporte y las compañías de seguros correspondientes. El concesionario puede orientarte."
+    }
+  }
+}

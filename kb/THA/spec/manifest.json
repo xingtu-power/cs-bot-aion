@@ -1,0 +1,14 @@
+{
+  "market": "THA",
+  "model": "AION UT",
+  "version": "spec_260515",
+  "effective_date": "2026-05-15",
+  "source": "data/泰国智能客服训练材料-260515/产品配置表/泰国UT配置表（泰文）.xlsx",
+  "variants": [
+    "500 Premium",
+    "420 Standard"
+  ],
+  "category_count": 9,
+  "rows": 256,
+  "doc_name": "泰国 UT 配置表(泰文)"
+}

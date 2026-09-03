@@ -1,0 +1,22 @@
+{
+  "market": "THA",
+  "note": "泰文文档检索评测集(ground truth 依据手册章节内容标注)。segment id 格式 tha-<doc_type>-<version>-p<page0based>。",
+  "language": "th",
+  "ground_truth_basis": "manual chapter headings + content confirmation",
+  "queries": [
+    {"id": "q01", "intent": "usage-guide", "query": "เข็มขัดนิรภัยใช้งานอย่างไร", "relevant": ["tha-owner-owner_260515-p0029","tha-owner-owner_260515-p0031","tha-owner-owner_260515-p0032","tha-owner-owner_260515-p0033"]},
+    {"id": "q02", "intent": "usage-guide", "query": "ชาร์จแบตเตอรี่รถอย่างไร", "relevant": ["tha-owner-owner_260515-p0156","tha-owner-owner_260515-p0159"]},
+    {"id": "q03", "intent": "usage-guide", "query": "แรงดันลมยางควรตั้งเท่าไหร่", "relevant": ["tha-owner-owner_260515-p0087","tha-owner-owner_260515-p0166"]},
+    {"id": "q04", "intent": "usage-guide", "query": "ยางรั่วต้องทำอย่างไร", "relevant": ["tha-owner-owner_260515-p0166","tha-owner-owner_260515-p0198"]},
+    {"id": "q05", "intent": "usage-guide", "query": "เบรกจอดรถอิเล็กทรอนิกส์ใช้อย่างไร", "relevant": ["tha-owner-owner_260515-p0143"]},
+    {"id": "q06", "intent": "usage-guide", "query": "ระบบ ABS ทำหน้าที่อะไร", "relevant": ["tha-owner-owner_260515-p0094","tha-owner-owner_260515-p0095"]},
+    {"id": "q07", "intent": "after-sales", "query": "การบำรุงรักษารถตามระยะคืออะไร", "relevant": ["tha-owner-owner_260515-p0164","tha-owner-owner_260515-p0165","tha-owner-owner_260515-p0178"]},
+    {"id": "q08", "intent": "emergency", "query": "เกิดเหตุฉุกเฉินบนทางหลวงต้องทำอย่างไร", "relevant": ["tha-owner-owner_260515-p0188","tha-owner-owner_260515-p0190","tha-owner-owner_260515-p0192"]},
+    {"id": "q09", "intent": "usage-guide", "query": "ระบบปรับอากาศในรถใช้งานอย่างไร", "relevant": ["tha-owner-owner_260515-p0057","tha-owner-owner_260515-p0058","tha-owner-owner_260515-p0060"]},
+    {"id": "q10", "intent": "usage-guide", "query": "ลากรถ AION UT ทำได้หรือไม่", "relevant": ["tha-owner-owner_260515-p0205"]},
+    {"id": "q11", "intent": "emergency", "query": "จะหาหมายเลขตัวถังรถ VIN ได้ที่ไหน", "relevant": ["tha-rescue-rescue_260515-p0005"]},
+    {"id": "q12", "intent": "emergency", "query": "แบตเตอรี่แรงดันสูงปลอดภัยไหม", "relevant": ["tha-rescue-rescue_260515-p0022"]},
+    {"id": "q13", "intent": "emergency", "query": "วิธีตรึงรถและปรับเสถียรภาพในกรณีฉุกเฉิน", "relevant": ["tha-rescue-rescue_260515-p0007"]},
+    {"id": "q14", "intent": "emergency", "query": "ข้อมูลสำคัญเกี่ยวกับถุงลมนิรภัยคืออะไร", "relevant": ["tha-rescue-rescue_260515-p0029"]}
+  ]
+}
