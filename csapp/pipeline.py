@@ -60,10 +60,11 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     message = (message or "").strip()
     session = _store.get(session_id)
 
-    # 1) 语言检测(跟随用户;拉丁/其它语言用 LLM 兜底检测)
+    # 1) 语言检测(用于市场路由;回复语言由下拉框 lang_hint 决定)
     lang = detect_language(message, market=session.market, hint=lang_hint or session.language,
                            llm_detect=getattr(_llm, "detects_language", None))
-    # 语言跟随用户:会话语言随最近一次检测更新(仅用于中性消息的兜底语言;当前消息语言始终由提示词优先)
+    # 回复语言 = 下拉框所选(lang_hint);无下拉才回落到本次消息检测语言(不跟上次语言)
+    reply_lang = lang_hint or lang
     if lang:
         session.language = lang
 
@@ -88,17 +89,17 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     if compliance.is_prompt_injection(message):
         session.intent = "other"
         session.persist()
-        return _response(session, {"reply": _p_inject(lang), "emotion": session.emotion_score,
-                                   "intent": "other"}, lang, market, market_source)
+        return _response(session, {"reply": _p_inject(reply_lang), "emotion": session.emotion_score,
+                                   "intent": "other"}, reply_lang, market, market_source)
 
     # 3) 一次 LLM 调用:respond(消息 + 知识上下文 + step状态 + 对话语言 + 最近对话)
     BUSINESS = {"product-inquiry", "dealer-lookup", "usage-guide", "emergency", "after-sales"}
-    context = kb.context(message, lang, topk=3)
+    context = kb.context(message, reply_lang, topk=3)
     # 经销商注入(脱敏:仅名称/地址/城市/距离;按坐标 nearest + 按门店名文本 match)
-    dealer_part = kb.dealer_context(message, session.collected.get("lat"), session.collected.get("lng"), lang=lang)
+    dealer_part = kb.dealer_context(message, session.collected.get("lat"), session.collected.get("lng"), lang=reply_lang)
     if dealer_part:
         context = (context + "\n" if context else "") + dealer_part
-    conv_lang = session.language or lang
+    conv_lang = reply_lang
     history = _history_str(session.history)
     if session.intent:
         state_desc = card_mod.state_desc(session.intent, session.step_index, message, session, kb)
@@ -125,7 +126,7 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
         conf = max(conf, 0.95)
     # 兜底:respond 失败/空回复时给非空简短回复,避免"哑巴"
     if not response:
-        response = _fallback_text(new_intent, lang)
+        response = _fallback_text(new_intent, reply_lang)
     session._answer_llm = response
     session._question = question
 
@@ -137,7 +138,7 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
         elif intent == "emergency" and not intent_mod.emergency_hit(message) and new_intent != "emergency":
             # 紧急卡对非紧急跟随消息不强粘:当前消息无紧急信号且 LLM 也未判紧急 → 按新意图退卡
             session.switch_intent(new_intent if new_intent in BUSINESS else "other", conf)
-        reply = card_mod.run_card(session, message, kb, lang)
+        reply = card_mod.run_card(session, message, kb, reply_lang)
     else:
         # 关键词纠正:LLM 的 respond 意图不稳,当关键词给出**置信的业务意图**且与 LLM 不一致时,用关键词意图。
         _ki, _kc, _s, _q = intent_mod.recognize(message, llm_confirm=None)
@@ -145,26 +146,26 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
             new_intent, conf, scores = _ki, _kc, {"kw": True}
         if new_intent in BUSINESS:
             session.lock_intent(new_intent, conf)
-            reply = card_mod.run_card(session, message, kb, lang)
+            reply = card_mod.run_card(session, message, kb, reply_lang)
         elif new_intent == "other":
             # 打招呼/身份提问/闲聊:先回应介绍+引导
             session.lock_intent("other", conf)
-            reply = card_mod.run_card(session, message, kb, lang)
+            reply = card_mod.run_card(session, message, kb, reply_lang)
         elif intent_mod.is_ambiguous(conf):
             session.clarify_rounds += 1
             choice = _intent_by_choice(message)
             if choice:
                 session.lock_intent(choice, 0.9)
-                reply = card_mod.run_card(session, message, kb, lang)
+                reply = card_mod.run_card(session, message, kb, reply_lang)
             elif session.clarify_rounds > config.CLARIFY_MAX_ROUNDS:
                 session.escalated = True
-                reply = {"reply": _p_clarify(lang), "emotion": session.emotion_score,
+                reply = {"reply": _p_clarify(reply_lang), "emotion": session.emotion_score,
                          "intent": "other", "escalate": True, "escalate_reason": "clarify-timeout"}
             else:
-                reply = {"reply": _p_clarify(lang), "emotion": session.emotion_score, "intent": None}
+                reply = {"reply": _p_clarify(reply_lang), "emotion": session.emotion_score, "intent": None}
         else:
             session.lock_intent(new_intent, conf)
-            reply = card_mod.run_card(session, message, kb, lang)
+            reply = card_mod.run_card(session, message, kb, reply_lang)
 
     # 4) 回复质量(禁AI感 + 去重 + 长度硬限) → 输出过滤(禁区)
     raw_reply = _polish_reply(reply.get("reply", ""), session.history)
@@ -173,7 +174,7 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
         clean_reply = clean_reply + "\n\n(Please refer to official AION policy for confirmed terms.)"
     # 品牌合规兜底:回复里出现其它品牌/竞品/比品牌 → 替换为知识缺失+留资引导
     if compliance.find_competitor(clean_reply):
-        reply["reply"] = _no_knowledge_lead(lang)
+        reply["reply"] = _no_knowledge_lead(reply_lang)
     else:
         reply["reply"] = clean_reply
 
@@ -203,7 +204,7 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
                  reply_head=(reply.get("reply") or "")[:80], escalated=bool(reply.get("escalate")),
                  target=bool(reply.get("target_reached", session.target_reached)))
 
-    resp = _response(session, reply, lang, market, market_source)
+    resp = _response(session, reply, reply_lang, market, market_source)
     # 引用 & 合规留资记录
     resp["citations"] = list(reply.get("citations", []))
     # 只在真正收集到留资时才返回 consentVersion(避免纯问候也显示合规卡)
@@ -286,7 +287,7 @@ def _history_str(history, n=4):
     return "\n".join(lines)
 
 
-def _p_inject(lang):
+def _p_inject(reply_lang):
     en = "I can only help with AION UT questions. Could you ask about specs, dealers, or how to use the vehicle?"
     th = "ฉันช่วยได้เฉพาะเรื่อง AION UT เท่านั้น — สเปก ตัวแทนจำหน่าย หรือการใช้งาน"
     es = "Solo puedo ayudar con el AION UT. Pregunte sobre especificaciones, concesionarios o cómo usar el vehículo."
