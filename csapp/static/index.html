@@ -9,18 +9,18 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(140deg,#0d3b32,#0b6e5f 60%,#0a8f79);min-height:100vh;color:var(--txt)}
 .wrap{max-width:520px;margin:0 auto;padding:20px 14px 40px}
- .title{color:#fff;text-align:center;margin:6px 0 2px;font-size:22px;font-weight:700}
+.title{color:#fff;text-align:center;margin:6px 0 2px;font-size:22px;font-weight:700}
 .sub{color:#cfe8e2;text-align:center;font-size:13px;margin-bottom:16px}
 .panel{background:var(--card);border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.28);overflow:hidden}
 .top{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.top select{font-size:12px;padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--txt);outline:0;cursor:pointer}
+.sel-group{margin-left:auto;display:flex;gap:6px;align-items:center}
 .dot{width:10px;height:10px;border-radius:50%;background:#38c172;box-shadow:0 0 0 4px rgba(56,193,114,.18)}
 .chan{font-weight:700;font-size:14px}
-.chip-row{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
-.chip{font-size:11px;padding:3px 8px;border-radius:999px;background:#eef6f4;color:var(--brand);font-weight:600}
-.chip.th{background:#fdf3e7;color:#b7791f}
-.meta{background:#f8fafb;border-bottom:1px solid var(--line);padding:8px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--mut)}
+.meta{background:#f8fafb;border-bottom:1px solid var(--line);padding:9px 16px;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;font-size:12px;color:var(--mut)}
 .meta b{color:var(--txt)}
-.metatag{background:#eef1f4;padding:2px 7px;border-radius:6px;font-weight:600;font-size:11px;color:#43505a}
+.meta .lab{color:#8a97a1}
+.meta .ms{display:inline-flex;gap:4px;align-items:center}
 .msgs{padding:16px;height:418px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;background:#fff}
 .msg{max-width:82%;padding:9px 12px;border-radius:14px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
 .msg.user{align-self:flex-end;background:var(--brand);color:#fff;border-bottom-right-radius:4px}
@@ -46,57 +46,106 @@ body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microso
 </head>
 <body>
 <div class="wrap">
-  <div class="title">AION 海外智能客服</div>
-  <div class="sub">意图驱动 · 语言跟随 · 知识可溯源</div>
+  <div class="title" id="uiTitle">AION 海外智能客服</div>
+  <div class="sub" id="uiSub">意图驱动 · 语言跟随 · 知识可溯源</div>
   <div class="panel">
     <div class="top">
-      <span class="dot"></span><span class="chan">Web 客服窗</span>
-      <div class="chip-row">
-        <span class="chip" id="mktChip">市场 自动</span>
-        <span class="chip th" id="langChip">语言 en</span>
+      <span class="dot"></span><span class="chan" id="uiChan">Web 客服窗</span>
+      <div class="sel-group">
+        <select id="mkt"></select>
+        <select id="lang">
+          <option value="zh">中文</option>
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="th">ไทย</option>
+        </select>
       </div>
     </div>
     <div class="meta">
-      <span class="metatag">意图 <b id="intent">—</b></span>
-      <span class="metatag">步骤 <b id="step">0</b></span>
-      <span class="metatag">目标 <b id="target">未达</b></span>
-      <span class="metatag">延迟 <b id="lat">—</b></span>
-      <span class="metatag" style="margin-left:auto">市场：
-        <select id="mkt">
-          <option value="">自动(按语言)</option>
-          <option value="AU">澳洲 AU</option>
-          <option value="THA">泰国 THA</option>
-          <option value="CN">中国 CN</option>
-          <option value="ES">西班牙 ES</option>
-          <option value="FR">法国 FR</option>
-          <option value="MY">马来西亚 MY</option>
-          <option value="ID">印尼 ID</option>
-          <option value="IN">印度 IN</option>
-          <option value="US">美国 US</option>
-          <option value="DE">德国 DE</option>
-          <option value="VN">越南 VN</option>
-        </select>
-      </span>
+      <span class="ms"><span class="lab" id="labIntent">意图</span> <b id="intent">—</b></span>
+      <span class="ms"><span class="lab" id="labStep">步骤</span> <b id="step">0</b></span>
+      <span class="ms"><span class="lab" id="labTarget">目标</span> <b id="target">—</b></span>
+      <span class="ms"><span class="lab" id="labLat">延迟</span> <b id="lat">—</b></span>
     </div>
     <div class="msgs" id="msgs"></div>
-    <div class="avail"><span>试试：</span>
-      <button class="b" data-q="What is the range of the AION UT?">续航/规格</button>
-      <button class="b" data-q="Where is my nearest dealer?">经销商</button>
-      <button class="b" data-q="How do I charge the car?">怎么充电</button>
-      <button class="b" data-q="My car won't start, need emergency help!!">紧急救援</button>
-      <button class="b" data-q="AION UT มีที่นั่งกี่ที่นั่ง">泰语/市场</button>
-    </div>
+    <div class="avail"><span id="tryLabel">试试：</span><span id="availBtns" style="display:contents"></span></div>
     <div class="in">
       <input id="inp" placeholder="输入消息…" autocomplete="off">
       <button id="send">发送</button>
     </div>
   </div>
-  <div class="hint">语言跟随用户 · 自动识别意图(二段式:关键词 + 大模型语义) · 按市场路由 · 引导卡驱动留资/预约 · 紧急意图优先 · 引用可溯源 · 内容安全护栏</div>
+  <div class="hint" id="hint">语言跟随用户 · 自动识别意图(二段式:关键词 + 大模型语义) · 按市场路由 · 引导卡驱动留资/预约 · 紧急意图优先 · 引用可溯源 · 内容安全护栏</div>
 </div>
 <script>
-let sessionId=null, market="";
+let sessionId=null, market="", lang="en";
 const $=id=>document.getElementById(id);
-$("mkt").addEventListener("change",e=>{market=e.target.value; $("mktChip").textContent=market?("市场 "+market):"市场 自动";});
+const I18N={
+ zh:{title:"AION 海外智能客服",sub:"意图驱动 · 语言跟随 · 知识可溯源",chan:"Web 客服窗",mkt:"市场",lang:"语言",
+     intent:"意图",step:"步骤",target:"目标",lat:"延迟",marketL:"市场：",try:"试试：",placeholder:"输入消息…",send:"发送",
+     reached:"达成",notReached:"未达",emergency:"紧急",escalate:"转人工",cite:"引用：",
+     hint:"语言跟随用户 · 自动识别意图(二段式:关键词 + 大模型语义) · 按市场路由 · 引导卡驱动留资/预约 · 紧急意图优先 · 引用可溯源 · 内容安全护栏",
+     greet:"👋 我是 AION 海外智能助手。可以问我配置、经销商、使用、售后或紧急救援。点击下方示例快速体验各项能力。",
+     done:"✓ 已达成目标 · 联系人已留资",compliance:"合规 ✓ consentVersion=",fail:"请求失败: ",
+     markets:{"":"自动(按语言)","AU":"澳洲 AU","THA":"泰国 THA","CN":"中国 CN","ES":"西班牙 ES","FR":"法国 FR","MY":"马来西亚 MY","ID":"印尼 ID","IN":"印度 IN","US":"美国 US","DE":"德国 DE","VN":"越南 VN"},
+     samples:[["AION UT 的续航是多少？","续航/规格"],["最近的经销商在哪里？","经销商"],["怎么充电？","怎么充电"],
+              ["我的车启动不了，需要紧急救援！！","紧急救援"],["泰国市场卖哪些车型？","泰国/市场"]]},
+ en:{title:"AION Overseas Smart Assistant",sub:"Intent-driven · Language-follow · Traceable knowledge",chan:"Web Chat",
+     mkt:"Market",lang:"Language",intent:"Intent",step:"Step",target:"Target",lat:"Latency",marketL:"Market:",try:"Try:",
+     placeholder:"Type a message…",send:"Send",reached:"✓",notReached:"—",emergency:"Emergency",escalate:"Escalate",cite:"Cite:",
+     hint:"Follows the user's language · Intent recognition · Market routing · Guided lead/booking · Emergency-first · Traceable citations · Content-safety guards",
+     greet:"👋 I'm the AION overseas assistant. Ask me about specs, dealers, usage, service or roadside help. Tap an example below to try it.",
+     done:"✓ Goal reached · lead saved",compliance:"Compliance ✓ consentVersion=",fail:"Request failed: ",
+     markets:{"":"Auto (by language)","AU":"Australia AU","THA":"Thailand THA","CN":"China CN","ES":"Spain ES","FR":"France FR","MY":"Malaysia MY","ID":"Indonesia ID","IN":"India IN","US":"United States US","DE":"Germany DE","VN":"Vietnam VN"},
+     samples:[["What is the range of the AION UT?","Range / specs"],["Where is my nearest dealer?","Dealers"],["How do I charge the car?","Charging"],
+              ["My car won't start, need emergency help!!","Emergency"],["Which models are in the Thailand market?","Thailand / market"]]},
+ es:{title:"Asistente Inteligente AION en el extranjero",sub:"Basado en intención · Sigue el idioma · Conocimiento trazable",chan:"Chat Web",
+     mkt:"Mercado",lang:"Idioma",intent:"Intención",step:"Paso",target:"Objetivo",lat:"Latencia",marketL:"Mercado:",try:"Pruebe:",
+     placeholder:"Escriba un mensaje…",send:"Enviar",reached:"✓",notReached:"—",emergency:"Emergencia",escalate:"Escalar",cite:"Cita:",
+     hint:"Sigue el idioma del usuario · Reconocimiento de intención · Enrutado por mercado · Guía de captación/reserva · Emergencia primero · Citas trazables · Seguridad de contenido",
+     greet:"👋 Soy el asistente AION en el extranjero. Consulte sobre especificaciones, concesionarios, uso, servicio o asistencia en carretera. Toque un ejemplo para probar.",
+     done:"✓ Meta lograda · contacto guardado",compliance:"Cumplimiento ✓ consentVersion=",fail:"Error de petición: ",
+     markets:{"":"Auto (por idioma)","AU":"Australia AU","THA":"Tailandia THA","CN":"China CN","ES":"España ES","FR":"Francia FR","MY":"Malasia MY","ID":"Indonesia ID","IN":"India IN","US":"Estados Unidos US","DE":"Alemania DE","VN":"Vietnam VN"},
+     samples:[["¿Cuál es la autonomía del AION UT?","Autonomía / especificaciones"],["¿Dónde está mi concesionario más cercano?","Concesionarios"],["¿Cómo cargo el coche?","Carga"],
+              ["Mi coche no arranca, ¡necesito ayuda de emergencia!!","Emergencia"],["¿Qué modelos hay en el mercado de Tailandia?","Tailandia / mercado"]]},
+ th:{title:"ผู้ช่วยอัจฉริยะ AION ต่างประเทศ",sub:"ตามเจตนา · ตามภาษาผู้ใช้ · ความรู้ตรวจสอบได้",chan:"แชทเว็บ",
+     mkt:"ตลาด",lang:"ภาษา",intent:"เจตนา",step:"ขั้นตอน",target:"เป้าหมาย",lat:"หน่วง",marketL:"ตลาด:",try:"ลอง:",
+     placeholder:"พิมพ์ข้อความ…",send:"ส่ง",reached:"✓",notReached:"—",emergency:"ฉุกเฉิน",escalate:"ส่งต่อเจ้าหน้าที่",cite:"อ้างอิง:",
+     hint:"ตามภาษาผู้ใช้ · ตรวจจับเจตนา · จัดเส้นทางตามตลาด · นำไปสู่การฝากข้อมูล/นัดหมาย · ฉุกเฉินก่อน · อ้างอิงตรวจสอบได้ · ความปลอดภัยเนื้อหา",
+     greet:"👋 ผมคือผู้ช่วย AION ต่างประเทศ สอบถามสเปก ตัวแทนจำหน่าย การใช้งาน บริการ หรือช่วยเหลือฉุกเฉินได้ แตะตัวอย่างด้านล่างเพื่อลองใช้",
+     done:"✓ บรรลุเป้าหมาย · ฝากข้อมูลแล้ว",compliance:"ปฏิบัติตาม ✓ consentVersion=",fail:"คำขอผิดพลาด: ",
+     markets:{"":"อัตโนมัติ (ตามภาษา)","AU":"ออสเตรเลีย AU","THA":"ไทย THA","CN":"จีน CN","ES":"สเปน ES","FR":"ฝรั่งเศส FR","MY":"มาเลเซีย MY","ID":"อินโดนีเซีย ID","IN":"อินเดีย IN","US":"สหรัฐอเมริกา US","DE":"เยอรมนี DE","VN":"เวียดนาม VN"},
+     samples:[["AION UT วิ่งได้ไกลแค่ไหน","ระยะทาง / สเปก"],["ตัวแทนจำหน่ายใกล้ฉันอยู่ที่ไหน","ตัวแทนจำหน่าย"],["ชาร์จรถยังไง","ชาร์จ"],
+              ["รถสตาร์ทไม่ติด ต้องการความช่วยเหลือฉุกเฉิน!!","ฉุกเฉิน"],["ตลาดไทยมีรุ่นอะไรบ้าง","ไทย / ตลาด"]]}
+};
+function renderAvail(){
+  const btns=$("availBtns"); btns.innerHTML="";
+  I18N[lang].samples.forEach(s=>{
+    const b=document.createElement("button"); b.className="b"; b.textContent=s[1]; b.dataset.q=s[0];
+    b.onclick=()=>send(b.dataset.q); btns.appendChild(b);
+  });
+}
+function renderMarket(){
+  const sel=$("mkt"); const cur=market; sel.innerHTML="";
+  Object.keys(I18N[lang].markets).forEach(v=>{
+    const o=document.createElement("option"); o.value=v; o.textContent=I18N[lang].markets[v];
+    if(v===cur)o.selected=true; sel.appendChild(o);
+  });
+}
+function setLang(l){
+  lang=(I18N[l]?l:"en"); document.documentElement.lang=lang; $("lang").value=lang;
+  const T=I18N[lang];
+  $("uiTitle").textContent=T.title; $("uiSub").textContent=T.sub; $("uiChan").textContent=T.chan;
+  $("labIntent").textContent=T.intent; $("labStep").textContent=T.step; $("labTarget").textContent=T.target;
+  $("labLat").textContent=T.lat;
+  $("tryLabel").textContent=T.try; $("inp").placeholder=T.placeholder; $("send").textContent=T.send; $("hint").textContent=T.hint;
+  renderMarket(); renderAvail();
+}
+function detectDefaultLang(){
+  const n=(navigator.language||"en").toLowerCase();
+  if(n.startsWith("zh"))return "zh"; if(n.startsWith("th"))return "th"; if(n.startsWith("es"))return "es"; return "en";
+}
+$("mkt").addEventListener("change",e=>{market=e.target.value;});
+$("lang").addEventListener("change",e=>setLang(e.target.value));
 function add(cls,html){const d=document.createElement("div");d.className="msg "+cls;d.innerHTML=html;$("msgs").appendChild(d);$("msgs").scrollTop=$("msgs").scrollHeight;return d}
 async function send(q){
   q=(q||$("inp").value).trim(); if(!q)return;
@@ -104,39 +153,38 @@ async function send(q){
   add("user",esc(q));
   const tk=add("bot","…");
   try{
-    const r=await fetch("/api/v1/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId,message:q,market})});
+    const T=I18N[lang];
+    const r=await fetch("/api/v1/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId,message:q,market,langHint:lang})});
     const d=await r.json();
     sessionId=d.sessionId;
-    $("mktChip").textContent="市场 "+d.market;
-    $("langChip").textContent="语言 "+(d.language||"en");
     $("intent").textContent=d.intent||"—";
     $("step").textContent=(d.state&&d.state.stepIndex)||0;
-    $("target").textContent=d.targetReached?"达成":"未达";
+    $("target").textContent=d.targetReached?T.reached:T.notReached;
     $("lat").textContent=(d.latency_ms!=null?d.latency_ms+"ms":"—");
     const em=(d.intent==="emergency");
     tk.className="msg bot"+(em?" em":"");
     let html=esc(d.reply||"");
     let cap=[];
-    if(d.intent)cap.push('<span class="t int">'+d.intent+'</span>');
-    if(d.market)cap.push('<span class="t txt">'+d.market+' / '+(d.language||'')+'</span>');
-    if(em)cap.push('<span class="t" style="background:#c0392b;color:#fff">紧急</span>');
-    if(d.escalate)cap.push('<span class="t" style="background:#8e44ad;color:#fff">转人工</span>');
-    if(d.citations&&d.citations.length){cap.push('引用：'+d.citations.map(c=>'<cite>'+esc(c.doc||c.concept||'')+'</cite>').join(', '));}
+    if(d.intent)cap.push('<span class="t int">'+esc(d.intent)+'</span>');
+    if(d.market)cap.push('<span class="t txt">'+esc(d.market)+' / '+esc(d.language||'')+'</span>');
+    if(em)cap.push('<span class="t" style="background:#c0392b;color:#fff">'+T.emergency+'</span>');
+    if(d.escalate)cap.push('<span class="t" style="background:#8e44ad;color:#fff">'+T.escalate+'</span>');
+    if(d.citations&&d.citations.length){cap.push(T.cite+d.citations.map(c=>'<cite>'+esc(c.doc||c.concept||'')+'</cite>').join(', '));}
     if(cap.length)html+='<div class="cap">'+cap.join(' &nbsp; ')+'</div>';
     tk.innerHTML=html;
     if(d.targetReached){
       const ref=(d.leadRecord&&d.leadRecord.leadId)||d.leadId||'';
-      add("ok","✓ 已达成目标 · 联系人已留资"+(ref?(' · 参考号 '+ref):''));
+      add("ok",T.done+(ref?(' · '+esc(ref)):''));
     }
-    if(d.consentVersion)add("ok","合规 ✓ consentVersion="+d.consentVersion);
-  }catch(e){ tk.textContent="请求失败: "+(e.message||e); }
+    if(d.consentVersion)add("ok",T.compliance+d.consentVersion);
+  }catch(e){ tk.textContent=I18N[lang].fail+(e.message||e); }
   $("send").disabled=false;
 }
 function esc(s){s=String(s);return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
-document.querySelectorAll(".b").forEach(b=>b.onclick=()=>{send(b.dataset.q)});
 $("send").onclick=()=>send();
 $("inp").addEventListener("keydown",e=>{if(e.key==="Enter")send()});
-add("bot","👋 我是 AION 海外智能助手。可以问我配置、经销商、使用、售后或紧急救援。点击下方示例快速体验各项能力。");
+setLang(detectDefaultLang());
+add("bot",I18N[lang].greet);
 </script>
 </body>
 </html>
