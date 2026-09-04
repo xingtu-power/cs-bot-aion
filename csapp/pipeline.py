@@ -164,7 +164,11 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     clean_reply, flagged = compliance.output_filter(raw_reply)
     if flagged:
         clean_reply = clean_reply + "\n\n(Please refer to official AION policy for confirmed terms.)"
-    reply["reply"] = clean_reply
+    # 品牌合规兜底:回复里出现其它品牌/竞品/比品牌 → 替换为知识缺失+留资引导
+    if compliance.find_competitor(clean_reply):
+        reply["reply"] = _no_knowledge_lead(lang)
+    else:
+        reply["reply"] = clean_reply
 
     session.persist()
     session.append_turn(message, reply.get("reply", ""), session.intent, reply.get("emotion", 0))
@@ -208,6 +212,20 @@ def _fallback_text(intent, lang):
          "zh": "我可以帮您解答 AION UT 的问题，麻烦再说一下？您可以问配置、经销商或使用方法。",
          "th": "ฉันช่วยเรื่อง AION UT ได้ รบกวนลองใหม่ หรือสอบถามสเปก ตัวแทนจำหน่าย หรือการใช้งาน",
          "es": "Puedo ayudarle con el AION UT. ¿Podría reformular? Pregunte por especificaciones, concesionarios o uso."}
+    return m.get(lang, m["en"])
+
+
+def _no_knowledge_lead(lang):
+    """知识缺失/无对应配置时,禁推其它品牌 → 引导留资/联系专员(品牌合规兜底)。"""
+    m = {"en": "AION UT is a 5-seat model and doesn't currently offer 6 seats. I don't have information "
+               "beyond that here — may I connect you with an AION specialist, or could you leave your contact "
+               "details for a follow-up?",
+         "zh": "AION UT 是 5 座车型，目前没有 6 座版本。这边暂时没有更多信息——我可以帮您转接 AION 专员，"
+               "或者您方便留个联系方式，让专员为您跟进吗？",
+         "th": "AION UT เป็นรุ่น 5 ที่นั่ง และยังไม่มีรุ่น 6 ที่นั่งในตอนนี้ ตรงนี้ยังไม่มีข้อมูลเพิ่มเติม—"
+               "ขอเชื่อมต่อคุณกับผู้เชี่ยวชาญ AION หรือฝากข้อมูลติดต่อเพื่อให้เจ้าหน้าที่ติดตามได้ไหม?",
+         "es": "El AION UT es un modelo de 5 plazas y no ofrece 6 plazas actualmente. No tengo más información "
+               "al respecto: ¿le conecto con un especialista de AION o podría dejar sus datos de contacto para un seguimiento?"}
     return m.get(lang, m["en"])
 
 

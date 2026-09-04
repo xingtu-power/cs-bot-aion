@@ -137,6 +137,24 @@ def strip_ai_phrases(text):
     return clean.strip(), changed
 
 
+# ---------------- 品牌合规:禁提/禁比其它品牌 ----------------
+# 输出侧兜底:检测回复中是否出现其它品牌/竞品话术,命中则由管道替换为知识缺失+留资引导。
+COMPETITOR_PATTERNS = [
+    r"(?i)\b(BYD|Tesla|Nissan|MG|Geely|GWM|Haval|Chery|Toyota|Honda|Hyundai|Kia|Volkswagen|BMW|Mercedes|"
+    r"Audi|Peugeot|Renault|Ford|Chevrolet|Volvo|Polestar|Zeekr)\b",
+    r"(?i)(other brand|another brand|competitor|other manufacturer|look at other brands|rival)",
+    r"(其他品牌|别的品牌|其它品牌|竞品|别的车型品牌|其他车型品牌)",
+]
+
+
+def find_competitor(reply):
+    """回复中是否提到其它品牌/竞品/比品牌。返回 True 表示命中(需改走留资引导兜底)。"""
+    for pat in COMPETITOR_PATTERNS:
+        if re.search(pat, reply):
+            return True
+    return False
+
+
 # ---------------- 回复质量:长度硬限 ----------------
 def truncate_reply(text, max_chars):
     """超限时在句读边界截断,保留完整句意;返回截断后的文本。"""
