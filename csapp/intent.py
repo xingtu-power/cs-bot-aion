@@ -34,16 +34,23 @@ def normalize_intent(i):
     direct = _INTENT_ALIAS.get(s) or _INTENT_ALIAS.get(s.replace(" ", "_"))
     if direct:
         return direct
-    if any(k in s for k in ["dealer", "经销商", "dealership", "showroom"]):
+    if any(k in s for k in ["dealer", "经销商", "dealership", "showroom", "contact", "location",
+                            "address", "city", "nearest", "find", "postal", "试驾", "附近",
+                            "booking", "appointment", "schedule", "reservation", "visit", "预约", "到店"]):
         return "dealer-lookup"
-    if any(k in s for k in ["warran", "service", "after", "售后", "保修", "质保", "保养", "维修"]):
+    if any(k in s for k in ["warran", "service", "after", "售后", "保修", "质保", "保养", "维修",
+                            "maintenance", "repair", "part"]):
         return "after-sales"
     if any(k in s for k in ["emerg", "rescue", "breakdown", "故障", "无法启动", "紧急", "事故",
                             "arranca", "won't start", "cannot start", "启动不了", "打不着"]):
         return "emergency"
-    if any(k in s for k in ["spec", "range", "product", "配置", "续航", "车型"]):
+    if any(k in s for k in ["spec", "range", "product", "model", "trim", "config", "intro",
+                            "introduction", "equip", "autonom", "battery", "power", "seat",
+                            "price", "cost", "pricing", "finance", "payment", "installment",
+                            "delivery", "stock", "availability", "colour", "color", "feature",
+                            "配置", "续航", "车型", "型号", "规格", "版本", "价格", "多少钱", "颜色"]):
         return "product-inquiry"
-    if any(k in s for k in ["usage", "how to", "charge", "使用", "充电", "guide"]):
+    if any(k in s for k in ["usage", "how to", "charge", "使用", "充电", "guide", "cargar", "ชาร์จ"]):
         return "usage-guide"
     return "other"
 

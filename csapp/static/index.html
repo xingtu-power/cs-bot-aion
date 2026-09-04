@@ -170,7 +170,10 @@ async function send(q){
 }
 function esc(s){s=String(s);return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
 $("send").onclick=()=>send();
-$("inp").addEventListener("keydown",e=>{if(e.key==="Enter")send()});
+$("inp").addEventListener("keydown",e=>{
+  if(e.isComposing || e.keyCode===229)return;   // 输入法组合中,忽略按键(避免把"wh o"这种半截值发出/空格错位)
+  if(e.key==="Enter")send();
+});
 setLang(detectDefaultLang());
 add("bot",I18N[lang].greet);
 </script>

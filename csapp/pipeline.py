@@ -130,6 +130,9 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
         # 已锁定:用户若跳到**另一个业务意图**则切换,避免死抠某一步
         if new_intent in BUSINESS and new_intent != intent:
             session.switch_intent(new_intent, conf)
+        elif intent == "emergency" and not intent_mod.emergency_hit(message) and new_intent != "emergency":
+            # 紧急卡对非紧急跟随消息不强粘:当前消息无紧急信号且 LLM 也未判紧急 → 按新意图退卡
+            session.switch_intent(new_intent if new_intent in BUSINESS else "other", conf)
         reply = card_mod.run_card(session, message, kb, lang)
     else:
         # 关键词纠正:LLM 的 respond 意图不稳,当关键词给出**置信的业务意图**且与 LLM 不一致时,用关键词意图。

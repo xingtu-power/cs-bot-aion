@@ -148,7 +148,8 @@ def run_card(session, message, kb, lang):
         asks[key] = asks.get(key, 0) + 1
         session.step_asks = asks
         max_ask = sd.get("max_ask", config.SLOT_MAX_ASK)
-        if asks[key] >= max_ask:
+        # 只在首次超限时转人工一次(=);之后不再重复交接,让新的问题能被回答/切意图(避免粘死)
+        if asks[key] == max_ask:
             session.escalated = True
             emotion = score_emotion(message, intent)
             result = {"reply": _handoff(lang), "emotion": emotion, "intent": intent,
