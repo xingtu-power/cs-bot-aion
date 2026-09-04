@@ -136,14 +136,16 @@ class KnowledgeBase:
                 seen.add(nm)
                 d = r.get("_dist")
                 dist = f", 约 {d:.1f} km" if d is not None else ""
-                lines.append(f"- {lb} {nm} ({self.market}) — {r.get('address','')}{dist}")
+                ph = f"，电话 {r['phone']}" if r.get("phone") else ""
+                lines.append(f"- {lb} {nm} ({self.market}) — {r.get('address','')}{dist}{ph}")
         for r in _search.match_dealers(query, topk):
             nm = r.get("name") or ""
             if not nm or nm in seen:
                 continue
             seen.add(nm)
             mkt = r.get("_market", self.market)
-            lines.append(f"- {lb} {nm} ({mkt}) — {r.get('address','')}")
+            ph = f"，电话 {r['phone']}" if r.get("phone") else ""
+            lines.append(f"- {lb} {nm} ({mkt}) — {r.get('address','')}{ph}")
         return "\n".join(lines) if lines else ""
 
     # 规格概念 → 多语言标签(中/西;en/th 用字段原始名)
