@@ -131,6 +131,25 @@ def nearest_dealers(market: str, lat, lng, topk=3):
     return ok[:topk]
 
 
+def match_dealers(market: str, query: str, topk=3):
+    """按名称/地址/城市/门店编码做文本匹配(含泰文归一化),返回命中的经销商 dict(不含距离)。
+    用于用户直接提到门店名/区域的场景(如 'GAC สีลม ซอย 9')。"""
+    q = tokenize(query or "")
+    if not q:
+        return []
+    rows = [json.loads(l) for l in open(os.path.join(ROOT, "kb", market, "dealers", "dealers.jsonl"), encoding="utf-8")]
+    scored = []
+    for r in rows:
+        hay = " ".join([r.get("name", ""), r.get("address", ""), r.get("city", ""),
+                        r.get("state", ""), str(r.get("network_code", ""))])
+        d = tokenize(hay)
+        score = len(q & d)
+        if score > 0:
+            scored.append((score, r))
+    scored.sort(key=lambda x: -x[0])
+    return [r for _, r in scored[:topk]]
+
+
 # ---------- FAQ 匹配 ----------
 def match_faq(market: str, query: str, topk=2):
     q_tokens = tokenize(query)

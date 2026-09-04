@@ -118,6 +118,28 @@ class KnowledgeBase:
     def nearest_dealers(self, lat, lng, topk=3):
         return _search.nearest_dealers(self.market, lat, lng, topk)
 
+    def dealer_context(self, query="", lat=None, lng=None, topk=3):
+        """把经销商(名称/地址/城市/距离)拼成给 LLM 的上下文;严格脱敏:不给电话/联系人/编码。
+        优先按坐标(nearest),再按名称文本(match),去重。"""
+        lines = []
+        seen = set()
+        if lat is not None and lng is not None:
+            for r in _search.nearest_dealers(self.market, lat, lng, topk):
+                nm = r.get("name") or ""
+                if not nm or nm in seen:
+                    continue
+                seen.add(nm)
+                d = r.get("_dist")
+                dist = f", 约 {d:.1f} km" if d is not None else ""
+                lines.append(f"- 经销商 {nm} — {r.get('address','')}{dist}")
+        for r in _search.match_dealers(self.market, query, topk):
+            nm = r.get("name") or ""
+            if not nm or nm in seen:
+                continue
+            seen.add(nm)
+            lines.append(f"- 经销商 {nm} — {r.get('address','')}")
+        return "\n".join(lines) if lines else ""
+
     # 规格概念 → 多语言标签(中/西;en/th 用字段原始名)
     _CONCEPT_LABEL = {
         "range": {"zh": "续航（综合工况）", "es": "Autonomía (condiciones integrales)"},
