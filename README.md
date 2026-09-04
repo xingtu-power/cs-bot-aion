@@ -115,3 +115,4 @@ cs-bot-aion/
 - 知识内容来自泰国/澳洲 AION 官方手册、配置表、经销商数据；索引由 `tools/embed_index.py` 构建并随仓库内置（clone 即可用向量检索，无需重建）。
 - 业务落库于 `data/kd.db`(SQLite)；会话状态存 `data/sessions/`（运行时生成，不入库）。
 - 生产可换用 FastAPI 版（`csapp/api.py`，需 `pip install fastapi uvicorn`）。
+- **部署到阿里云(ECS/轻量)**：见 [`deploy/README.md`](deploy/README.md)（Docker Compose 或 systemd 两种方式，含 .env/模型下载/安全组/运维指南）。

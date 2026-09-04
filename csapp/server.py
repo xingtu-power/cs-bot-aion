@@ -5,7 +5,7 @@
 生产可换用 FastAPI(见 api.py,需 pip 安装 fastapi/uvicorn)。
 """
 import json, time, os
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse
 from . import pipeline, db
 
@@ -104,6 +104,8 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     import argparse
     ap = argparse.ArgumentParser()
+    ap.add_argument("--host", type=str, default="127.0.0.1",
+                    help="绑定地址;容器/公网部署传 0.0.0.0")
     ap.add_argument("--port", type=int, default=8000)
     args = ap.parse_args()
     # 预热:启动时加载共享 e5 模型 + 向量索引,避免首条消息付 ~30s
@@ -113,8 +115,8 @@ def main():
         _kb.warmup()
     except Exception as e:
         print("warmup skipped:", e)
-    httpd = HTTPServer(("127.0.0.1", args.port), Handler)
-    print(f"csapp server on http://127.0.0.1:{args.port}")
+    httpd = ThreadingHTTPServer((args.host, args.port), Handler)
+    print(f"csapp server on http://{args.host}:{args.port} (threaded)")
     httpd.serve_forever()
 
 

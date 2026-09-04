@@ -1,6 +1,13 @@
 # 运行态数据(会话/业务库/调试日志)
 data/
 
+# 密钥(勿入库;模板见 deploy/.env.example)
+.env
+deploy/.env
+
+# 本地导出的镜像包(手动上传用)
+csbot-dist/
+
 # 内嵌第三方库(需 pip 安装)
 tools/pylib/
 tools/_lib/

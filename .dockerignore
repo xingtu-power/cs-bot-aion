@@ -1,0 +1,27 @@
+# 版本控制/CI
+.git
+.gitignore
+
+# 运行态数据(挂卷,不入镜像)
+data/
+
+# 密钥
+.env
+deploy/.env
+
+# 本地导出的镜像包(勿打进镜像)
+csbot-dist/
+
+# 依赖/模型缓存(容器内挂卷或首次启动下载)
+tools/emb_cache/
+tools/hf_cache/
+tools/pylib/
+tools/_lib/
+tools/pipcache/
+tools/dsh_home/
+
+# 系统/构建杂物
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store

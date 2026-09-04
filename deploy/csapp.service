@@ -1,0 +1,20 @@
+# cs-bot-aion systemd 单元(不使用 Docker 时的备选方案)
+# 安装步骤见 deploy/README.md「方式 C:systemd + venv」
+[Unit]
+Description=AION cs-bot-aion customer-service bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=csapp
+Group=csapp
+WorkingDirectory=/opt/cs-bot-aion
+# 密钥与运行配置放 /etc/csapp.env(格式 KEY=value,一行一个)
+EnvironmentFile=/etc/csapp.env
+ExecStart=/opt/cs-bot-aion/venv/bin/python -m csapp.server --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
