@@ -95,7 +95,7 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     BUSINESS = {"product-inquiry", "dealer-lookup", "usage-guide", "emergency", "after-sales"}
     context = kb.context(message, lang, topk=3)
     # 经销商注入(脱敏:仅名称/地址/城市/距离;按坐标 nearest + 按门店名文本 match)
-    dealer_part = kb.dealer_context(message, session.collected.get("lat"), session.collected.get("lng"))
+    dealer_part = kb.dealer_context(message, session.collected.get("lat"), session.collected.get("lng"), lang=lang)
     if dealer_part:
         context = (context + "\n" if context else "") + dealer_part
     conv_lang = session.language or lang

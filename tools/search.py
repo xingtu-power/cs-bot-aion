@@ -131,23 +131,71 @@ def nearest_dealers(market: str, lat, lng, topk=3):
     return ok[:topk]
 
 
-def match_dealers(market: str, query: str, topk=3):
-    """按名称/地址/城市/门店编码做文本匹配(含泰文归一化),返回命中的经销商 dict(不含距离)。
-    用于用户直接提到门店名/区域的场景(如 'GAC สีลม ซอย 9')。"""
-    q = tokenize(query or "")
-    if not q:
+# 城市别名 -> 门店数据所用的规范城市(英文),用于"我说城市就给该市经销商"
+CITY_ALIASES = {
+    # 泰国
+    "bangkok": "bangkok", "曼谷": "bangkok", "กรุงเทพ": "bangkok", "กรุงเทพฯ": "bangkok",
+    "krungthep": "bangkok", "krung thep": "bangkok",
+    "pattaya": "pattaya", "芭提雅": "pattaya", "พัทยา": "pattaya", "ชลบุรี": "chonburi", "chonburi": "chonburi",
+    "nakhon ratchasima": "nakhon ratchasima", "korat": "nakhon ratchasima", "โคราช": "nakhon ratchasima", "呵叻": "nakhon ratchasima",
+    "surat thani": "surat thani", "surat": "surat thani", "สุราษฎร์": "surat thani", "素叻": "surat thani",
+    "chiang mai": "chiang mai", "เชียงใหม่": "chiang mai", "清迈": "chiang mai",
+    "phuket": "phuket", "ภูเก็ต": "phuket", "普吉": "phuket",
+    "rayong": "rayong", "ระยอง": "rayong", "罗勇": "rayong",
+    "ayutthaya": "ayutthaya", "อยุธยา": "ayutthaya", "大城": "ayutthaya",
+    # 澳洲
+    "sydney": "sydney", "悉尼": "sydney",
+    "melbourne": "melbourne", "墨尔本": "melbourne",
+    "brisbane": "brisbane", "布里斯班": "brisbane",
+    "perth": "perth", "珀斯": "perth",
+    "adelaide": "adelaide", "阿德莱德": "adelaide",
+    "canberra": "canberra", "堪培拉": "canberra",
+    "gold coast": "gold coast", "goldcoast": "gold coast", "黄金海岸": "gold coast",
+}
+
+
+def _dealer_text(r):
+    return " ".join([r.get("name", ""), r.get("address", ""), r.get("city", ""),
+                     r.get("state", ""), str(r.get("network_code", ""))])
+
+
+def _dealer_cities(r):
+    """门店 city/address/state 里命中的规范城市别名集合。"""
+    t = " ".join([r.get("city", ""), r.get("address", ""), r.get("state", "")]).lower()
+    return {cap for alias, cap in CITY_ALIASES.items() if alias and alias in t}
+
+
+def _explicit_cities(query):
+    """用户 query 里显式提到的城市(规范形)。"""
+    q = (query or "").lower()
+    return {cap for alias, cap in CITY_ALIASES.items() if alias and alias in q}
+
+
+def match_dealers(query: str, topk=3, markets=("THA", "AU")):
+    """跨市场按名称/地址/城市/门店编码做文本匹配 + 城市别名命中(如 '曼谷'->Bangkok)。
+    返回经销商 dict(含 '_market'),用于用户提到门店名/区域的场景。"""
+    q_tokens = tokenize(query or "")
+    cities = _explicit_cities(query or "")
+    if not q_tokens and not cities:
         return []
-    rows = [json.loads(l) for l in open(os.path.join(ROOT, "kb", market, "dealers", "dealers.jsonl"), encoding="utf-8")]
-    scored = []
-    for r in rows:
-        hay = " ".join([r.get("name", ""), r.get("address", ""), r.get("city", ""),
-                        r.get("state", ""), str(r.get("network_code", ""))])
-        d = tokenize(hay)
-        score = len(q & d)
-        if score > 0:
-            scored.append((score, r))
-    scored.sort(key=lambda x: -x[0])
-    return [r for _, r in scored[:topk]]
+    results = []
+    for mkt in markets:
+        path = os.path.join(ROOT, "kb", mkt, "dealers", "dealers.jsonl")
+        if not os.path.exists(path):
+            continue
+        for line in open(path, encoding="utf-8"):
+            try:
+                r = json.loads(line)
+            except Exception:
+                continue
+            tok_hit = len(q_tokens & tokenize(_dealer_text(r))) if q_tokens else 0
+            cit_hit = len(cities & _dealer_cities(r))
+            score = tok_hit + (8 if cit_hit else 0)  # 城市命中加权,优先跨市场找对店
+            if score > 0:
+                r = dict(r); r["_market"] = mkt
+                results.append((score, r))
+    results.sort(key=lambda x: -x[0])
+    return [r for _, r in results[:topk]]
 
 
 # ---------- FAQ 匹配 ----------

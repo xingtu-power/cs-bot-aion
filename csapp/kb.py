@@ -118,9 +118,14 @@ class KnowledgeBase:
     def nearest_dealers(self, lat, lng, topk=3):
         return _search.nearest_dealers(self.market, lat, lng, topk)
 
-    def dealer_context(self, query="", lat=None, lng=None, topk=3):
+    _DEALER_LABEL = {"zh": "经销商", "en": "Dealer", "es": "Concesionario", "th": "ตัวแทนจำหน่าย"}
+
+    def dealer_context(self, query="", lat=None, lng=None, topk=3, lang="en"):
         """把经销商(名称/地址/城市/距离)拼成给 LLM 的上下文;严格脱敏:不给电话/联系人/编码。
-        优先按坐标(nearest),再按名称文本(match),去重。"""
+        - 有坐标 → 按 routed market 的 nearest(距离)。
+        - match 跨市场(THA+AU),按名称/地址/城市别名(曼谷→Bangkok)命中,并标注市场。
+        - label 按语言本地化。"""
+        lb = self._DEALER_LABEL.get(lang, "Dealer")
         lines = []
         seen = set()
         if lat is not None and lng is not None:
@@ -131,13 +136,14 @@ class KnowledgeBase:
                 seen.add(nm)
                 d = r.get("_dist")
                 dist = f", 约 {d:.1f} km" if d is not None else ""
-                lines.append(f"- 经销商 {nm} — {r.get('address','')}{dist}")
-        for r in _search.match_dealers(self.market, query, topk):
+                lines.append(f"- {lb} {nm} ({self.market}) — {r.get('address','')}{dist}")
+        for r in _search.match_dealers(query, topk):
             nm = r.get("name") or ""
             if not nm or nm in seen:
                 continue
             seen.add(nm)
-            lines.append(f"- 经销商 {nm} — {r.get('address','')}")
+            mkt = r.get("_market", self.market)
+            lines.append(f"- {lb} {nm} ({mkt}) — {r.get('address','')}")
         return "\n".join(lines) if lines else ""
 
     # 规格概念 → 多语言标签(中/西;en/th 用字段原始名)
