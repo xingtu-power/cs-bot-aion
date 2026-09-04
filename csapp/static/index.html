@@ -61,12 +61,6 @@ body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microso
         </select>
       </div>
     </div>
-    <div class="meta">
-      <span class="ms"><span class="lab" id="labIntent">意图</span> <b id="intent">—</b></span>
-      <span class="ms"><span class="lab" id="labStep">步骤</span> <b id="step">0</b></span>
-      <span class="ms"><span class="lab" id="labTarget">目标</span> <b id="target">—</b></span>
-      <span class="ms"><span class="lab" id="labLat">延迟</span> <b id="lat">—</b></span>
-    </div>
     <div class="msgs" id="msgs"></div>
     <div class="avail"><span id="tryLabel">试试：</span><span id="availBtns" style="display:contents"></span></div>
     <div class="in">
@@ -135,8 +129,6 @@ function setLang(l){
   lang=(I18N[l]?l:"en"); document.documentElement.lang=lang; $("lang").value=lang;
   const T=I18N[lang];
   $("uiTitle").textContent=T.title; $("uiSub").textContent=T.sub; $("uiChan").textContent=T.chan;
-  $("labIntent").textContent=T.intent; $("labStep").textContent=T.step; $("labTarget").textContent=T.target;
-  $("labLat").textContent=T.lat;
   $("tryLabel").textContent=T.try; $("inp").placeholder=T.placeholder; $("send").textContent=T.send; $("hint").textContent=T.hint;
   renderMarket(); renderAvail();
 }
@@ -157,10 +149,6 @@ async function send(q){
     const r=await fetch("/api/v1/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId,message:q,market,langHint:lang})});
     const d=await r.json();
     sessionId=d.sessionId;
-    $("intent").textContent=d.intent||"—";
-    $("step").textContent=(d.state&&d.state.stepIndex)||0;
-    $("target").textContent=d.targetReached?T.reached:T.notReached;
-    $("lat").textContent=(d.latency_ms!=null?d.latency_ms+"ms":"—");
     const em=(d.intent==="emergency");
     tk.className="msg bot"+(em?" em":"");
     let html=esc(d.reply||"");
