@@ -46,6 +46,32 @@ class RuleLLM(BaseLLM):
         return None
 
 
+def _extract_json(text):
+    """鲁棒地从 LLM 输出中提取第一个合法 JSON 对象。
+    兼容 markdown ``` 围栏、前后缀说明、多余结尾;取 first valid JSON object。"""
+    if not text:
+        return None
+    t = text.strip()
+    if t.startswith("```"):
+        t = re.sub(r"^```[\w]*\n?", "", t)
+        t = re.sub(r"\n?```$", "", t).strip()
+    try:
+        return json.loads(t)
+    except Exception:
+        pass
+    start = t.find("{")
+    if start == -1:
+        return None
+    try:
+        obj, _ = json.JSONDecoder().raw_decode(t[start:])
+        return obj
+    except Exception:
+        try:
+            return json.loads(t[start:t.rfind("}") + 1])
+        except Exception:
+            return None
+
+
 class DeepSeekLLM(BaseLLM):
     """通过 dsh --profile headless 调用大模型(尽力而为)。"""
 
@@ -122,8 +148,9 @@ class DeepSeekLLM(BaseLLM):
         if not out:
             return None
         try:
-            start = out.find("{")
-            d = json.loads(out[start:out.rfind("}") + 1])
+            d = _extract_json(out)
+            if not d:
+                return None
             return (d.get("intent"), float(d.get("confidence", 0.0)),
                     bool(d.get("question", True)), d.get("answer"))
         except Exception:
@@ -141,7 +168,9 @@ class DeepSeekLLM(BaseLLM):
                   f"{conv_lang}. Do not switch language based on the message.\n"
                   f"Do NOT repeat things you already said in the conversation. Understand follow-up questions in context.\n"
                   f"Respond to what the customer actually said (answer a question, or continue guiding as needed). "
-                  f"Use ONLY the facts below; do not invent numbers or claims.\n"
+                  f"Use ONLY the facts below; do not invent numbers or claims.\n"f"If the customer replies '好的'/'yes'/'OK' to confirm a topic you just offered or were explaining, "
+f"immediately expand that topic using the facts (or ask which one if you offered several) — do NOT just "
+f"acknowledge or change the subject.\n"
                   f"Dealers: if the facts list a dealer, you may share its name, address and phone number so the "
                   f"customer can contact it directly — this is public dealer info, provide it proactively when asked. "
                   f"Only reference dealers that actually appear in the facts; if the customer names a store that is NOT "
@@ -166,7 +195,7 @@ class DeepSeekLLM(BaseLLM):
         if history:
             prompt += f"Recent conversation:\n{history}\n\n"
         prompt += (f"Facts:\n{context or '(none)'}\n\nCustomer message: {message}\n\n"
-                   'Reply JSON {"intent":"...","confidence":0.0,"question":true|false,"response":"..."} only.')
+                   'Reply JSON {"intent":"product-inquiry|dealer-lookup|usage-guide|emergency|after-sales|other","confidence":0.0,"question":true|false,"response":"..."} only.')
         debug.record(evt="llm_respond_input", message=message, conv_lang=conv_lang,
                      state_desc=(state_desc or "")[:160], ctx_len=len(context or ""),
                      hist_len=len(history or ""))
@@ -175,8 +204,9 @@ class DeepSeekLLM(BaseLLM):
         if not out:
             return None
         try:
-            start = out.find("{")
-            d = json.loads(out[start:out.rfind("}") + 1])
+            d = _extract_json(out)
+            if not d:
+                raise ValueError("no valid json")
             res = (d.get("intent"), float(d.get("confidence", 0.0)),
                    bool(d.get("question", True)), d.get("response") or "")
             debug.record(evt="llm_respond_ok", intent=res[0], conf=res[1], q=res[2],
