@@ -101,6 +101,15 @@ class Session:
         """刷新最近活动时间(活动即未空闲)。"""
         self.last_active = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
+    def end(self, reason, ended_at=None):
+        """标记会话结束(幂等)。已结束则返回 False,否则记为 ended 并返回 True。"""
+        if self.ended:
+            return False
+        self.ended = True
+        self.ended_reason = reason
+        self.ended_at = ended_at or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        return True
+
     def should_escalate(self):
         # 转人工条件:轮数/澄清超限 / 用户要求 / 高情绪(在此判断情绪分)
         if self.emotion_score >= config.EMOTION_ESCALATE_SCORE:
@@ -178,3 +187,37 @@ class StateStore:
             return None
         with open(path, encoding="utf-8") as f:
             return json.load(f)
+
+    def mark_ended(self, session_id, reason):
+        """接受外部结束(如用户关闭):加载会话→end(reason)→persist。返回 ended 是否新置位。"""
+        s = self.get(session_id)
+        if not s:
+            return False
+        changed = s.end(reason)
+        if changed:
+            s.persist()
+        return changed
+
+    def idle_mark(self, ttl):
+        """后台巡检:把超过 ttl 秒未活动且未结束的会话标为 idle。返回标记数量。"""
+        import datetime as dt
+        now = dt.datetime.now(dt.timezone.utc)
+        n = 0
+        for p in glob.iglob(os.path.join(self.dir, "*.json")):
+            try:
+                with open(p, encoding="utf-8") as f:
+                    d = json.load(f)
+                if d.get("ended"):
+                    continue
+                la = d.get("last_active")
+                if not la:
+                    continue
+                t = dt.datetime.strptime(la, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=dt.timezone.utc)
+                if (now - t).total_seconds() > ttl:
+                    s = Session.from_dict(d)
+                    s.end("idle")
+                    s.persist()
+                    n += 1
+            except Exception:
+                continue
+        return n
