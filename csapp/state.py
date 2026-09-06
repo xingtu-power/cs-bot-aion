@@ -185,6 +185,7 @@ class StateStore:
             last_message = (last_message[:60] + "…") if len(last_message) > 60 else last_message
             rows.append({
                 "sessionId": d.get("id"),
+                "userId": d.get("user_id"),
                 "title": (first[:40] if first else (d.get("intent") or "new session")),
                 "lastMessage": last_message,
                 "lastMessageRole": last_message_role,
