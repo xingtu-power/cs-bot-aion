@@ -3,7 +3,7 @@
 一次 chat turn 的编排:会话恢复 → 语言检测 → 市场路由 → 意图识别(二段式)
 → 澄清/锁定 → 引导卡执行 → 持久化 → 返回响应。
 """
-import re, difflib
+import re, difflib, time
 from . import config, intent as intent_mod, cards as card_mod, compliance, debug
 from .state import StateStore
 from .langdetect import detect_language
@@ -55,10 +55,25 @@ def _intent_by_choice(message):
     return None
 
 
-def chat(session_id=None, message=None, location=None, explicit_market=None, lang_hint=None):
+def chat(session_id=None, message=None, location=None, explicit_market=None, lang_hint=None, user_id=None):
     """一次对话轮。message 必填。返回响应 dict(与 API 对齐)。"""
     message = (message or "").strip()
     session = _store.get(session_id)
+    if user_id:
+        session.user_id = user_id  # 关联身份(设备/宿主用户)
+    # 会话结束/空闲:刷新活动时间;若已超空闲期未结束 → 标记 idle 结束并重置为新一轮
+    if not session.ended and session.last_active:
+        try:
+            import datetime as _dt
+            _li = _dt.datetime.strptime(session.last_active, "%Y-%m-%dT%H:%M:%SZ") \
+                       .replace(tzinfo=_dt.timezone.utc).timestamp()
+        except Exception:
+            _li = time.time()
+        if time.time() - _li > config.TTL_RECENT:
+            session.ended = True; session.ended_reason = "idle"; session.ended_at = session.last_active
+            _reset_conversation(session)
+            session.persist()
+    session.touch()
 
     # 1) 语言检测(用于市场路由;回复语言由下拉框 lang_hint 决定)
     lang = detect_language(message, market=session.market, hint=lang_hint or session.language,
@@ -110,9 +125,17 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
             new_intent, conf, _q, question = intent_mod.recognize(message, llm_confirm=None); response = ""
     else:
         # 首答:通用状态描述(让 LLM 判意图 + 回应/引导)
-        state_desc = ("Determine the customer's intent. If it is a greeting or identity question, "
-                      "introduce yourself and guide. If it is about AION UT (specs, dealers, usage, "
-                      "service, emergency), answer using the facts, then guide.")
+        state_desc = ("Determine the customer's intent and respond accordingly in ONE answer.\n"
+                      "- Greeting / identity question: introduce yourself and guide.\n"
+                      "- BEFORE-SALES (specs, features, price, finding a dealer, buying): answer the question in "
+                      "detail using the facts, and you MAY gently offer to connect them with a dealer or arrange a "
+                      "visit.\n"
+                      "- AFTER-SALES (how to use / how to charge, a problem, service, emergency/rescue): SOLVE it in "
+                      "detail using the facts — steps, cautions, notes. Then ask if it is resolved (or offer further "
+                      "troubleshooting / the AION hotline). Do NOT offer a dealer visit, a test drive, a booking, or "
+                      "ask for contact details — that is an unwanted sales push.\n"
+                      "ALWAYS answer the specific question directly and in detail first; do NOT reply with a generic "
+                      "'what would you like to know?'")
         r = _llm.respond(message, context, state_desc, conv_lang, history) if hasattr(_llm, "respond") else None
         if r:
             new_intent, conf, question, response = r
@@ -128,12 +151,17 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     if intent_mod.emergency_hit(message):
         new_intent = "emergency"
         conf = max(conf, 0.95)
+    # 纯问候兜底:LLM 偶发把问候误判成业务意图(如 after-sales),强校正回 other
+    if intent_mod.greeting(message):
+        new_intent = "other"
+        conf = max(conf, 0.7)
     # 兜底:respond 失败/空回复时给非空简短回复,避免"哑巴"
     if not response:
         response = _fallback_text(new_intent, reply_lang)
     session._answer_llm = response
     session._question = question
 
+    _pre_intent = session.intent          # 锁定前的意图(用于判断是否"首轮")
     intent = session.intent
     if intent:
         # 已锁定:用户若跳到**另一个业务意图**则切换,避免死抠某一步
@@ -162,14 +190,55 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
                 session.lock_intent(choice, 0.9)
                 reply = card_mod.run_card(session, message, kb, reply_lang)
             elif session.clarify_rounds > config.CLARIFY_MAX_ROUNDS:
-                session.escalated = True
-                reply = {"reply": _p_clarify(reply_lang), "emotion": session.emotion_score,
-                         "intent": "other", "escalate": True, "escalate_reason": "clarify-timeout"}
+                # 先确认再转人工
+                if not session.ask_confirm:
+                    session.ask_confirm = True; session.escalate_reason = "clarify"
+                    reply = {"reply": card_mod._confirm_text(reply_lang), "emotion": session.emotion_score,
+                             "intent": None, "confirm_escalate": True}
+                elif card_mod._is_confirm(message):
+                    session.escalated = True; session.ask_confirm = False; session.escalate_reason = None
+                    reply = {"reply": _p_clarify(reply_lang), "emotion": session.emotion_score,
+                             "intent": "other", "escalate": True, "escalate_reason": "clarify-timeout"}
+                else:
+                    session.ask_confirm = False; session.escalate_reason = None
+                    reply = {"reply": _p_clarify(reply_lang), "emotion": session.emotion_score, "intent": None}
             else:
                 reply = {"reply": _p_clarify(reply_lang), "emotion": session.emotion_score, "intent": None}
         else:
             session.lock_intent(new_intent, conf)
             reply = card_mod.run_card(session, message, kb, reply_lang)
+
+    # 收紧版A: 首轮 + 业务意图 + 回复为空泛反问(未实际作答) → 二次调用强制作答一次,
+    # 避免"麻烦再说一下 / 你想了解什么"这类空泛话。仅这一种罕见情况才多调一次。
+    if (not _pre_intent) and session.intent in BUSINESS \
+            and compliance.is_vague_reply(str(reply.get("reply", ""))) \
+            and hasattr(_llm, "respond"):
+        _strict_desc = (card_mod.state_desc(session.intent, session.step_index, message, session, kb)
+                        + " ANSWER the customer's question directly and completely. Do NOT reply with a generic "
+                          "'what would you like to know?' and do NOT ask the customer to clarify.")
+        _r2 = _llm.respond(message, context, _strict_desc, reply_lang, history)
+        if _r2 and len(_r2) > 3 and _r2[3]:
+            session._answer_llm = _r2[3]
+            session._question = _r2[2] if len(_r2) > 2 else session._question
+            reply["reply"] = _r2[3]
+            debug.record(evt="vague_reply_retried", intent=session.intent,
+                         new=reply.get("reply", "")[:100])
+
+    # 3.9) 情绪≥阈值 → 先确认再转人工
+    # 先持久化本回合计算的情绪分(卡片/澄清路径已 score_emotion),否则 session.emotion_score 恒为 0,≥阈值永不触发
+    if reply.get("emotion", 0) >= session.emotion_score:
+        session.emotion_score = reply.get("emotion", 0)
+    if not session.ask_confirm and session.emotion_score >= config.EMOTION_ESCALATE_SCORE \
+            and not reply.get("escalate") and session.intent:
+        session.ask_confirm = True; session.escalate_reason = "emotion"
+        reply["reply"] = card_mod._confirm_text(reply_lang); reply["confirm_escalate"] = True
+        reply["emotion"] = session.emotion_score
+    elif session.ask_confirm and session.escalate_reason == "emotion":
+        if card_mod._is_confirm(message):
+            session.escalated = True
+            reply["escalate"] = True; reply["escalate_reason"] = "emotion"
+            reply["reply"] = card_mod._handoff(reply_lang)
+        session.ask_confirm = False; session.escalate_reason = None
 
     # 4) 回复质量(禁AI感 + 去重 + 长度硬限) → 输出过滤(禁区)
     raw_reply = _polish_reply(reply.get("reply", ""), session.history)
@@ -180,7 +249,8 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     if compliance.find_competitor(clean_reply):
         reply["reply"] = _no_knowledge_lead(reply_lang)
     else:
-        reply["reply"] = clean_reply
+        # 车型防臆造:非 UT 车型不得出现其未提供的功率/扭矩/电池容量等参数
+        reply["reply"] = compliance.guard_model_facts(clean_reply)
 
     session.persist()
     session.append_turn(message, reply.get("reply", ""), session.intent, reply.get("emotion", 0))
@@ -208,9 +278,32 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
                  reply_head=(reply.get("reply") or "")[:80], escalated=bool(reply.get("escalate")),
                  target=bool(reply.get("target_reached", session.target_reached)))
 
+    # 会话结束判定:达成终态 / 转人工 / 用户告别 → 标记 ended + 对话内提示
+    if not session.ended:
+        reason = None
+        if session.target_reached:
+            reason = "goal"
+        elif session.escalated:
+            reason = "escalated"
+        elif re.search(config.GOODBYE_RE, message, re.I):
+            reason = "goodbye"
+        if reason:
+            session.ended = True
+            session.ended_reason = reason
+            session.ended_at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    if session.ended:
+        notice = config.END_NOTICE.get(reply_lang, config.END_NOTICE["en"])
+        reply["reply"] = (reply.get("reply", "") or "") + "\n\n" + notice
+        reply["ended"] = True
+        reply["ended_reason"] = session.ended_reason
+
     resp = _response(session, reply, reply_lang, market, market_source)
+    resp["ended"] = bool(reply.get("ended"))
+    resp["ended_reason"] = reply.get("ended_reason")
     # 引用来源(文字):检索到的文档/FAQ 来源(文档名+页码),供前端"引用"展示
     resp["citations"] = kb.citations() if kb else []
+    # 回答配图:仅在"有必要"时展示真实插图(操作/步骤/救援意图),规格/经销商/政策等不配图
+    resp["answer_images"] = kb.answer_images() if (kb and session.intent in config.ANSWER_IMAGE_INTENTS) else []
     # 只在真正收集到留资时才返回 consentVersion(避免纯问候也显示合规卡)
     lead_record = getattr(session, "lead_record", None)
     resp["consentVersion"] = compliance.CONSENT_VERSION if lead_record else None
@@ -279,6 +372,18 @@ def _polish_reply(text, history):
     text, _ = compliance.strip_ai_phrases(text)
     text = _dedup_lead(text, history)
     return compliance.truncate_reply(text, config.REPLY_MAX_CHARS)
+
+
+def _reset_conversation(session):
+    """会话结束/空闲后,重置为新一轮(保留 id/user_id/market/language)。"""
+    session.intent = None; session.intent_main = None; session.intent_secondary = []
+    session.step_index = 0
+    session.collected = {"phone": None, "email": None, "model": None, "concern": None}
+    session.step_asks = {}; session.clarify_rounds = 0; session.total_rounds = 0
+    session.escalated = False; session.resolved = False; session.target_reached = False
+    session.ask_confirm = False; session.escalate_reason = None; session.emotion_score = 0
+    session.lead_id = None; session.rescue_ticket_id = None; session.lead_record = None
+    session.history = []
 
 
 def _history_str(history, n=4):

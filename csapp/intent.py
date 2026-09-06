@@ -115,11 +115,44 @@ KEYWORDS_NORM = {
 }
 EMERGENCY_STRONG_NORM = [_normalize(w) for w in EMERGENCY_STRONG]
 
+# 业务关键词全集(排除 other),用于判断"是否纯问候/闲聊"
+_BUSINESS_NORM = set()
+for _i, _ws in KEYWORDS_NORM.items():
+    if _i != "other":
+        _BUSINESS_NORM.update(_ws)
+
+# 纯问候词(首词命中即视为打招呼;用词边界避免 "hi" 命中 this/high)
+_GREET_FIRST = {"hi", "hello", "hey", "hiya", "howdy", "yo", "hola", "bonjour",
+                "morning", "afternoon", "evening",
+                "你好", "您好", "嗨", "哈喽", "สวัสดี"}
+
 
 def emergency_hit(text: str) -> bool:
     """强紧急信号命中(安全优先,用于管道预检覆盖 LLM)。"""
     norm = _normalize(text)
     return any(w in norm for w in EMERGENCY_STRONG_NORM)
+
+
+def greeting(text: str) -> bool:
+    """是否为纯打招呼/问候(无业务内容)。
+
+    用于把 LLM 偶发把问候误判成业务意图(如 after-sales)校正回 other。
+    规则:去掉首尾标点;短(<24);不含任何业务关键词;首词是问候词。
+    例:"hi"/"hello there"/"good morning"/"你好"/"สวัสดี" → True;
+       "你好,续航多少"/"hi, what is the range" → False(含业务意图)。
+    """
+    t = (text or "").strip().lower()
+    t = t.strip(" \t\r\n!,.。！？?~～")
+    if not t or len(t) > 24:
+        return False
+    if any(w in t for w in _BUSINESS_NORM):
+        return False
+    first = re.split(r"[\s,;]+", t)[0]
+    if first in _GREET_FIRST:
+        return True
+    if t.startswith(("good morning", "good afternoon", "good evening")):
+        return True
+    return False
 
 
 def recognize(text: str, llm_confirm=None, **kw):

@@ -4,7 +4,7 @@
 每个会话一个 JSON 文件,支持任意(匿名)session id 恢复。
 字段与设计文档状态对象对齐(含主/次意图、情绪分)。
 """
-import json, os, time, uuid
+import glob, json, os, time, uuid
 from . import config
 
 
@@ -35,7 +35,14 @@ class Session:
         self.resolved = False
         self.target_reached = False
         self.rescue_ticket_id = None
+        self.ask_confirm = False           # 是否正处在"确认是否转人工"状态
+        self.escalate_reason = None        # 触发转人工的原因(澄清/槽位/情绪)
+        self.ended = False                 # 会话是否已结束
+        self.ended_at = None              # 结束时间戳
+        self.ended_reason = None          # goal|escalated|goodbye|idle
+        self.last_active = now            # 最近活动时间
         self.anonymous = True
+        self.user_id = None             # 若关联到身份设备/宿主用户
         self.lead_id = None
         self.created_at = now
         self.updated_at = now
@@ -48,7 +55,9 @@ class Session:
 
     @classmethod
     def from_dict(cls, d):
-        s = cls.__new__(cls)
+        # 以默认初始化补齐所有字段(兼容旧 schema:新增字段如 ended/ask_confirm 缺失时不报错),
+        # 再用记录值覆盖。
+        s = cls(d.get("id"))
         s.__dict__.update(d)
         return s
 
@@ -88,6 +97,10 @@ class Session:
         if emotion_score is not None:
             self.emotion_score = emotion_score
 
+    def touch(self):
+        """刷新最近活动时间(活动即未空闲)。"""
+        self.last_active = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+
     def should_escalate(self):
         # 转人工条件:轮数/澄清超限 / 用户要求 / 高情绪(在此判断情绪分)
         if self.emotion_score >= config.EMOTION_ESCALATE_SCORE:
@@ -114,3 +127,54 @@ class StateStore:
 
     def save(self, session):
         session.persist()
+
+    def cleanup(self, archive_days):
+        """定期清理:删除超过 archive_days 的会话文件(存档过期)。返回删除数。"""
+        import glob, os, time as _t
+        cutoff = _t.time() - archive_days * 86400
+        n = 0
+        for p in glob.glob(os.path.join(self.dir, "*.json")):
+            try:
+                if os.path.getmtime(p) < cutoff:
+                    os.remove(p); n += 1
+            except Exception:
+                pass
+        return n
+
+    def list_for_user(self, user_id=None, limit=30):
+        """列出会话摘要(按 user_id 过滤;user_id 为空返回最近 limit 条)。按 updated_at 倒序。"""
+        rows = []
+        for p in glob.glob(os.path.join(self.dir, "*.json")):
+            try:
+                with open(p, encoding="utf-8") as f:
+                    d = json.load(f)
+            except Exception:
+                continue
+            if user_id and d.get("user_id") != user_id:
+                continue
+            first = ""
+            for t in d.get("history", []):
+                if t.get("user"):
+                    first = t["user"]; break
+            rows.append({
+                "sessionId": d.get("id"),
+                "title": (first[:40] if first else (d.get("intent") or "new session")),
+                "market": d.get("market"),
+                "language": d.get("language"),
+                "intent": d.get("intent"),
+                "ended": bool(d.get("ended")),
+                "endedReason": d.get("ended_reason"),
+                "createdAt": d.get("created_at"),
+                "updatedAt": d.get("updated_at") or d.get("created_at") or "",
+                "totalRounds": d.get("total_rounds", len(d.get("history", []))),
+            })
+        rows.sort(key=lambda r: r["updatedAt"], reverse=True)
+        return rows[:limit]
+
+    def get_session(self, session_id):
+        """返回单个会话 dict(含 history),供前端恢复显示;不存在返回 None。"""
+        path = os.path.join(self.dir, f"{session_id}.json")
+        if not os.path.exists(path):
+            return None
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)

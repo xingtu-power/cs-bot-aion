@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS leads (
   consent_at TEXT, consent_version TEXT,
   status TEXT DEFAULT 'new',
   raw_json TEXT, dedupe_key TEXT,
-  created_at TEXT NOT NULL,
+  user_id TEXT, created_at TEXT NOT NULL,
   UNIQUE(dedupe_key, market)
 );
 CREATE TABLE IF NOT EXISTS escalations (
@@ -78,12 +78,13 @@ def insert_lead(lead_rec):
         cur = c.execute("""
             INSERT OR IGNORE INTO leads
             (id, session_id, market, channel, intent, name, phone, email,
-             consent_at, consent_version, status, raw_json, dedupe_key, created_at)
-            VALUES (?,?,?,?,?,?,?,?,?,?, 'new', ?, ?, ?)""",
+             consent_at, consent_version, status, user_id, raw_json, dedupe_key, created_at)
+            VALUES (?,?,?,?,?,?,?,?,?,?, 'new', ?, ?, ?, ?)""",
             (lead_rec["leadId"], lead_rec.get("sessionId"), lead_rec.get("market"),
              lead_rec.get("channel", "web"), lead_rec.get("intent"),
              lead_rec.get("name"), lead_rec.get("phone"), lead_rec.get("email"),
              lead_rec.get("consentAt"), lead_rec.get("consentVersion"),
+             lead_rec.get("userId"),
              json.dumps(lead_rec, ensure_ascii=False),
              lead_rec.get("dedupeKey"), lead_rec.get("createdAt", _now())))
         c.commit()

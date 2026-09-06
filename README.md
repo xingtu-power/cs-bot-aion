@@ -107,6 +107,7 @@ cs-bot-aion/
 ## ✦ 文档
 
 - **产品文档**：[`智能客服系统设计文档-v0.4.md`](智能客服系统设计文档-v0.4.md)（现行 as-built；v0.3 为设计稿）
+- **知识库方案**：[`知识库方案.md`](知识库方案.md)（原始资料处理/切分/索引/RAG/上下文）
 - **护栏框架**：[`售前智能客服通用框架.md`](售前智能客服通用框架.md)（行业无关版，作为安全/合规/转化护栏参考）
 - 阶段报告：`Phase0_REPORT.md`、`PHASE1_REPORT.md`、`PHASE1_LLM_W23_REPORT.md`、`THAI_RESTORE_REPORT.md`、`REFACTOR_VECTOR_REPORT.md`、`INTENT_CALIBRATION_REPORT.md`
 
