@@ -232,7 +232,7 @@ class KnowledgeBase:
         """返回某内容页抽取出的**真实插图** URL 列表(按放置顺序);无则空列表。
 
         插图文件由 tools/extract_images.py 裁剪页内图区域生成,命名
-        <version>_p<page_no>__f<idx>.png;文档块 id 形如 au-owner-owner_0811-p0002(内嵌 0-based 页码)。
+        <version>_p<page_no>__f<idx>.jpg;文档块 id 形如 au-owner-owner_0811-p0002(内嵌 0-based 页码)。
         """
         try:
             parts = str(cid).split("-")
@@ -242,7 +242,7 @@ class KnowledgeBase:
             version = parts[-2]
             page_no = int(parts[-1][1:]) + 1
             d = os.path.join(config.KB_ROOT, mkt, "images")
-            fs = sorted(glob.glob(os.path.join(d, f"{version}_p{page_no}__f*.png")))
+            fs = sorted(glob.glob(os.path.join(d, f"{version}_p{page_no}__f*.jpg")))
             return [f"/api/v1/kb/image?mkt={mkt}&v={version}&p={page_no}&f={os.path.basename(f).split('__f')[-1].split('.')[0]}"
                     for f in fs]
         except Exception:

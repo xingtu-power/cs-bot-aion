@@ -6,7 +6,7 @@ PDF → 页内真实插图 提取器(知识库图片引用/展示用)
 只抽取**页内的真实插图**(渲染图区域),而不是整页截图。
 - 用 PyMuPDF get_image_info(xrefs=True) 拿每张内嵌图片的放置矩形(bbox)。
 - 只有 bbox 尺寸达到 FIG_MIN 的才算"真插图"(过滤小图标/logo/分隔线)。
-- 裁剪后存 kb/{market}/images/<version>_p<page_no>__f<idx>.png。
+- 裁剪后存 kb/{market}/images/<version>_p<page_no>__f<idx>.jpg(JPEG Q90, 体积小、效果几乎无损)。
 
 用法: python tools/extract_images.py [dpi] [过滤子串...]
    dpi 默认 150; 过滤如 "AU/owner" 只抽 AU 车主手册。
@@ -62,7 +62,7 @@ def extract_figures(page, page_no: int):
             pix = page.get_pixmap(clip=rect, dpi=FIG_DPI)
         except Exception:
             continue
-        out.append((f"__f{len(out)}.png", pix))
+        out.append((f"__f{len(out)}.jpg", pix))
     return out
 
 
@@ -87,9 +87,9 @@ def main():
             continue
         images_dir = os.path.join(ROOT, "kb", s["market"], "images")
         os.makedirs(images_dir, exist_ok=True)
-        # 每市场只清空一次,避免后处理的来源覆盖前一个
+        # 每市场只清空一次,避免后处理的来源覆盖前一个(jpg + 旧 png 都清)
         if s["market"] not in cleared:
-            for old in glob.glob(os.path.join(images_dir, "*.png")):
+            for old in glob.glob(os.path.join(images_dir, "*.*")):
                 try:
                     os.remove(old)
                 except Exception:
@@ -111,7 +111,7 @@ def main():
             n_pages_with_fig += 1
             for suffix, pix in figs:
                 out = os.path.join(images_dir, f"{s['version']}_p{page_no}{suffix}")
-                pix.save(out)
+                pix.save(out, jpg_quality=90)
                 n_fig += 1
         doc.close()
         print(f"[OK] {tag}: pages_with_figures={n_pages_with_fig} figures={n_fig} -> {images_dir}", flush=True)

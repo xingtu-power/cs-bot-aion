@@ -103,8 +103,12 @@ class Handler(BaseHTTPRequestHandler):
                 fname = f"{v}_p{int(pg)}"
                 if fi is not None and fi.isdigit():
                     fname += f"__f{int(fi)}"
-                fp = os.path.join(_cfg.KB_ROOT, mkt.upper(), "images", fname + ".png")
-                return self._file(fp, "image/png")
+                base = os.path.join(_cfg.KB_ROOT, mkt.upper(), "images", fname)
+                fp = base + ".jpg"
+                ctype = "image/jpeg"
+                if not os.path.exists(fp):
+                    fp = base + ".png"; ctype = "image/png"   # 兼容旧 png
+                return self._file(fp, ctype)
             return self._json(404, {"error": "image not found"})
         return self._json(404, {"error": "not found"})
 
