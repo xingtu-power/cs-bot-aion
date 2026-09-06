@@ -4,7 +4,7 @@
 新增:VectorRetriever(文档+FAQ 的向量语义检索,离线建索引、在线单条查询快)。
 结构化(规格/经销商)保持精确查询。
 """
-import os, json, sys
+import os, json, sys, re
 import numpy as np
 from . import config
 
@@ -78,6 +78,9 @@ class KnowledgeBase:
         self._si = None   # spec index 缓存
         self._faq = None
         self._vec = None   # 向量检索器缓存(避免重复加载模型)
+        self._docmeta = None   # id -> {doc_name,page} 缓存
+        self._citations = []   # 本轮检索到的来源
+        self._rescue_cache = None
 
     # ---- 规格 ----
     def spec(self, concepts, variant=None):
@@ -174,6 +177,62 @@ class KnowledgeBase:
             out.append({"kind": "doc", "text": c, "src": dt, "page": pg})
         return out
 
+    def _doc_meta(self):
+        """id -> {doc_name, page_no} 缓存(文档块 id 形如 tha-owner-260515-p0001)。"""
+        if self._docmeta is None:
+            self._docmeta = {}
+            ddir = os.path.join(config.KB_ROOT, self.market, "docs")
+            if os.path.isdir(ddir):
+                for fn in os.listdir(ddir):
+                    if not fn.endswith(".jsonl"):
+                        continue
+                    for l in open(os.path.join(ddir, fn), encoding="utf-8"):
+                        try:
+                            r = json.loads(l)
+                        except Exception:
+                            continue
+                        self._docmeta[r.get("id")] = {"doc": r.get("doc_name"), "page": r.get("page_no")}
+        return self._docmeta
+
+    def _citation_for(self, cid):
+        if not cid:
+            return None
+        if str(cid).startswith("faq:"):
+            return {"doc": "FAQ", "page": None, "source": cid.split(":", 1)[1]}
+        m = self._doc_meta().get(cid)
+        if m:
+            return {"doc": m["doc"], "page": m["page"], "source": cid}
+        return {"doc": cid, "page": None, "source": cid}
+
+    def citations(self):
+        """本轮检索到的来源列表(前端"引用"展示用)。"""
+        return list(self._citations)
+
+    def _rescue_texts(self):
+        if self._rescue_cache is None:
+            self._rescue_cache = []
+            ddir = os.path.join(config.KB_ROOT, self.market, "docs")
+            if os.path.isdir(ddir):
+                for fn in sorted(os.listdir(ddir)):
+                    if fn.startswith("rescue") and fn.endswith(".jsonl"):
+                        for l in open(os.path.join(ddir, fn), encoding="utf-8"):
+                            try:
+                                r = json.loads(l)
+                            except Exception:
+                                continue
+                            self._rescue_cache.append((r.get("page_no"), r.get("content", "")))
+                        break
+        return self._rescue_cache
+
+    def _rescue_hotline(self):
+        """从 rescue 手册里提取第一条 热线/SOS 行(如有)。"""
+        for pg, c in self._rescue_texts():
+            for m in re.finditer(r"(?:0[0-9]{8,10}|1[0-9]{9}|SOS[^\n.]{0,30}|hotline[^\n.]{0,30}|โทร[0-9 ]{5,})", c, re.I):
+                v = m.group(0).strip()
+                if re.search(r"\d{4,}|SOS", v) or (pg and v):
+                    return v
+        return ""
+
     def context(self, query, lang="en", topk=3):
         """RAG 上下文:向量语义 top-k(文档+FAQ) + 结构化规格,拼成给 LLM 的上下文串。
         向量索引未建时回退关键词 FAQ + 规格。"""
@@ -182,8 +241,15 @@ class KnowledgeBase:
         if self._vec is None:
             self._vec = VectorRetriever(self.market)
         vec = self._vec.search(query, topk=topk + 1)
+        self._citations = []
         for v in vec:
-            parts.append(f"- {v['text'][:500]}")
+            src = self._citation_for(v["id"])
+            if src:
+                self._citations.append(src)
+                loc = f" [来源: {src['doc']}" + (f" P{src['page']}" if src.get("page") else "") + "]"
+            else:
+                loc = ""
+            parts.append(f"-{loc} {v['text'][:500]}")
         # 2) 结构化规格(精确)
         for concept in ("range", "battery", "power", "seats", "dimensions", "ac-charging", "dc-charging"):
             s = self.spec([concept])
@@ -194,4 +260,10 @@ class KnowledgeBase:
         if not vec:
             for it in self.faq(query, topk, lang=lang):
                 parts.append(f"- {it['answer']}")
+        # 3.5) 紧急/救援:把 rescue 手册里的热线/SOS 注入,确保 LLM 有得说
+        if any(k in query.lower() for k in ("救援", "紧急", "rescue", "emergency", "hotline", "roadside", "ฉุกเฉิน")):
+            hl = self._rescue_hotline()
+            if hl:
+                self._citations.append({"doc": "Emergency Rescue Guide", "page": None, "source": "rescue-hotline"})
+                parts.append(f"- [来源: Emergency Rescue Guide] {hl}")
         return "\n".join(parts)
