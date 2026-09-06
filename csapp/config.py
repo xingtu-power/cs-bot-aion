@@ -31,7 +31,9 @@ REPLY_MAX_CHARS = int(os.environ.get("CSAPP_REPLY_MAX_CHARS", "300"))   # 绝对
 REPEAT_SIM_THRESHOLD = 0.80          # 与近几轮 bot 回复相似度 > 此值判重复
 
 # ---- 槽位收集护栏 ----
-SLOT_MAX_ASK = 4                     # 单槽位追问上限,超限先确认再转人工(避免反复要/轻易切)
+# 主流程"反复确认": 用户给的信息无效/不对 → bot 自然指出问题并重问(每次), 绝不轻易转人工;
+# 仅当**连续很多次**都提供不了有用信息(敷衍/反复无效)才触发"是否转人工"确认(高门槛)。
+SLOT_MAX_ASK = 8                     # 单槽位连续失效上限,超限才确认转人工(不轻易切)
 
 # ---- 回答配图 ----
 # 仅在"有必要"时展示示意图:操作/步骤类(usage-guide)与救援(emergency)
@@ -56,6 +58,8 @@ SUPPORTED_LANGS = ["th", "en", "zh"]
 MAX_STEPS = 12                      # 单卡最大引导步骤
 LEAD_PHONE_TH = r"^09\d{8}$"        # 泰 09 开头 10 位
 LEAD_PHONE_AU = r"^04\d{8}$"        # 澳 04 开头 10 位
+LEAD_PHONE_CN = r"^1[3-9]\d{9}$"    # 中国手机 1[3-9] 开头 11 位
+LEAD_PHONE_ANY = r"^\+?\d{7,15}$"   # 其它市场兜底:通用 7-15 位(可选 +)
 LINE_EMAIL = r"@"                    # 邮箱含 @ 即视为有效
 
 # ---- 存储语言(内部统一) ----

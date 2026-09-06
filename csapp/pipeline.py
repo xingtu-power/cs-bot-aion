@@ -193,7 +193,7 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
                 # 先确认再转人工
                 if not session.ask_confirm:
                     session.ask_confirm = True; session.escalate_reason = "clarify"
-                    reply = {"reply": card_mod._confirm_text(reply_lang), "emotion": session.emotion_score,
+                    reply = {"reply": card_mod._nat(session, reply_lang, "confirm"), "emotion": session.emotion_score,
                              "intent": None, "confirm_escalate": True}
                 elif card_mod._is_confirm(message):
                     session.escalated = True; session.ask_confirm = False; session.escalate_reason = None
@@ -231,13 +231,13 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     if not session.ask_confirm and session.emotion_score >= config.EMOTION_ESCALATE_SCORE \
             and not reply.get("escalate") and session.intent:
         session.ask_confirm = True; session.escalate_reason = "emotion"
-        reply["reply"] = card_mod._confirm_text(reply_lang); reply["confirm_escalate"] = True
+        reply["reply"] = card_mod._nat(session, reply_lang, "confirm"); reply["confirm_escalate"] = True
         reply["emotion"] = session.emotion_score
     elif session.ask_confirm and session.escalate_reason == "emotion":
         if card_mod._is_confirm(message):
             session.escalated = True
             reply["escalate"] = True; reply["escalate_reason"] = "emotion"
-            reply["reply"] = card_mod._handoff(reply_lang)
+            reply["reply"] = card_mod._nat(session, reply_lang, "handoff")
         session.ask_confirm = False; session.escalate_reason = None
 
     # 4) 回复质量(禁AI感 + 去重 + 长度硬限) → 输出过滤(禁区)

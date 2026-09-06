@@ -86,21 +86,73 @@ def _slot_expect(expect):
     return expect in ("contact", "concern", "confirm", "consent_rescue")
 
 
+# 判断用户是否在"提供有用/相关的信息"(城区/时间/地点/预约意向等),而非敷衍/答非所问。
+# 用于让槽位计数语义感知: 只要用户在提供有用信息,就不计入"多次没拿到信息",避免误转人工。
+_COOP_RE = re.compile(
+    r"(朝阳|海淀|丰台|东城|西城|浦东|[\u4e00-\u9fa5]{1,3}区|[\u4e00-\u9fa5]{2,6}市|省|县|"
+    r"街道|路\s*[\d\-]*号|店铺|门店|"
+    r"上午|下午|晚上|今天|明天|后天|下周|本周|周一|周二|周三|周四|周五|周六|周日|星期|周末|"
+    r"[\d]{1,2}点|[\d]{1,2}号|时间|中午|"
+    r"morning|afternoon|evening|tomorrow|o'clock|weekend|"
+    r"预约|到店|看车|试驾|方便|有空|地址|位置|地点|"
+    r"booking|visit|test drive|available|location|address|district)", re.I)
+
+
+def _is_cooperative(text):
+    """用户消息是否在提供有用/相关信息(合作中);否则视为敷衍(可累计为失败)。"""
+    t = (text or "").strip()
+    if len(t) < 3:
+        return False
+    if _COOP_RE.search(t):
+        return True
+    if re.search(r"[\d@.]{6,}", t):   # 尝试给联系方式(手机号/邮箱)——即使格式无效也视为合作
+        return True
+    return False
+
+
+# 敷衍/无信息量的短答(不得当作"提供了信息")
+_DEFLECT_RE = re.compile(
+    r"^(嗯+|哦+|啊+|随便|不知道|不清楚|都行|都可以|无所谓|行|好|ok|yes|哦哦|嗯嗯|唔|emm|没啥|"
+    r"uh|hmm|idk|not sure)[\s。！？!?~～]*$", re.I)
+
+
+def _is_deflect(text):
+    return bool(_DEFLECT_RE.search((text or "").strip()))
+
+
+# 用户表示"还没解决/仍有问题"(使用说明类) —— 应继续排查,不算"未确认"
+_STILL_RE = re.compile(
+    r"(还是[^。！？!?]{0,3}(不行|不对|不正常|异常|有问题|响|没|坏)|"
+    r"仍然[^。！？!?]{0,3}(不行|有问题|异常|没)|"
+    r"还没(好|解决|修好)|没(有)?(解决|修好|关掉)|还有(问题|异常|故障)|"
+    r"still\s+(not|broken|problem|doesn|hav|showing)|not\s+(working|fixed|yet|solved|ok)|"
+    r"there'?s\s+still|ยังไม่|ยังมีปัญหา|ไม่หาย)", re.I)
+
+
+def _still_unresolved(text):
+    return bool(_STILL_RE.search(text or ""))
+
+
 # 槽位超限/无法满足时的交接兜底(非卡片引导话术;与 pipeline 的 inject/clarify 兜底一致)
+# 默认模板仅为 LLM 不可用时的回退;实际优先用 _nat() 由 LLM 生成自然话术。
 _HANDOFF = {
-    "en": "I've tried a few times but still need your details. Let me connect you to an AION specialist.",
-    "th": "ฉันพยายามหลายครั้งแล้วแต่ยังได้ข้อมูลไม่ครบ ขอเชื่อมต่อให้คุณกับผู้เชี่ยวชาญ AION",
-    "es": "He intentado varias veces pero aún necesito sus datos. Le conectaré con un especialista de AION.",
-    "zh": "我尝试了几次仍未能获取您的信息，帮您转接 AION 专员。",
+    "en": "Alright — I'm connecting you to a human AION specialist now; they'll take it from here.",
+    "th": "ได้เลยครับ ผมกำลังเชื่อมต่อให้คุณกับผู้เชี่ยวชาญ AION แล้ว",
+    "es": "Perfecto — le estoy conectando con un especialista de AION ahora mismo.",
+    "zh": "好的，我这就为您转接 AION 人工专员，稍后专员会继续为您处理。",
 }
 
 
 _CONFIRM_TEXT = {
-    "zh": "我这边多次没能拿到需要的信息/确认，需要我帮您转接人工客服吗？",
-    "en": "I've tried a few times but couldn't get what I need. Would you like me to connect you to a human agent?",
-    "th": "ผมลองหลายครั้งแล้วแต่ยังไม่ได้ข้อมูลที่ต้องการ ต้องการให้ฉันเชื่อมต่อกับเจ้าหน้าที่หรือไม่?",
-    "es": "He intentado varias veces pero no he podido obtener lo necesario. ¿Quiere que le conecte con un agente humano?"}
-_CONFIRM_WORDS = re.compile(r"(转人工|人工|客服专员|要|需要|好|是|确认|对|yes|yeah|ok|sure|ใช่|sí|si|confirm)", re.I)
+    "zh": "我这边可能还差一点信息才能帮您处理得更准确，需要我为您转接一位 AION 人工专员继续帮您吗？",
+    "en": "I might need a bit more to make sure I get this right for you — would you like me to connect you to a human AION specialist?",
+    "th": "ผมอาจต้องขอข้อมูลเพิ่มอีกนิดเพื่อช่วยคุณได้แม่นขึ้น ต้องการให้ผมเชื่อมต่อกับผู้เชี่ยวชาญ AION หรือไม่ครับ?",
+    "es": "Puede que necesite un poco más para ayudarle con precisión. ¿Quiere que le conecte con un especialista de AION humano?"}
+_CONFIRM_WORDS = re.compile(r"(转人工|人工|客服专员|要|需要|好|是|确认|对|yes|yeah|ok|sure|ใช่|sí|si|confirm|转接|专员)", re.I)
+# 否定/婉拒:绝不能当成"确认转人工"
+_DECLINE_RE = re.compile(
+    r"(不需要|不用了|不用转|不用人工|不要人工|不要转|别转人工|千万别|无需|算了|不用|不要|"
+    r"no need|no thanks|not (necessary|needed)|never mind|don'?t|dont)", re.I)
 
 
 def _confirm_text(lang):
@@ -108,11 +160,34 @@ def _confirm_text(lang):
 
 
 def _is_confirm(msg):
-    return bool(_CONFIRM_WORDS.search(msg or ""))
+    m = msg or ""
+    if _DECLINE_RE.search(m):
+        return False
+    return bool(_CONFIRM_WORDS.search(m))
 
 
 def _handoff(lang):
     return _HANDOFF.get(lang, _HANDOFF["en"])
+
+
+def _nat(session, lang, kind):
+    """用 LLM 生成自然的"确认转人工/转接话术";失败回退温暖模板。kind='confirm'|'handoff'。"""
+    llm = getattr(session, "_llm", None) if session is not None else None
+    if llm and hasattr(llm, "respond"):
+        try:
+            if kind == "confirm":
+                sd = ("You have been unable to get the info you need from the customer. Warmly and naturally, in a short "
+                      "empathetic way, ask whether they would like you to connect them to a human AION specialist. "
+                      "Do NOT mention you are an AI; be natural, not robotic.")
+            else:
+                sd = ("Hand the customer over to a human AION specialist. Warmly confirm you are connecting them now, "
+                      "briefly reassure them, and say a specialist will help shortly. Natural and short; do NOT mention AI.")
+            r = llm.respond("(escalation)", "", sd, lang, "")
+            if r and len(r) > 3 and r[3]:
+                return r[3]
+        except Exception:
+            pass
+    return _confirm_text(lang) if kind == "confirm" else _handoff(lang)
 
 
 def _collect_contact(session, text):
@@ -130,7 +205,14 @@ def _contact_valid(session, market):
     ph = session.collected.get("phone") or ""
     em = session.collected.get("email") or ""
     if ph:
-        pat = config.LEAD_PHONE_TH if market == "THA" else config.LEAD_PHONE_AU
+        if market == "THA":
+            pat = config.LEAD_PHONE_TH
+        elif market == "AU":
+            pat = config.LEAD_PHONE_AU
+        elif market == "CN":
+            pat = config.LEAD_PHONE_CN
+        else:
+            pat = config.LEAD_PHONE_ANY
         if re.match(pat, ph):
             return True
     if em and "@" in em:
@@ -141,7 +223,9 @@ def _contact_valid(session, market):
 def _check(expect, session, message, kb):
     """校验用户消息是否符合当前步骤期望输入。返回 (received, goal_hit)。"""
     text = message or ""
-    market = kb.market
+    # 联系方式校验:用**用户市场**(如 CN)而非 KB 回退市场(CN→AU),否则中文号被按澳号规则误拒,
+    # 导致"联系方式一直未满足"→ 误触发转人工确认。
+    market = session.market or kb.market
     if expect == "contact":
         _collect_contact(session, text)
         if _contact_valid(session, market):
@@ -155,9 +239,18 @@ def _check(expect, session, message, kb):
             if any(w in low for w in words):
                 session.collected["concern"] = k
                 return True, False
+        # 语义: 用户给了任何实质性偏好/相关信息 → 也算提供了关注点(不判失败/不升级)
+        if len(text.strip()) >= 3 and not _is_deflect(text):
+            session.collected["concern"] = session.collected.get("concern") or "other"
+            return True, False
         return False, False
     if expect == "confirm":
-        if any(w in text.lower() for w in ["yes", "ok", "solved", "谢谢", "ได้", "ใช่", "ช่วยแล้ว", "是", "帮助"]):
+        low = text.lower()
+        # 用户表示还没解决/仍有问题 → 有效回应,继续排查(不判失败/不升级)
+        if _still_unresolved(low):
+            return True, False
+        if any(w in low for w in ["yes", "ok", "solved", "解决了", "好了", "没问题", "没事了",
+                                  "谢谢", "ได้", "ใช่", "ช่วยแล้ว", "是", "帮助", "worked"]):
             return True, True
         return False, False
     if expect == "consent_rescue":
@@ -178,6 +271,12 @@ def state_desc(intent, step_index, message, session, kb):
     received, _ = _check(sd["expect"], session, message, kb)
     if received and sd["expect"] in ("contact", "concern", "confirm", "consent_rescue"):
         desc += " The customer just provided the requested information."
+    elif sd["expect"] in ("contact", "concern", "confirm") and not received:
+        # 主流程"反复确认": 用户给的信息无效/不对 → 自然指出问题并要正确信息,绝不提转人工
+        desc += (" The customer's last message did not provide valid/complete info for this step. If it looks "
+                 "malformed (e.g. a phone number in the wrong format, or an answer that doesn't match), politely "
+                 "point out what seems off and ask them to provide the correct info. If they gave a different but "
+                 "meaningful detail, acknowledge it. Keep guiding; do NOT offer to transfer to a human.")
     elif intent in BUSINESS or sd["expect"] == "question":
         # 提示:客户可能仍在提问,应优先回应
         desc += " If the customer is asking a new question, answer it first before guiding."
@@ -199,7 +298,12 @@ def run_card(session, message, kb, lang):
     if _slot_expect(sd["expect"]) and not received:
         asks = getattr(session, "step_asks", None) or {}
         key = f"{intent}:{step}"
-        asks[key] = asks.get(key, 0) + 1
+        # 语义感知: 用户在提供有用信息(城区/时间/地点/预约意向) → 视为合作,重置计数(不升级);
+        # 只有持续提供不了有用信息(敷衍/短答)才累计到"多次没拿到信息→转人工确认"。
+        if _is_cooperative(message):
+            asks[key] = 0
+        else:
+            asks[key] = asks.get(key, 0) + 1
         session.step_asks = asks
         max_ask = sd.get("max_ask", config.SLOT_MAX_ASK)
         # 只在首次超限时转人工一次(=);之后不再重复交接,让新的问题能被回答/切意图(避免粘死)
@@ -209,7 +313,7 @@ def run_card(session, message, kb, lang):
                 session.escalated = True
                 session.ask_confirm = False; session.escalate_reason = None
                 emotion = score_emotion(message, intent)
-                result = {"reply": _handoff(lang), "emotion": emotion, "intent": intent,
+                result = {"reply": _nat(session, lang, "handoff"), "emotion": emotion, "intent": intent,
                           "collected": session.collected, "advance": False,
                           "escalate": True, "escalate_reason": "slot"}
                 return result
@@ -218,7 +322,7 @@ def run_card(session, message, kb, lang):
         if asks[key] == max_ask and not session.ask_confirm:
             session.ask_confirm = True; session.escalate_reason = "slot"
             emotion = score_emotion(message, intent)
-            result = {"reply": _confirm_text(lang), "emotion": emotion, "intent": intent,
+            result = {"reply": _nat(session, lang, "confirm"), "emotion": emotion, "intent": intent,
                       "collected": session.collected, "advance": False, "confirm_escalate": True}
             return result
 
