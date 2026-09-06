@@ -41,6 +41,8 @@ body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microso
 /* 顶部用户信息卡片(替代 "Web 客服窗") */
 .userinfo{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
 .userinfo .avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;flex-shrink:0;background:var(--brand)}
+.avatar svg{width:65%;height:65%;display:block}
+.hi-av svg{width:65%;height:65%;display:block}
 .uimeta{display:flex;flex-direction:column;gap:2px;min-width:0}
 .uiname{font-weight:700;font-size:14px;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .uisub{font-size:11px;color:var(--mut);display:flex;align-items:center;gap:5px}
@@ -223,15 +225,14 @@ function detectDefaultLang(){
 // ---- 工具:头像 / 昵称 / 时间(本地时区) ----
 const AV_COLORS=["#0b6e5f","#2563eb","#c0392b","#8e44ad","#d97706","#0891b2","#16a34a","#db2777","#475569"];
 function hashStr(s){let r=0;for(const c of String(s||""))r=(r*31+c.charCodeAt(0))>>>0;return r;}
+// 默认头像 SVG:用户(人形)/智能客服(机器人)
+const SVG_USER='<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="8.5" r="3.6" fill="#fff"/><path d="M4.8 20.2c0-4 3.2-7.2 7.2-7.2s7.2 3.2 7.2 7.2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>';
+const SVG_BOT='<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="4.5" y="8.5" width="15" height="11" rx="2.5" fill="#fff"/><circle cx="9.5" cy="13.5" r="1.3" fill="var(--brand)"/><circle cx="14.5" cy="13.5" r="1.3" fill="var(--brand)"/><rect x="10" y="16.2" width="4" height="1.6" rx=".8" fill="var(--brand)"/><line x1="12" y1="5" x2="12" y2="8.5" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="3.5" r="1.4" fill="#fff"/></svg>';
 function avatarFor(seed, role){
   // role: 'user' | 'bot' | 'list'
-  if(role==="bot") return {color:"var(--brand)", letter:"A"};
-  const c=AV_COLORS[hashStr(seed)%AV_COLORS.length];
-  const s=String(seed||"?");
-  // 取第一个有意义字符(可能是字母/数字/汉字首字)
-  const ch=s.replace(/^u_/i,"").trim();
-  const letter=(ch[0]||"?").toUpperCase();
-  return {color:c, letter};
+  if(role==="bot") return {color:"var(--brand)", svg:SVG_BOT};
+  const c=AV_COLORS[hashStr(seed||"x")%AV_COLORS.length];
+  return {color:c, svg:SVG_USER};
 }
 function visitorName(uid){
   // 简化:不再用 sessionId/userId 数字后缀,统一显示 "用户"
@@ -250,7 +251,7 @@ function fmtTime(iso){
 function renderUserInfo(){
   // 头像 + 昵称:基于 userId(全局用户)派生,同一用户不同会话保持一致
   const av=avatarFor(userId, "user");
-  $("topAvatar").textContent=av.letter;
+  $("topAvatar").innerHTML=av.svg;
   $("topAvatar").style.background=av.color;
   $("topUName").textContent=visitorName(userId);
   // 副标题:统一格式「在线 · 语言」
@@ -274,7 +275,7 @@ function add(cls, html, timeIso){
     const avDiv=document.createElement("div");
     avDiv.className="avatar";
     avDiv.style.background=av.color;
-    avDiv.textContent=av.letter;
+    avDiv.innerHTML=av.svg;
     // 主体(meta + bubble)
     const body=document.createElement("div");
     body.className="msgbody";
@@ -377,7 +378,7 @@ function makeItem(s){
   const last=(s.lastMessage||"").trim();
   const show=last?esc(last):esc(s.title||s.intent||"");
   item.innerHTML=
-    `<div class="hi-av" style="background:${av.color}">${av.letter}</div>`+
+    `<div class="hi-av" style="background:${av.color}">${av.svg}</div>`+
     `<div class="hi-body">`+
       `<div class="hi-row1"><span class="hi-name">${esc(name)}</span>${badge}</div>`+
       `<div class="hi-row2">${show}</div>`+
