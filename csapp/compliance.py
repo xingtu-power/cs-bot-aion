@@ -54,6 +54,7 @@ def build_lead_record(session, market, email=None, phone=None, consent=True):
     return {
         "leadId": "lead_" + session.id[-8:],
         "sessionId": session.id,
+        "userId": getattr(session, "user_id", None),
         "market": market,
         "channel": "web",
         "intent": session.intent,
@@ -109,6 +110,28 @@ def output_filter(reply):
     if hits:
         return reply, True
     return reply, False
+
+
+# ---------------- 车型信息防臆造(非 UT 车型) ----------------
+# 知识库里除 AION UT 外,其它车型只有用户提供的清单信息;功率/扭矩/电池容量/马力等详细参数一律没有。
+# 若回复把这类参数写给非 UT 车型 -> 该句强制替换为"暂无确切信息,建议联系授权经销商/官方热线核实"。
+_NON_UT_RE = re.compile(r"(AION\s+Y\s*Plus|AION\s*RT|AION\s*N60|AION\s*V\b|昊铂\s*GT|昊铂\s*HL|AION\s*LX|Hyper\s*GT|Hyper\s*HL)", re.I)
+_FAB_SPEC_RE = re.compile(r"\d+(?:\.\d+)?\s*(?:kw|kw\b|马力|n·m|nm\b|牛·米|kwh\b|度\b|扭矩|功率)", re.I)
+_FAB_REPL = "（该具体参数目前暂无确切信息，建议联系授权经销商或官方热线核实）"
+
+
+def guard_model_facts(reply):
+    """非 UT 车型不得出现其未提供的详细参数(功率/扭矩/电池容量等);否则替换该句。"""
+    if not reply or not _NON_UT_RE.search(reply):
+        return reply
+    segs = re.split(r"(?<=[。！？!?])", reply)
+    out = []
+    for seg in segs:
+        if _NON_UT_RE.search(seg) and _FAB_SPEC_RE.search(seg):
+            out.append(_FAB_REPL)
+        else:
+            out.append(seg)
+    return "".join(out)
 
 
 # ---------------- 回复质量:禁 AI 感 / 机器感表达 ----------------

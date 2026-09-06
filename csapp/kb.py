@@ -4,9 +4,32 @@
 新增:VectorRetriever(文档+FAQ 的向量语义检索,离线建索引、在线单条查询快)。
 结构化(规格/经销商)保持精确查询。
 """
-import os, json, sys, re
+import glob, os, json, sys, re
 import numpy as np
 from . import config
+
+# 广汽纯电全系车型清单(产品咨询推荐用):作为可引用事实注入 context,LLM 据此推荐 AION 各车型。
+# 价格单位: 人民币万元; 全系弹匣电池; 北方冬季 CLTC 实际约 6-7 折。
+# ⚠️ 严格约束: 只能引用以下列出的数值/特性; 严禁臆造/补充任何车型的续航、电池、价格、配置、
+#   测试循环标签(如把 CLTC 说成 WLTP)、以及未列出的车型。缺失即说"暂无该信息"。
+_MODEL_LINEUP = (
+    "MODEL LINEUP (AION + 昊铂Hyper, 全系弹匣电池, 价格为人民币万元, 北方冬季 CLTC 实际约 6-7 折) — "
+    "STRICT: beyond this MODEL LINEUP, the other detailed facts (power/torque/battery kWh/dimensions) are for AION UT "
+    "ONLY. For every model OTHER than AION UT, this MODEL LINEUP is the ONLY allowed data source; do NOT apply AION "
+    "UT's specs (e.g. 150kW/210N·m/60kWh) to any other model. Quote ONLY these listed values; NEVER invent or "
+    "extrapolate any model's range/battery/power/torque/price/feature, do NOT copy a spec from one model onto another, "
+    "do NOT change the test-cycle label (keep CLTC as CLTC), and do NOT mention any AION model not listed. If a "
+    "requested detail is not listed, say you do not have it.: "
+    "7-10万(城市代步/家用入门): AION UT 6.98-10.18万小型两厢, CLTC 320-530km, 轴距2750mm, 好开好停/空间越级/宜通勤接娃(缺点: 高速稳定一般/底盘偏硬); "
+    "AION Y Plus 8.68万起紧凑SUV, CLTC 430-510km, 后排大沙发/放平当床/90°大门, 家用爆款(缺点: 内饰塑料/高速风噪). "
+    "10-14万(家用主力/智驾强): AION RT 9.98-12.38万中型轿跑, CLTC 605-710km, 车长4865mm, 大后备箱, 支持换电, 3C快充, 高速NOA标配(缺点: 后扭力梁/无四驱); "
+    "AION N60 10.68-12.68万紧凑SUV, CLTC 410/510/610km, 全系激光雷达+4D毫米波, 副驾零重力, 同级智驾硬件无敌/性价比高——12万左右强烈推荐(缺点: 车机流畅一般); "
+    "AION V 10.98-14.18万家用SUV, 空间均衡/底盘舒适/外放电, 求稳家用. "
+    "18万以上(昊铂高端): 昊铂GT 约20万纯电轿跑, 800V/后驱/零百5.5s/CLTC710km/风阻0.197/前双叉臂+后多连杆(缺点: 后排头部/城市NOA需高配——重底盘操控); "
+    "昊铂HL 22万起中大六/七座SUV, 纯电/增程, 空气悬架, 家庭长途; AION LX 28万起旗舰SUV, 全铝底盘/双电机四驱/大空间豪华. "
+    "快速抄作业: <9万市区代步→UT; 家庭大空间能躺平→Y Plus; 大轿车长续航跑高速→RT; 12万激光雷达智驾SUV→N60(强烈推荐); 重底盘轿跑20万→昊铂GT; 多孩6-7座→昊铂HL. "
+    "提示: 冬季优先选 CLTC≥500km 版本; 有家充优先纯电; 长途无家充可看换电版本(RT)."
+)
 
 # 复用 Phase 0 检索逻辑
 sys.path.insert(0, os.path.join(config.ROOT, "tools"))
@@ -191,18 +214,90 @@ class KnowledgeBase:
                             r = json.loads(l)
                         except Exception:
                             continue
-                        self._docmeta[r.get("id")] = {"doc": r.get("doc_name"), "page": r.get("page_no")}
+                        self._docmeta[r.get("id")] = {"doc": r.get("doc_name"), "page": r.get("page_no"),
+                                                      "text": r.get("content", "")}
         return self._docmeta
 
     def _citation_for(self, cid):
         if not cid:
             return None
         if str(cid).startswith("faq:"):
-            return {"doc": "FAQ", "page": None, "source": cid.split(":", 1)[1]}
+            return {"doc": "FAQ", "page": None, "source": cid.split(":", 1)[1], "image": None}
         m = self._doc_meta().get(cid)
         if m:
-            return {"doc": m["doc"], "page": m["page"], "source": cid}
-        return {"doc": cid, "page": None, "source": cid}
+            return {"doc": m["doc"], "page": m["page"], "source": cid, "image": None}
+        return {"doc": cid, "page": None, "source": cid, "image": None}
+
+    def figures_for(self, cid):
+        """返回某内容页抽取出的**真实插图** URL 列表(按放置顺序);无则空列表。
+
+        插图文件由 tools/extract_images.py 裁剪页内图区域生成,命名
+        <version>_p<page_no>__f<idx>.png;文档块 id 形如 au-owner-owner_0811-p0002(内嵌 0-based 页码)。
+        """
+        try:
+            parts = str(cid).split("-")
+            if len(parts) < 4:
+                return []
+            mkt = parts[0].upper()
+            version = parts[-2]
+            page_no = int(parts[-1][1:]) + 1
+            d = os.path.join(config.KB_ROOT, mkt, "images")
+            fs = sorted(glob.glob(os.path.join(d, f"{version}_p{page_no}__f*.png")))
+            return [f"/api/v1/kb/image?mkt={mkt}&v={version}&p={page_no}&f={os.path.basename(f).split('__f')[-1].split('.')[0]}"
+                    for f in fs]
+        except Exception:
+            return []
+
+    @staticmethod
+    def _is_nav_page(text):
+        """是否为 目录/索引/前言/封面 这类非内容页(不适合作为配图)。"""
+        t = (text or "").lower()
+        if any(m in t for m in ("index", "contents", "foreword", "preface",
+                                "how to read this manual", "notices to users",
+                                "arrange them in the order", "i-n-d-e-x",
+                                "目录", "索引", "前言", "序言")):
+            return True
+        # 目录/索引特征:大量 "标题............数字" 点线
+        if len(re.findall(r"\.{3,}\s*\d+", t)) >= 3:
+            return True
+        return False
+
+    @staticmethod
+    def _howto_score(text):
+        """内容页"操作/步骤"倾向评分,用于挑最像"如何做"的配图页(而非警告/手册首页)。"""
+        t = (text or "").lower()
+        s = 0
+        if "the following steps" in t or "observe the following" in t or "as follows:" in t:
+            s += 3
+        if re.search(r"(?:^|\s)\d{1,2}[\.\)]\s", t):           # 编号步骤 1. 2. 3.
+            s += 2
+        if any(k in t for k in ("how to", "step", "press", "open", "connect", "turns on",
+                                "charger", "charge", "switch", "button", "adjust", "setting")):
+            s += 1
+        return s
+
+    def answer_images(self):
+        """返回本轮回答的最佳配图(**真实插图**)URL 列表;无则空列表。
+
+        跳过 目录/索引/前言/封面 等非内容页;在内容页里按"操作/步骤"倾向评分,
+        挑最像讲解/图解的那页,返回该页裁剪出的插图(如 AC 充电步骤图)。
+        """
+        dm = self._doc_meta()
+        best, best_score = None, -1
+        for c in self._citations:
+            cid = c.get("source")
+            if not cid or str(cid).startswith("faq:"):
+                continue
+            figs = self.figures_for(cid)
+            if not figs:
+                continue
+            text = dm.get(cid, {}).get("text", "")
+            if self._is_nav_page(text):
+                continue
+            sc = self._howto_score(text)
+            if sc > best_score:          # 严格大于:同分保留更靠前(更高相关)的
+                best_score, best = sc, figs
+        return best or []
 
     def citations(self):
         """本轮检索到的来源列表(前端"引用"展示用)。"""
@@ -266,4 +361,6 @@ class KnowledgeBase:
             if hl:
                 self._citations.append({"doc": "Emergency Rescue Guide", "page": None, "source": "rescue-hotline"})
                 parts.append(f"- [来源: Emergency Rescue Guide] {hl}")
+        # 全系车型清单(产品咨询推荐用):作为可引用的事实注入,LLM 可据此推荐 AION 各车型。
+        parts.append(_MODEL_LINEUP)
         return "\n".join(parts)

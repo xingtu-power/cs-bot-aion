@@ -62,6 +62,50 @@ class Handler(BaseHTTPRequestHandler):
                 if kv.startswith("status="):
                     status = kv.split("=")[1]
             return self._json(200, {"leads": db.list_leads(status, 50)})
+        if p == "/api/v1/sessions":
+            from .state import StateStore as _SS
+            qs = urlparse(self.path).query
+            uid = None
+            for kv in qs.split("&"):
+                if kv.startswith("userId="):
+                    uid = kv.split("=")[1]
+            return self._json(200, {"sessions": _SS().list_for_user(uid or None, 30)})
+        if p == "/api/v1/session":
+            from .state import StateStore as _SS
+            qs = urlparse(self.path).query
+            sid = None
+            for kv in qs.split("&"):
+                if kv.startswith("sessionId="):
+                    sid = kv.split("=")[1]
+            s = _SS().get_session(sid) if sid else None
+            if not s:
+                return self._json(404, {"success": False, "error": "session not found"})
+            return self._json(200, {"success": True, "session": {
+                "sessionId": s.get("id"), "market": s.get("market"), "language": s.get("language"),
+                "intent": s.get("intent"), "ended": bool(s.get("ended")),
+                "endedReason": s.get("ended_reason"), "totalRounds": s.get("total_rounds", len(s.get("history", []))),
+                "history": s.get("history", [])}})
+        if p == "/api/v1/kb/image":
+            import re as _re
+            from . import config as _cfg
+            qs = urlparse(self.path).query
+            mkt = v = pg = fi = None
+            for kv in qs.split("&"):
+                if "=" in kv:
+                    k, val = kv.split("=", 1)
+                    if k == "mkt": mkt = val
+                    elif k == "v": v = val
+                    elif k == "p": pg = val
+                    elif k == "f": fi = val
+            # 校验市场/版本/页/图索引,防目录穿越
+            if mkt and v and pg and mkt.upper() in ("AU", "THA") \
+                    and _re.fullmatch(r"[\w.\-]+", v) and pg.isdigit():
+                fname = f"{v}_p{int(pg)}"
+                if fi is not None and fi.isdigit():
+                    fname += f"__f{int(fi)}"
+                fp = os.path.join(_cfg.KB_ROOT, mkt.upper(), "images", fname + ".png")
+                return self._file(fp, "image/png")
+            return self._json(404, {"error": "image not found"})
         return self._json(404, {"error": "not found"})
 
     def do_POST(self):
@@ -75,7 +119,7 @@ class Handler(BaseHTTPRequestHandler):
             r = pipeline.chat(
                 session_id=body.get("sessionId"), message=body.get("message", ""),
                 location=body.get("location"), explicit_market=body.get("market"),
-                lang_hint=body.get("langHint"))
+                lang_hint=body.get("langHint"), user_id=body.get("userId"))
             r["latency_ms"] = int((time.time() - t0) * 1000)
             return self._json(200, r)
         if path == "/api/v1/lead":
@@ -115,6 +159,14 @@ def main():
         _kb.warmup()
     except Exception as e:
         print("warmup skipped:", e)
+    # 定期清理:删除超过 ARCHIVE_DAYS 的会话存档
+    try:
+        from . import config as _cfg
+        from .state import StateStore as _SS
+        _n = _SS().cleanup(_cfg.ARCHIVE_DAYS)
+        print(f"清理过期会话:删除了 {_n} 个")
+    except Exception as e:
+        print("cleanup skipped:", e)
     httpd = ThreadingHTTPServer((args.host, args.port), Handler)
     print(f"csapp server on http://{args.host}:{args.port} (threaded)")
     httpd.serve_forever()

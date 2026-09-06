@@ -42,6 +42,22 @@ body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microso
 .in button{border:0;background:var(--brand);color:#fff;padding:0 18px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer}
 .in button:disabled{opacity:.5}
 .hint{color:var(--mut);font-size:11px;text-align:center;margin-top:12px;line-height:1.6}
+.hist{background:#f8fafb;border-bottom:1px solid var(--line);max-height:230px;overflow-y:auto}
+.hist-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;font-size:13px;font-weight:700;color:var(--txt)}
+.hist-list{padding:0 10px 10px;display:flex;flex-direction:column;gap:6px}
+.hist-item{border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:#fff;cursor:pointer;transition:.15s}
+.hist-item:hover{border-color:var(--brand);background:#f0f7f5}
+.hi1{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.hi-t{font-size:13px;color:var(--txt);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hi-badge{font-size:10px;padding:1px 6px;border-radius:999px;white-space:nowrap}
+.hi-badge.go{background:#e8f8ef;color:#1f7a4d}
+.hi-badge.end{background:#f0f1f3;color:#6b7a86}
+.hi2{display:flex;justify-content:space-between;gap:6px;font-size:11px;color:var(--mut);margin-top:3px}
+.hist-empty{font-size:12px;color:var(--mut);text-align:center;padding:14px}
+.imgs img,.ansimg img{max-width:100%;border:1px solid var(--line);border-radius:10px;display:block;cursor:zoom-in}
+.ansimg{margin:8px 0 2px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.tools{display:flex;gap:6px;align-items:center;margin-left:auto}
+.tools .b{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -52,6 +68,8 @@ body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microso
     <div class="top">
       <span class="dot"></span><span class="chan" id="uiChan">Web 客服窗</span>
       <div class="sel-group">
+        <button class="b" id="histBtn">历史</button>
+        <button class="b" id="newBtn">＋ 新会话</button>
         <select id="mkt"></select>
         <select id="lang">
           <option value="zh">中文</option>
@@ -60,6 +78,10 @@ body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microso
           <option value="th">ไทย</option>
         </select>
       </div>
+    </div>
+    <div class="hist" id="hist" hidden>
+      <div class="hist-head"><span id="histTitle">历史会话</span><button class="b" id="histClose">×</button></div>
+      <div class="hist-list" id="histList"></div>
     </div>
     <div class="msgs" id="msgs"></div>
     <div class="avail"><span id="tryLabel">试试：</span><span id="availBtns" style="display:contents"></span></div>
@@ -72,6 +94,8 @@ body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microso
 </div>
 <script>
 let sessionId=null, market="", lang="en";
+function getUserId(){let u=localStorage.getItem("cs_bot_uid");if(!u){u="u_"+(crypto.randomUUID?crypto.randomUUID().replace(/-/g,""):(Math.random().toString(36).slice(2)+Date.now().toString(36)));localStorage.setItem("cs_bot_uid",u);}return u;}
+let userId=getUserId();
 const $=id=>document.getElementById(id);
 const I18N={
  zh:{title:"AION 海外智能客服",sub:"意图驱动 · 语言跟随 · 知识可溯源",chan:"Web 客服窗",mkt:"市场",lang:"语言",
@@ -79,7 +103,7 @@ const I18N={
      reached:"达成",notReached:"未达",emergency:"紧急",escalate:"转人工",cite:"引用：",
      hint:"语言跟随用户 · 自动识别意图(二段式:关键词 + 大模型语义) · 按市场路由 · 引导卡驱动留资/预约 · 紧急意图优先 · 引用可溯源 · 内容安全护栏",
      greet:"👋 我是 AION 海外智能助手。可以问我配置、经销商、使用、售后或紧急救援。点击下方示例快速体验各项能力。",
-     done:"✓ 已达成目标 · 联系人已留资",compliance:"合规 ✓ consentVersion=",fail:"请求失败: ",
+     done:"✓ 已达成目标 · 联系人已留资",compliance:"合规 ✓ consentVersion=",fail:"请求失败: ",history:"历史会话",newChat:"＋ 新会话",noHistory:"暂无历史会话",ended:"已结束",ongoing:"进行中",continue:"继续",
      markets:{"":"自动(市场)","AU":"澳洲 AU","THA":"泰国 THA","CN":"中国 CN","ES":"西班牙 ES","FR":"法国 FR","MY":"马来西亚 MY","ID":"印尼 ID","IN":"印度 IN","US":"美国 US","DE":"德国 DE","VN":"越南 VN"},
      samples:[["AION UT 的续航是多少？","续航/规格"],["最近的经销商在哪里？","经销商"],["怎么充电？","怎么充电"],
               ["我的车启动不了，需要紧急救援！！","紧急救援"],["泰国市场卖哪些车型？","泰国/市场"]]},
@@ -88,7 +112,7 @@ const I18N={
      placeholder:"Type a message…",send:"Send",reached:"✓",notReached:"—",emergency:"Emergency",escalate:"Escalate",cite:"Cite:",
      hint:"Follows the user's language · Intent recognition · Market routing · Guided lead/booking · Emergency-first · Traceable citations · Content-safety guards",
      greet:"👋 I'm the AION overseas assistant. Ask me about specs, dealers, usage, service or roadside help. Tap an example below to try it.",
-     done:"✓ Goal reached · lead saved",compliance:"Compliance ✓ consentVersion=",fail:"Request failed: ",
+     done:"✓ Goal reached · lead saved",compliance:"Compliance ✓ consentVersion=",fail:"Request failed: ",history:"History",newChat:"New chat",noHistory:"No history yet",ended:"Ended",ongoing:"Ongoing",continue:"Continue",
      markets:{"":"Auto (market)","AU":"Australia AU","THA":"Thailand THA","CN":"China CN","ES":"Spain ES","FR":"France FR","MY":"Malaysia MY","ID":"Indonesia ID","IN":"India IN","US":"United States US","DE":"Germany DE","VN":"Vietnam VN"},
      samples:[["What is the range of the AION UT?","Range / specs"],["Where is my nearest dealer?","Dealers"],["How do I charge the car?","Charging"],
               ["My car won't start, need emergency help!!","Emergency"],["Which models are in the Thailand market?","Thailand / market"]]},
@@ -97,7 +121,7 @@ const I18N={
      placeholder:"Escriba un mensaje…",send:"Enviar",reached:"✓",notReached:"—",emergency:"Emergencia",escalate:"Escalar",cite:"Cita:",
      hint:"Sigue el idioma del usuario · Reconocimiento de intención · Enrutado por mercado · Guía de captación/reserva · Emergencia primero · Citas trazables · Seguridad de contenido",
      greet:"👋 Soy el asistente AION en el extranjero. Consulte sobre especificaciones, concesionarios, uso, servicio o asistencia en carretera. Toque un ejemplo para probar.",
-     done:"✓ Meta lograda · contacto guardado",compliance:"Cumplimiento ✓ consentVersion=",fail:"Error de petición: ",
+     done:"✓ Meta lograda · contacto guardado",compliance:"Cumplimiento ✓ consentVersion=",fail:"Error de petición: ",history:"Historial",newChat:"Nueva conversación",noHistory:"Sin historial aún",ended:"Finalizada",ongoing:"En curso",continue:"Continuar",
      markets:{"":"Auto (mercado)","AU":"Australia AU","THA":"Tailandia THA","CN":"China CN","ES":"España ES","FR":"Francia FR","MY":"Malasia MY","ID":"Indonesia ID","IN":"India IN","US":"Estados Unidos US","DE":"Alemania DE","VN":"Vietnam VN"},
      samples:[["¿Cuál es la autonomía del AION UT?","Autonomía / especificaciones"],["¿Dónde está mi concesionario más cercano?","Concesionarios"],["¿Cómo cargo el coche?","Carga"],
               ["Mi coche no arranca, ¡necesito ayuda de emergencia!!","Emergencia"],["¿Qué modelos hay en el mercado de Tailandia?","Tailandia / mercado"]]},
@@ -106,7 +130,7 @@ const I18N={
      placeholder:"พิมพ์ข้อความ…",send:"ส่ง",reached:"✓",notReached:"—",emergency:"ฉุกเฉิน",escalate:"ส่งต่อเจ้าหน้าที่",cite:"อ้างอิง:",
      hint:"ตามภาษาผู้ใช้ · ตรวจจับเจตนา · จัดเส้นทางตามตลาด · นำไปสู่การฝากข้อมูล/นัดหมาย · ฉุกเฉินก่อน · อ้างอิงตรวจสอบได้ · ความปลอดภัยเนื้อหา",
      greet:"👋 ผมคือผู้ช่วย AION ต่างประเทศ สอบถามสเปก ตัวแทนจำหน่าย การใช้งาน บริการ หรือช่วยเหลือฉุกเฉินได้ แตะตัวอย่างด้านล่างเพื่อลองใช้",
-     done:"✓ บรรลุเป้าหมาย · ฝากข้อมูลแล้ว",compliance:"ปฏิบัติตาม ✓ consentVersion=",fail:"คำขอผิดพลาด: ",
+     done:"✓ บรรลุเป้าหมาย · ฝากข้อมูลแล้ว",compliance:"ปฏิบัติตาม ✓ consentVersion=",fail:"คำขอผิดพลาด: ",history:"ประวัติ",newChat:"แชทใหม่",noHistory:"ยังไม่มีประวัติ",ended:"จบแล้ว",ongoing:"กำลังคุย",continue:"ต่อ",
      markets:{"":"อัตโนมัติ (ตลาด)","AU":"ออสเตรเลีย AU","THA":"ไทย THA","CN":"จีน CN","ES":"สเปน ES","FR":"ฝรั่งเศส FR","MY":"มาเลเซีย MY","ID":"อินโดนีเซีย ID","IN":"อินเดีย IN","US":"สหรัฐอเมริกา US","DE":"เยอรมนี DE","VN":"เวียดนาม VN"},
      samples:[["AION UT วิ่งได้ไกลแค่ไหน","ระยะทาง / สเปก"],["ตัวแทนจำหน่ายใกล้ฉันอยู่ที่ไหน","ตัวแทนจำหน่าย"],["ชาร์จรถยังไง","ชาร์จ"],
               ["รถสตาร์ทไม่ติด ต้องการความช่วยเหลือฉุกเฉิน!!","ฉุกเฉิน"],["ตลาดไทยมีรุ่นอะไรบ้าง","ไทย / ตลาด"]]}
@@ -130,6 +154,7 @@ function setLang(l){
   const T=I18N[lang];
   $("uiTitle").textContent=T.title; $("uiSub").textContent=T.sub; $("uiChan").textContent=T.chan;
   $("tryLabel").textContent=T.try; $("inp").placeholder=T.placeholder; $("send").textContent=T.send; $("hint").textContent=T.hint;
+  $("histBtn").textContent=T.history; $("newBtn").textContent=T.newChat; $("histTitle").textContent=T.history;
   renderMarket(); renderAvail();
 }
 function detectDefaultLang(){
@@ -146,18 +171,32 @@ async function send(q){
   const tk=add("bot","…");
   try{
     const T=I18N[lang];
-    const r=await fetch("/api/v1/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId,message:q,market,langHint:lang})});
+    const r=await fetch("/api/v1/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId,message:q,market,langHint:lang,userId})});
     const d=await r.json();
     sessionId=d.sessionId;
+    if(d.ended){ sessionId=null; }   // 会话已结束 → 下次消息开新会话
     const em=(d.intent==="emergency");
     tk.className="msg bot"+(em?" em":"");
     let html=esc(d.reply||"");
+    if(d.answer_images&&d.answer_images.length){
+      html+='<div class="ansimg">'+d.answer_images.map(u=>'<img src="'+esc(u)+'" loading="lazy" onclick="window.open(this.src)" alt="">').join('')+'</div>';
+    }
     let cap=[];
     if(d.intent)cap.push('<span class="t int">'+esc(d.intent)+'</span>');
     if(d.market)cap.push('<span class="t txt">'+esc(d.market)+' / '+esc(d.language||'')+'</span>');
     if(em)cap.push('<span class="t" style="background:#c0392b;color:#fff">'+T.emergency+'</span>');
     if(d.escalate)cap.push('<span class="t" style="background:#8e44ad;color:#fff">'+T.escalate+'</span>');
-    if(d.citations&&d.citations.length){cap.push(T.cite+d.citations.map(c=>'<cite>'+esc(c.doc||c.concept||'')+'</cite>').join(', '));}
+    if(d.citations&&d.citations.length){
+      const seen=new Set(); const cites=[];
+      d.citations.forEach(c=>{
+        const doc=c.doc||c.concept||""; const pg=c.page?(" P"+c.page):"";
+        const key=doc+pg;
+        if(seen.has(key))return; seen.add(key);
+        if(cites.length>=3)return;          // 同文档页码去重,最多亮 3 条
+        cites.push('<cite>'+esc(doc)+pg+'</cite>');
+      });
+      if(cites.length)cap.push(T.cite+cites.join(', '));
+    }
     if(cap.length)html+='<div class="cap">'+cap.join(' &nbsp; ')+'</div>';
     tk.innerHTML=html;
     if(d.targetReached){
@@ -169,6 +208,42 @@ async function send(q){
   $("send").disabled=false;
 }
 function esc(s){s=String(s);return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+// ---- 新会话 / 历史会话 ----
+function fmtTime(iso){ if(!iso)return ""; try{ return String(iso).replace("T"," ").replace("Z","").slice(0,16); }catch(e){ return ""; } }
+$("histBtn").onclick=()=>{ const h=$("hist"); if(h.hidden){ loadHistory(); h.hidden=false; } else h.hidden=true; };
+$("histClose").onclick=()=>{ $("hist").hidden=true; };
+$("newBtn").onclick=()=>{ newSession(true); $("hist").hidden=true; };
+function newSession(clearMsg){ sessionId=null; if(clearMsg){ $("msgs").innerHTML=""; add("bot",I18N[lang].greet); } }
+async function loadHistory(){
+  const list=$("histList"); list.innerHTML="<div class='hist-empty'>…</div>";
+  try{
+    const r=await fetch("/api/v1/sessions?userId="+encodeURIComponent(userId||""));
+    const d=await r.json(); const ss=d.sessions||[]; list.innerHTML="";
+    if(!ss.length){ list.innerHTML="<div class='hist-empty'>"+I18N[lang].noHistory+"</div>"; return; }
+    ss.forEach(s=>{
+      const item=document.createElement("div"); item.className="hist-item";
+      const bad=s.ended?('<span class="hi-badge end">'+I18N[lang].ended+'</span>'):('<span class="hi-badge go">'+I18N[lang].ongoing+'</span>');
+      item.innerHTML='<div class="hi1"><span class="hi-t">'+esc(s.title||s.intent||"")+'</span>'+bad+'</div>'+
+        '<div class="hi2"><span>'+esc(s.market||"")+(s.intent?(" · "+esc(s.intent)):"")+'</span><span>'+esc(fmtTime(s.updatedAt))+'</span></div>';
+      item.onclick=()=>resumeSession(s.sessionId);
+      list.appendChild(item);
+    });
+  }catch(e){ list.innerHTML="<div class='hist-empty'>"+I18N[lang].fail+(e.message||e)+"</div>"; }
+}
+async function resumeSession(id){
+  try{
+    const r=await fetch("/api/v1/session?sessionId="+encodeURIComponent(id));
+    const d=await r.json(); if(!d.success)return;
+    const s=d.session; sessionId=s.sessionId;
+    const ms=$("msgs"); ms.innerHTML=""; let n=0;
+    (s.history||[]).forEach(t=>{
+      if(t.user){ add("user",esc(t.user)); n++; }
+      if(t.bot){ add("bot",esc(t.bot)); n++; }
+    });
+    if(!n) add("bot",I18N[lang].greet);
+    $("hist").hidden=true;
+  }catch(e){}
+}
 $("send").onclick=()=>send();
 $("inp").addEventListener("keydown",e=>{
   if(e.isComposing || e.keyCode===229)return;   // 输入法组合中,忽略按键(避免把"wh o"这种半截值发出/空格错位)

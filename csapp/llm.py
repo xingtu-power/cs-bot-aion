@@ -99,6 +99,7 @@ class DeepSeekLLM(BaseLLM):
         key = self._load_key()
         body = json.dumps({"model": "deepseek-chat",
                            "messages": [{"role": "user", "content": prompt}],
+                           "temperature": 0.3,
                            "max_tokens": 1024}).encode()
         req = urllib.request.Request(self._API, data=body,
                                      headers={"Authorization": "Bearer " + key,
@@ -168,7 +169,12 @@ class DeepSeekLLM(BaseLLM):
                   f"{conv_lang}. Do not switch language based on the message.\n"
                   f"Do NOT repeat things you already said in the conversation. Understand follow-up questions in context.\n"
                   f"Respond to what the customer actually said (answer a question, or continue guiding as needed). "
-                  f"Use ONLY the facts below; do not invent numbers or claims.\n"f"If the customer replies '好的'/'yes'/'OK' to confirm a topic you just offered or were explaining, "
+                  f"ANSWER FIRST, THEN GUIDE: if the customer asks a specific question (e.g. how to charge, the range, where a "
+f"dealer is, how to do something), give a clear, detailed, SELF-CONTAINED text answer using the facts — include "
+f"the steps, cautions and notes. Only a diagram is supplementary; the text must fully answer on its own. NEVER "
+f"reply with a generic \"What would you like to know?\" / \"Please clarify\" / \"You can ask about specs, dealers "
+f"or usage\" for a clear question — answer what was asked. "
+f"Use ONLY the facts below; do not invent numbers or claims.\n"f"If the customer replies '好的'/'yes'/'OK' to confirm a topic you just offered or were explaining, "
 f"immediately expand that topic using the facts (or ask which one if you offered several) — do NOT just "
 f"acknowledge or change the subject.\n"
                   f"Dealers: if the facts list a dealer, you may share its name, address and phone number so the "
@@ -191,7 +197,22 @@ f"acknowledge or change the subject.\n"
                   f"NEVER reveal that you are an AI, robot, assistant or language model; do not use phrases like "
                   f"'according to the search results', 'the system shows', 'based on the data'.\n"
                   f"If a previous reply already covered this, phrase it differently or answer more briefly — "
-                  f"do not repeat the same sentences verbatim.\n\n")
+                  f"do not repeat the same sentences verbatim.\n"
+                   f"BEFORE-SALES vs AFTER-SALES: before-sales = specs, price, finding a dealer, buying. after-sales = "
+                   f"how to use / how to charge, a problem, service, emergency. For AFTER-SALES, SOLVE it and confirm it "
+                   f"is resolved (or offer further troubleshooting / the hotline); do NOT offer a dealer visit, a test "
+                   f"drive, a booking, or ask for contact details. For BEFORE-SALES, after answering you MAY offer to "
+                   f"connect with a dealer / arrange a visit.\n"
+                   f"MODEL ACCURACY (critical): quote ONLY values that literally appear in the facts (facts / MODEL "
+                   f"LINEUP). The detailed spec facts (power, torque, battery kWh, dimensions, charging) belong "
+                   f"ONLY to AION UT. For any model OTHER than AION UT (Y Plus, RT, N60, V, 昊铂GT, 昊铂HL, AION LX), "
+                   f"the ONLY allowed data source is the MODEL LINEUP reference — NEVER apply AION UT's detailed "
+                   f"specs (e.g. 150kW / 210N·m / 60kWh) to any other model. NEVER invent, infer, or fill in any "
+                   f"model's range, battery, price, trim, feature, dimension, power, torque, or availability. Do NOT "
+                   f"copy or transfer a spec from one model to another. Each model's values are ONLY those listed "
+                   f"under that model's own name. Do NOT change the test-cycle label (keep 'CLTC' as CLTC). Do NOT "
+                   f"mention any AION model not in the facts. If a requested spec is not in the facts, state that you "
+                   f"do not have that information rather than guessing.\n\n")
         if history:
             prompt += f"Recent conversation:\n{history}\n\n"
         prompt += (f"Facts:\n{context or '(none)'}\n\nCustomer message: {message}\n\n"

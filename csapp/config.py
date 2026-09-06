@@ -17,7 +17,7 @@ DEFAULT_MARKET = "AU"
 
 # ---- 意图识别阈值 ----
 INTENT_CONFIDENCE_THRESHOLD = 0.6   # 低于此值进入澄清
-CLARIFY_MAX_ROUNDS = 2              # 澄清轮数上限,超限转人工
+CLARIFY_MAX_ROUNDS = 3              # 澄清轮数上限,超限先确认再转人工
 ESCAPE_INTENTS_CALLOUT = 1000       # 轮数硬上限(防御粘住/刷量)
 
 # ---- 情绪 ----
@@ -31,7 +31,21 @@ REPLY_MAX_CHARS = int(os.environ.get("CSAPP_REPLY_MAX_CHARS", "300"))   # 绝对
 REPEAT_SIM_THRESHOLD = 0.80          # 与近几轮 bot 回复相似度 > 此值判重复
 
 # ---- 槽位收集护栏 ----
-SLOT_MAX_ASK = 3                     # 单槽位追问上限,超限转人工(避免反复要手机号/确认)
+SLOT_MAX_ASK = 4                     # 单槽位追问上限,超限先确认再转人工(避免反复要/轻易切)
+
+# ---- 回答配图 ----
+# 仅在"有必要"时展示示意图:操作/步骤类(usage-guide)与救援(emergency)
+# 才返回 answer_image;规格/经销商/售后政策/闲聊等其他回答不配图。
+ANSWER_IMAGE_INTENTS = {"usage-guide", "emergency"}
+
+# ---- 会话结束策略 ----
+TTL_RECENT = int(os.environ.get("CSAPP_TTL_RECENT", "1800"))     # 空闲多少秒视为过期(30分钟)
+ARCHIVE_DAYS = int(os.environ.get("CSAPP_ARCHIVE_DAYS", "90"))   # 存档保留多少天(3个月)后清理
+END_NOTICE = {"zh": "本次咨询已结束，感谢使用。如需继续请开启新会话。",
+              "en": "This session has ended. Thank you. Please start a new conversation to continue.",
+              "th": "สิ้นสุดการสนทนานี้แล้ว ขอบคุณ หากต้องการต่อ กรุณาเริ่มบทสนทนาใหม่",
+              "es": "Esta sesión ha finalizado. Gracias. Para continuar, inicie una nueva conversación."}
+GOODBYE_RE = r"(再见|拜拜|结束会话|会话结束|告别|sayonara|\bbye\b|\bgoodbye\b|感谢|谢谢|结束)"
 
 # ---- 语言检测 ----
 # 脚本 -> 语言 的强启发式(覆盖目标市场):泰文脚本->th,中文->zh,拉丁->en/其它,

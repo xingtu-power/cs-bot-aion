@@ -23,3 +23,5 @@ __pycache__/
 *.pyc
 *.pyo
 .DS_Store
+# 知识库页面图(由 tools/extract_images.py 生成)
+kb/*/images/
