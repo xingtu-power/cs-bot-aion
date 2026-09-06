@@ -32,7 +32,7 @@ CARD = {
          "expect": "confirm", "goal": True},
     ],
     "emergency": [
-        {"desc": "Confirm the customer is safe, give the roadside hotline (from facts) and offer to dispatch a rescue ticket; ask for consent.",
+        {"desc": "Confirm the customer is safe. Give the AION roadside-assistance hotline from the facts (state the exact number if present, e.g. a rescue-guide phone; if none, point them to the Emergency Rescue Guide). Then offer to dispatch a rescue ticket and ask for consent.",
          "expect": "consent_rescue", "goal": True},
     ],
     "after-sales": [
