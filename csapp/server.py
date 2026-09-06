@@ -181,6 +181,9 @@ def main():
         from .state import StateStore as _SS
         _n = _SS().cleanup(_cfg.ARCHIVE_DAYS)
         print(f"清理过期会话:删除了 {_n} 个")
+        _nn = _SS().cleanup_none_files()
+        if _nn:
+            print(f"清理脏文件(None*.json):删除了 {_nn} 个")
         # 后台 idle 巡检:每 60s 把超过 TTL_RECENT 未活动且未结束的会话标为 idle
         import threading
         def _idle_loop():

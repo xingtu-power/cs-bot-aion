@@ -29,8 +29,8 @@ body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microso
 .hi-badge.end{background:rgba(255,255,255,.2);color:#cfe0dc}
 .hi2{display:flex;justify-content:space-between;gap:6px;font-size:11px;color:#9fc0ba;margin-top:3px}
 .hist-empty{font-size:12px;color:#9fc0ba;text-align:center;padding:20px 8px}
-/* 右侧 */
-.main{display:flex;flex-direction:column;height:100vh;overflow:hidden;padding:16px 20px 10px;max-width:760px;margin:0 auto;width:100%}
+/* 右侧 — 填满 .app 剩余空间 */
+.main{display:flex;flex-direction:column;height:100vh;overflow:hidden;padding:14px 22px 10px;width:100%;min-width:0}
 .panel{background:var(--card);border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.12);overflow:hidden;flex:1;min-height:0;display:flex;flex-direction:column}
 .top{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
 .top select{font-size:12px;padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--txt);outline:0;cursor:pointer}
@@ -198,8 +198,11 @@ function add(cls,html){const d=document.createElement("div");d.className="msg "+
 async function send(q){
   q=(q||$("inp").value).trim(); if(!q)return;
   $("inp").value=""; $("send").disabled=true;
+  // 清理上一次会话可能残留的 ended-banner,避免脏 UI
+  clearEndedBanner();
   add("user",esc(q));
   const tk=add("bot","…");
+  let ok=false;
   try{
     const T=I18N[lang];
     const r=await fetch("/api/v1/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId,message:q,market,langHint:lang,userId})});
@@ -235,9 +238,11 @@ async function send(q){
       add("ok",T.done+(ref?(' · '+esc(ref)):''));
     }
     if(d.consentVersion)add("ok",T.compliance+d.consentVersion);
-    // 关键:每次发送后刷新左侧会话列表,摘要会显示刚刚这条最新消息
-    loadHistory();
+    ok=true;
   }catch(e){ tk.textContent=I18N[lang].fail+(e.message||e); }
+  // 关键:每次发送后刷新左侧会话列表,摘要会显示刚刚这条最新消息
+  // 即使失败也刷新,以防前端认为"新会话不存在"
+  loadHistory();
   $("send").disabled=false;
 }
 function esc(s){s=String(s);return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
@@ -278,6 +283,8 @@ async function loadHistory(){
 }
 async function resumeSession(id){
   try{
+    // 关键:每次进入会话前先清掉旧 banner,防止多次点击累积 / 新会话残留
+    clearEndedBanner();
     const r=await fetch("/api/v1/session?sessionId="+encodeURIComponent(id));
     const d=await r.json(); if(!d.success)return;
     const s=d.session; sessionId=s.sessionId;
@@ -299,7 +306,18 @@ async function resumeSession(id){
     closeSide();
   }catch(e){}
 }
-function newSession(clearMsg){ sessionId=null; if(clearMsg){ $("msgs").innerHTML=""; add("bot",I18N[lang].greet); } loadHistory(); }
+// 工具:清掉所有 ended-banner(panel 里最多一个,但用 querySelectorAll 防止累积)
+function clearEndedBanner(){
+  document.querySelectorAll(".ended-banner").forEach(el=>el.remove());
+}
+function newSession(clearMsg){
+  sessionId=null;
+  clearEndedBanner();   // 关键:新会话也要清 banner,否则上一个 ended 会话的提示会残留
+  $("inp").disabled=false; $("send").disabled=false;
+  $("closeBtn").style.display="";
+  if(clearMsg){ $("msgs").innerHTML=""; add("bot",I18N[lang].greet); }
+  loadHistory();
+}
 async function closeSession(){
   if(sessionId){ try{ await fetch("/api/v1/session/end",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId,reason:"user_closed"})}); }catch(e){} }
   newSession(true);
