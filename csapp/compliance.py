@@ -112,6 +112,22 @@ def output_filter(reply):
     return reply, False
 
 
+# ---------------- 空泛反问检测(用于收紧版A: 首次未实际作答则二次调用修正) ----------------
+# 只在"LLM 没回答用户具体问题、反而问用户想了解什么"时命中(强特征词);
+# 刻意**不**命中卡片设计的合法澄清(如 "您更看重续航还是价格?")。
+_VAGUE_RE = re.compile(
+    r"(麻烦再说一下|请再说一下|再说一下|可以帮您解答|想了解什么|想咨询什么|想了解哪|想咨询哪|"
+    r"您的具体需求|告诉我您的需求|您想问什么|您想了解哪方面|您想咨询哪方面|"
+    r"what would you like to know|what can i help you with|please clarify|"
+    r"could you (please )?clarify|is there anything specific|"
+    r"which specific (topic|aspect|model|area)|i can help you with|how can i assist you)", re.I)
+
+
+def is_vague_reply(text):
+    """判断回复是否为"空泛反问"(未回答实际问题)。"""
+    return bool(_VAGUE_RE.search(text or ""))
+
+
 # ---------------- 车型信息防臆造(非 UT 车型) ----------------
 # 知识库里除 AION UT 外,其它车型只有用户提供的清单信息;功率/扭矩/电池容量/马力等详细参数一律没有。
 # 若回复把这类参数写给非 UT 车型 -> 该句强制替换为"暂无确切信息,建议联系授权经销商/官方热线核实"。

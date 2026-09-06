@@ -161,6 +161,7 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     session._answer_llm = response
     session._question = question
 
+    _pre_intent = session.intent          # 锁定前的意图(用于判断是否"首轮")
     intent = session.intent
     if intent:
         # 已锁定:用户若跳到**另一个业务意图**则切换,避免死抠某一步
@@ -206,6 +207,22 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
         else:
             session.lock_intent(new_intent, conf)
             reply = card_mod.run_card(session, message, kb, reply_lang)
+
+    # 收紧版A: 首轮 + 业务意图 + 回复为空泛反问(未实际作答) → 二次调用强制作答一次,
+    # 避免"麻烦再说一下 / 你想了解什么"这类空泛话。仅这一种罕见情况才多调一次。
+    if (not _pre_intent) and session.intent in BUSINESS \
+            and compliance.is_vague_reply(str(reply.get("reply", ""))) \
+            and hasattr(_llm, "respond"):
+        _strict_desc = (card_mod.state_desc(session.intent, session.step_index, message, session, kb)
+                        + " ANSWER the customer's question directly and completely. Do NOT reply with a generic "
+                          "'what would you like to know?' and do NOT ask the customer to clarify.")
+        _r2 = _llm.respond(message, context, _strict_desc, reply_lang, history)
+        if _r2 and len(_r2) > 3 and _r2[3]:
+            session._answer_llm = _r2[3]
+            session._question = _r2[2] if len(_r2) > 2 else session._question
+            reply["reply"] = _r2[3]
+            debug.record(evt="vague_reply_retried", intent=session.intent,
+                         new=reply.get("reply", "")[:100])
 
     # 3.9) 情绪≥阈值 → 先确认再转人工
     # 先持久化本回合计算的情绪分(卡片/澄清路径已 score_emotion),否则 session.emotion_score 恒为 0,≥阈值永不触发
