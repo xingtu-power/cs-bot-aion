@@ -115,7 +115,7 @@ body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microso
           <div class="avatar" id="topAvatar">·</div>
           <div class="uimeta">
             <div class="uiname" id="topUName">访客</div>
-            <div class="uisub"><span class="dot"></span><span id="topUState">在线 · Web · 中文</span></div>
+            <div class="uisub"><span class="dot"></span><span id="topUState">在线</span></div>
           </div>
         </div>
         <div class="sel-group">
@@ -253,15 +253,13 @@ function renderUserInfo(){
   $("topAvatar").textContent=av.letter;
   $("topAvatar").style.background=av.color;
   $("topUName").textContent=visitorName(userId);
-  // 副标题:统一格式「在线 · 市场 · 语言」
+  // 副标题:统一格式「在线 · 语言」
   // 优先用当前会话 meta(历史会话或刚发消息),否则用顶部 select 的当前值
-  const m=currentSessionMeta&&currentSessionMeta.market ? currentSessionMeta.market : (($("mkt").value||"")||"auto");
   const lRaw=currentSessionMeta&&currentSessionMeta.language ? currentSessionMeta.language : (($("lang").value||"en"));
   const l=lRaw.toUpperCase();
-  const mktText=(m==="auto"||!m) ? I18N[lang].auto : m;
-  $("topUState").textContent=`${I18N[lang].online} · ${mktText} · ${l}`;
+  $("topUState").textContent=`${I18N[lang].online} · ${l}`;
 }
-$("mkt").addEventListener("change",e=>{market=e.target.value; renderUserInfo();});
+$("mkt").addEventListener("change",e=>{market=e.target.value;});  // market 仅作为请求参数,顶部不再展示
 $("lang").addEventListener("change",e=>setLang(e.target.value));
 function add(cls, html, timeIso){
   // 普通消息(user/bot):自动加头像、名字、时间;其它类型(ok)原样渲染
