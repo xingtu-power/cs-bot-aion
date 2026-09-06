@@ -102,12 +102,14 @@ class Session:
         self.last_active = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
     def end(self, reason, ended_at=None):
-        """标记会话结束(幂等)。已结束则返回 False,否则记为 ended 并返回 True。"""
+        """标记会话结束(幂等)。会 persist 到磁盘。"""
         if self.ended:
             return False
         self.ended = True
         self.ended_reason = reason
         self.ended_at = ended_at or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        self.updated_at = self.ended_at
+        self.persist()
         return True
 
     def should_escalate(self):
@@ -162,12 +164,27 @@ class StateStore:
             if user_id and d.get("user_id") != user_id:
                 continue
             first = ""
+            last_user_msg = ""
+            last_bot_msg = ""
             for t in d.get("history", []):
                 if t.get("user"):
-                    first = t["user"]; break
+                    first = first or t["user"]
+                    last_user_msg = t["user"]
+                if t.get("bot"):
+                    last_bot_msg = t["bot"]
+            # 最后一条消息:同轮内 bot 后写,所以优先 bot(时序最后);fallback 到 last user
+            if last_bot_msg:
+                last_message = last_bot_msg; last_message_role = "bot"
+            elif last_user_msg:
+                last_message = last_user_msg; last_message_role = "user"
+            elif first:
+                last_message = first; last_message_role = "user"
+            last_message = (last_message[:60] + "…") if len(last_message) > 60 else last_message
             rows.append({
                 "sessionId": d.get("id"),
                 "title": (first[:40] if first else (d.get("intent") or "new session")),
+                "lastMessage": last_message,
+                "lastMessageRole": last_message_role,
                 "market": d.get("market"),
                 "language": d.get("language"),
                 "intent": d.get("intent"),

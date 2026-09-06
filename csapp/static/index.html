@@ -21,7 +21,7 @@ body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microso
 .hg{font-size:12px;font-weight:700;color:#9fc0ba;margin:12px 4px 6px;text-transform:capitalize}
 .hist-item{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:8px 10px;margin-bottom:6px;cursor:pointer;transition:.15s}
 .hist-item:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.25)}
-.hist-item.ended{opacity:.5;cursor:not-allowed}
+.hist-item.ended{opacity:.55;cursor:pointer}.hist-item.ended:hover{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.18)}
 .hi1{display:flex;align-items:center;justify-content:space-between;gap:6px}
 .hi-t{font-size:13px;color:#fff;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hi-badge{font-size:10px;padding:1px 6px;border-radius:999px;white-space:nowrap}
@@ -75,6 +75,7 @@ body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microso
 @media (max-width:720px){#sideToggle{display:inline-flex}}
 .scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:20;display:none}
 .scrim[data-open="1"]{display:block}
+.ended-banner{background:#fff8e6;border:1px solid #f5d57b;color:#8a6d00;padding:8px 14px;border-radius:10px;margin:8px 16px 0;font-size:12px;text-align:center}
 </style>
 </head>
 <body>
@@ -234,6 +235,8 @@ async function send(q){
       add("ok",T.done+(ref?(' · '+esc(ref)):''));
     }
     if(d.consentVersion)add("ok",T.compliance+d.consentVersion);
+    // 关键:每次发送后刷新左侧会话列表,摘要会显示刚刚这条最新消息
+    loadHistory();
   }catch(e){ tk.textContent=I18N[lang].fail+(e.message||e); }
   $("send").disabled=false;
 }
@@ -249,10 +252,13 @@ function groupKey(iso){
 function makeItem(s){
   const item=document.createElement("div"); item.className="hist-item"+(s.ended?" ended":"");
   const bad=s.ended?('<span class="hi-badge end">'+I18N[lang].ended+'</span>'):('<span class="hi-badge go">'+I18N[lang].ongoing+'</span>');
-  item.innerHTML='<div class="hi1"><span class="hi-t">'+esc(s.title||s.intent||"")+'</span>'+bad+'</div>'+
+  // 摘要:优先 lastMessage(最近一条 user/bot),fallback 到 title(首条 user)
+  const last=(s.lastMessage||"").trim();
+  const show=last?esc(last):esc(s.title||s.intent||"");
+  item.innerHTML='<div class="hi1"><span class="hi-t">'+show+'</span>'+bad+'</div>'+
     '<div class="hi2"><span>'+esc(s.market||"")+(s.intent?(" · "+esc(s.intent)):"")+'</span><span>'+esc(fmtTime(s.updatedAt))+'</span></div>';
-  if(s.ended){ item.title=I18N[lang].endedTip; }
-  else item.onclick=()=>resumeSession(s.sessionId);
+  // 已结束会话也允许点击 → 加载历史查看(只是不能再发消息)
+  item.onclick=()=>resumeSession(s.sessionId);
   return item;
 }
 async function loadHistory(){
@@ -274,11 +280,22 @@ async function resumeSession(id){
   try{
     const r=await fetch("/api/v1/session?sessionId="+encodeURIComponent(id));
     const d=await r.json(); if(!d.success)return;
-    if(d.session.ended){ alert(I18N[lang].endedTip); return; }
     const s=d.session; sessionId=s.sessionId;
     const ms=$("msgs"); ms.innerHTML=""; let n=0;
     (s.history||[]).forEach(t=>{ if(t.user){add("user",esc(t.user));n++;} if(t.bot){add("bot",esc(t.bot));n++;} });
     if(!n) add("bot",I18N[lang].greet);
+    // 已结束会话:加横幅提示 + 禁用 Send/Input(允许查看,禁止继续)
+    if(s.ended){
+      const banner=document.createElement("div");
+      banner.className="ended-banner";
+      banner.textContent=I18N[lang].endedTip;
+      ms.parentNode.insertBefore(banner, ms.nextSibling);
+      $("inp").disabled=true; $("send").disabled=true;
+      $("closeBtn").style.display="none";   // 已结束无需再 ×
+    }else{
+      $("inp").disabled=false; $("send").disabled=false;
+      $("closeBtn").style.display="";
+    }
     closeSide();
   }catch(e){}
 }
