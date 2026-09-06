@@ -119,7 +119,11 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
         else:
             new_intent, conf, _s, question = intent_mod.recognize(message, llm_confirm=None); response = ""
 
+    raw_new_intent = new_intent  # LLM 原始意图(可能是自造标签)
     new_intent = intent_mod.normalize_intent(new_intent)  # LLM 变体 → 规范意图
+    # 延续/确认标签:保留会话当前业务意图,避免降级成 other(否则"好的"后接不上话题)
+    if intent_mod.is_continuation(raw_new_intent) and session.intent in BUSINESS:
+        new_intent = session.intent
     # 紧急安全预检(强信号强制 emergency,覆盖 LLM 漏判)
     if intent_mod.emergency_hit(message):
         new_intent = "emergency"
@@ -205,8 +209,8 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
                  target=bool(reply.get("target_reached", session.target_reached)))
 
     resp = _response(session, reply, reply_lang, market, market_source)
-    # 引用 & 合规留资记录
-    resp["citations"] = list(reply.get("citations", []))
+    # 引用来源(文字):检索到的文档/FAQ 来源(文档名+页码),供前端"引用"展示
+    resp["citations"] = kb.citations() if kb else []
     # 只在真正收集到留资时才返回 consentVersion(避免纯问候也显示合规卡)
     lead_record = getattr(session, "lead_record", None)
     resp["consentVersion"] = compliance.CONSENT_VERSION if lead_record else None

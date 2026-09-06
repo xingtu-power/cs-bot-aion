@@ -10,6 +10,14 @@ from . import config
 INTENTS = ["product-inquiry", "dealer-lookup", "usage-guide",
            "emergency", "after-sales", "other"]
 
+# 延续/确认类标签:LLM 视为"继续当前话题",不应被归一成 other
+CONTINUATION_LABELS = ("accept_offer_continue", "agree", "confirm", "acknowledge",
+                       "customer_acknowledgement", "continue", "yes", "ack", "好的", "同意")
+
+def is_continuation(label):
+    s = (label or "").strip().lower().replace(" ", "_")
+    return s in CONTINUATION_LABELS
+
 # LLM 返回意图 → 规范意图 的别名(LLM 可能用变体/中文)
 _INTENT_ALIAS = {
     "product": "product-inquiry", "product-inquiry": "product-inquiry", "product_inquiry": "product-inquiry",
