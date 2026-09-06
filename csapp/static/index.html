@@ -55,7 +55,6 @@ body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microso
 .msgbody{display:flex;flex-direction:column;gap:4px;max-width:78%;min-width:0}
 .msgrow.user .msgbody{align-items:flex-end}
 .msgmeta{display:flex;align-items:baseline;gap:8px;font-size:11px;color:var(--mut);padding:0 4px}
-.msgrow.user .msgmeta{flex-direction:row-reverse}
 .msgname{font-weight:700;color:var(--txt);font-size:12px}
 .msgtime{font-size:11px;color:var(--mut)}
 .msg{max-width:100%;padding:9px 12px;border-radius:14px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
@@ -142,7 +141,7 @@ body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microso
   </main>
 </div>
 <script>
-let sessionId=null, market="", lang="en";
+let sessionId=null, market="", lang="en", currentSessionMeta=null;
 function getUserId(){let u=localStorage.getItem("cs_bot_uid");if(!u){u="u_"+(crypto.randomUUID?crypto.randomUUID().replace(/-/g,""):(Math.random().toString(36).slice(2)+Date.now().toString(36)));localStorage.setItem("cs_bot_uid",u);}return u;}
 let userId=getUserId();
 const $=id=>document.getElementById(id);
@@ -154,7 +153,7 @@ const I18N={
      greet:"👋 我是 AION 海外智能助手。可以问我配置、经销商、使用、售后或紧急救援。点击下方示例快速体验各项能力。",
      done:"✓ 已达成目标 · 联系人已留资",compliance:"合规 ✓ consentVersion=",fail:"请求失败: ",
      history:"历史",newChat:"＋ 新会话",noHistory:"暂无历史会话",ended:"已结束",ongoing:"进行中",continue:"继续",
-     close:"结束咨询",online:"在线",visitor:"访客",channel:"Web",
+     close:"结束咨询",online:"在线",user:"用户",botName:"智能客服",channel:"Web",
      today:"今天",yesterday:"昨天",lastWeek:"上周",earlier:"更早",endedTip:"本次咨询已结束，请开新会话",
      markets:{"":"自动(市场)","AU":"澳洲 AU","THA":"泰国 THA","CN":"中国 CN","ES":"西班牙 ES","FR":"法国 FR","MY":"马来西亚 MY","ID":"印尼 ID","IN":"印度 IN","US":"美国 US","DE":"德国 DE","VN":"越南 VN"},
      samples:[["AION UT 的续航是多少？","续航/规格"],["最近的经销商在哪里？","经销商"],["怎么充电？","怎么充电"],
@@ -166,7 +165,7 @@ const I18N={
      greet:"👋 I'm the AION overseas assistant. Ask me about specs, dealers, usage, service or roadside help. Tap an example below to try it.",
      done:"✓ Goal reached · lead saved",compliance:"Compliance ✓ consentVersion=",fail:"Request failed: ",
      history:"History",newChat:"New chat",noHistory:"No history yet",ended:"Ended",ongoing:"Ongoing",continue:"Continue",
-     close:"End chat",online:"Online",visitor:"Visitor",channel:"Web",
+     close:"End chat",online:"Online",user:"User",botName:"AI Assistant",channel:"Web",
      today:"Today",yesterday:"Yesterday",lastWeek:"Last week",earlier:"Earlier",endedTip:"This session has ended — please start a new chat",
      markets:{"":"Auto (market)","AU":"Australia AU","THA":"Thailand THA","CN":"China CN","ES":"Spain ES","FR":"France FR","MY":"Malaysia MY","ID":"Indonesia ID","IN":"India IN","US":"United States US","DE":"Germany DE","VN":"Vietnam VN"},
      samples:[["What is the range of the AION UT?","Range / specs"],["Where is my nearest dealer?","Dealers"],["How do I charge the car?","Charging"],
@@ -178,7 +177,7 @@ const I18N={
      greet:"👋 Soy el asistente AION en el extranjero. Consulte sobre especificaciones, concesionarios, uso, servicio o asistencia en carretera. Toque un ejemplo para probar.",
      done:"✓ Meta lograda · contacto guardado",compliance:"Cumplimiento ✓ consentVersion=",fail:"Error de petición: ",
      history:"Historial",newChat:"Nueva conversación",noHistory:"Sin historial aún",ended:"Finalizada",ongoing:"En curso",continue:"Continuar",
-     close:"Finalizar",online:"En línea",visitor:"Visitante",channel:"Web",
+     close:"Finalizar",online:"En línea",user:"Usuario",botName:"Asistente IA",channel:"Web",
      today:"Hoy",yesterday:"Ayer",lastWeek:"Semana pasada",earlier:"Antes",endedTip:"Esta sesión ha finalizado — inicie una nueva conversación",
      markets:{"":"Auto (mercado)","AU":"Australia AU","THA":"Tailandia THA","CN":"China CN","ES":"España ES","FR":"Francia FR","MY":"Malasia MY","ID":"Indonesia ID","IN":"India IN","US":"Estados Unidos US","DE":"Alemania DE","VN":"Vietnam VN"},
      samples:[["¿Cuál es la autonomía del AION UT?","Autonomía / especificaciones"],["¿Dónde está mi concesionario más cercano?","Concesionarios"],["¿Cómo cargo el coche?","Carga"],
@@ -190,7 +189,7 @@ const I18N={
      greet:"👋 ผมคือผู้ช่วย AION ต่างประเทศ สอบถามสเปก ตัวแทนจำหน่าย การใช้งาน บริการ หรือช่วยเหลือฉุกเฉินได้ แตะตัวอย่างด้านล่างเพื่อลองใช้",
      done:"✓ บรรลุเป้าหมาย · ฝากข้อมูลแล้ว",compliance:"ปฏิบัติตาม ✓ consentVersion=",fail:"คำขอผิดพลาด: ",
      history:"ประวัวิต",newChat:"แชทใหม่",noHistory:"ยังไม่มีประวัติ",ended:"จบแล้ว",ongoing:"กำลังคุย",continue:"ต่อ",
-     close:"จบการสนทนา",online:"ออนไลน์",visitor:"ผู้เยี่ยมชม",channel:"เว็บ",
+     close:"จบการสนทนา",online:"ออนไลน์",user:"ผู้ใช้",botName:"ผู้ช่วย AI",channel:"เว็บ",
      today:"วันนี้",yesterday:"เมื่อวาน",lastWeek:"สัปดาห์ก่อน",earlier:"ก่อนหน้า",endedTip:"สิ้นสุดการสนทนาแล้ว — เริ่มแชทใหม่",
      markets:{"":"อัตโนมัติ (ตลาด)","AU":"ออสเตรเลีย AU","THA":"ไทย THA","CN":"จีน CN","ES":"สเปน ES","FR":"ฝรั่งเศส FR","MY":"มาเลเซีย MY","ID":"อินโดนีเซีย ID","IN":"อินเดีย IN","US":"สหรัฐอเมริกา US","DE":"เยอรมนี DE","VN":"เวียดนาม VN"},
      samples:[["AION UT วิ่งได้ไกลแค่ไหน","ระยะทาง / สเปก"],["ตัวแทนจำหน่ายใกล้ฉันอยู่ที่ไหน","ตัวแทนจำหน่าย"],["ชาร์จรถยังไง","ชาร์จ"],
@@ -236,9 +235,8 @@ function avatarFor(seed, role){
   return {color:c, letter};
 }
 function visitorName(uid){
-  const s=String(uid||"");
-  const id=s.replace(/^u_/i,"").slice(-6)||"anon";
-  return (I18N[lang].visitor||"访客")+" "+id;
+  // 简化:不再用 sessionId/userId 数字后缀,统一显示 "用户"
+  return I18N[lang].user || "用户";
 }
 function fmtTime(iso){
   // 把后端的 UTC ISO 字符串按浏览器本地时区显示
@@ -251,12 +249,20 @@ function fmtTime(iso){
   }catch(e){ return ""; }
 }
 function renderUserInfo(){
-  // 顶部用户卡片
+  // 头像 + 昵称:基于 userId(全局用户)派生,同一用户不同会话保持一致
   const av=avatarFor(userId, "user");
   $("topAvatar").textContent=av.letter;
   $("topAvatar").style.background=av.color;
   $("topUName").textContent=visitorName(userId);
-  $("topUState").textContent=`${I18N[lang].online} · ${I18N[lang].channel} · ${$("lang").options[$("lang").selectedIndex].text}`;
+  // 副标题:有会话 meta 时显示该会话的市场/语言,否则显示全局 "在线 · Web · 当前语言"
+  const langText=$("lang").options[$("lang").selectedIndex].text;
+  if(currentSessionMeta && (currentSessionMeta.market || currentSessionMeta.language)){
+    const m=currentSessionMeta.market||"-";
+    const l=(currentSessionMeta.language||"-").toUpperCase();
+    $("topUState").textContent=`${I18N[lang].online} · ${m} · ${l}`;
+  } else {
+    $("topUState").textContent=`${I18N[lang].online} · ${I18N[lang].channel} · ${langText}`;
+  }
 }
 $("mkt").addEventListener("change",e=>{market=e.target.value;});
 $("lang").addEventListener("change",e=>setLang(e.target.value));
@@ -267,7 +273,7 @@ function add(cls, html, timeIso){
     const wrap=document.createElement("div");
     wrap.className="msgrow "+cls;
     const av=avatarFor(cls==="bot"?"AION":userId, cls);
-    const name=cls==="bot"?"AION 助手":visitorName(userId);
+    const name=cls==="bot"?(I18N[lang].botName||"智能客服"):visitorName(userId);
     const time=fmtTime(timeIso||new Date().toISOString());
     // 头像
     const avDiv=document.createElement("div");
@@ -316,7 +322,10 @@ async function send(q){
     const r=await fetch("/api/v1/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId,message:q,market,langHint:lang,userId})});
     const d=await r.json();
     sessionId=d.sessionId;
-    if(d.ended){ sessionId=null; }   // 会话已结束 → 下次消息开新会话
+    if(d.ended){ sessionId=null; }
+    // 跟踪当前会话 meta(市场/语言)→ 顶部副标题随当前会话更新
+    currentSessionMeta={market:d.market||null, language:d.language||null};
+    renderUserInfo();
     const em=(d.intent==="emergency");
     tk.className="msg bot"+(em?" em":"");
     let html=esc(d.reply||"");
@@ -366,8 +375,8 @@ function groupKey(iso){
 }
 function makeItem(s){
   const item=document.createElement("div"); item.className="hist-item"+(s.ended?" ended":"");
-  const av=avatarFor(s.sessionId||s.title||"x", "list");
-  const name=visitorName(s.userId||s.sessionId||"访客");
+  const av=avatarFor(s.userId||s.sessionId||"x", "list");
+  const name=visitorName(s.userId||"");
   const badge=s.ended?`<span class="hi-badge end">${I18N[lang].ended}</span>`:`<span class="hi-badge go">${I18N[lang].ongoing}</span>`;
   // 摘要:优先 lastMessage(最近一条),fallback 到 title
   const last=(s.lastMessage||"").trim();
@@ -405,6 +414,9 @@ async function resumeSession(id){
     const r=await fetch("/api/v1/session?sessionId="+encodeURIComponent(id));
     const d=await r.json(); if(!d.success)return;
     const s=d.session; sessionId=s.sessionId;
+    // 跟踪当前会话 meta → 顶部副标题更新
+    currentSessionMeta={market:s.market||null, language:s.language||null};
+    renderUserInfo();
     const ms=$("msgs"); ms.innerHTML=""; let n=0;
     (s.history||[]).forEach(t=>{ if(t.user){add("user",esc(t.user), t.t||"");n++;} if(t.bot){add("bot",esc(t.bot), t.t||"");n++;} });
     if(!n) add("bot", I18N[lang].greet, new Date().toISOString());
@@ -431,6 +443,9 @@ function newSession(clearMsg){
   sessionId=null;
   clearEndedBanner();   // 关键:新会话也要清 banner,否则上一个 ended 会话的提示会残留
   $("inp").disabled=false; $("send").disabled=false;
+  // 顶部副标题回到全局默认(无当前会话)
+  currentSessionMeta=null;
+  renderUserInfo();
   $("closeBtn").style.display="";
   if(clearMsg){ $("msgs").innerHTML=""; add("bot",I18N[lang].greet); }
   loadHistory();
