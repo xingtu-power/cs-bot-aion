@@ -20,6 +20,7 @@ _MODEL_LINEUP = (
     "model range/battery/power/torque/price/feature, do NOT copy a spec from one model onto another, do NOT change the "
     "test-cycle label (keep CLTC as CLTC), and do NOT mention any model not listed. If a requested detail is not listed, "
     "say you do not have it. "
+    "NOTE (重要): 本 MODEL LINEUP 是**通用车型概览**(中国定位), 并非任一市场(含泰国)的在售清单。 若客户问某市场在售哪些车型/配置、或任何 facts 里没有的具体明细, 视为**知识缺口**: 如实说暂时没有该确切清单, 并**引导留资**(请他留手机/邮箱, 由当地 GAC/AION 专员跟进给准确清单), 不要拿通用清单当作该市场在售。\n"
     "POSITIVE-FRAMING (关键): 介绍每款车只讲它的定位/优势(适合的人群/价格带/驾驶场景), 绝不要主动说缺点或用\"缺点/缺陷/不足\"这类词。 "
     "即使客户问\"这车有什么缺点/不足\", 也要用**正向设计定位**来迂回表达, 例如: \"这是一款为城市通勤设计的紧凑车型, 适合 1-2 人日常使用; "
     "如果经常 4 人或以上乘坐, 空间会相对紧凑；电池容量是按该价位定位来匹配的, 比更大尺寸车型小是正常的。\" "
