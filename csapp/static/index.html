@@ -530,24 +530,13 @@ async function resumeSession(id){
     currentSessionMeta={market:s.market||null, language:s.language||null};
     renderUserInfo();
     const ms=$("msgs"); ms.innerHTML=""; let n=0;
-    // 重开会话时,同一 lead-card-id 只保留最后一次状态(confirm 覆盖 input),
-    // 避免 input 卡和 confirm 卡同时出现。
-    const lastCardIdx=new Map();
-    (s.history||[]).forEach((t, idx)=>{
-      if(Array.isArray(t.components)){
-        t.components.forEach(c=>{ if(c && c.id) lastCardIdx.set(c.id, idx); });
-      }
-    });
-    (s.history||[]).forEach((t, idx)=>{
+    // 按 history 顺序忠实回放,不去重。后端留资提交时已把 lead_input 替换为 lead_confirm,
+    // 不会出现 input + confirm 同时存在的情况。
+    (s.history||[]).forEach(t=>{
       if(t.user){ add("user", esc(t.user), t.t||""); n++; }
       if(t.bot){ add("bot", esc(t.bot), t.t||""); n++; }
-      // 仅渲染每个 card-id 的最后一次出现
       if(Array.isArray(t.components)){
-        t.components.forEach(c=>{
-          if(c && c.id && lastCardIdx.get(c.id)===idx){
-            appendLeadCardMessage(c, s.sessionId); n++;
-          }
-        });
+        t.components.forEach(c=>{ if(c){ appendLeadCardMessage(c, s.sessionId); n++; } });
       }
     });
     if(!n) add("bot", I18N[lang].greet, new Date().toISOString());

@@ -183,9 +183,15 @@ class Handler(BaseHTTPRequestHandler):
                         _s.collected["phone"] = _ph or _s.collected.get("phone")
                         _s.collected["email"] = _em or _s.collected.get("email")
                         _s.has_shown_lead_card = True   # 已留过 → 后续 chat 不再发 lead card
-                        # 落回 history:让重开会话能看到这条 lead_confirm 卡
-                        if _confirm:
-                            _s.append_components([_confirm], intent="lead-submit")
+                        # 把 history 中**最后一个**含 lead_input 的 turn 的 components
+                        # 替换为 [lead_confirm],重开会话时就只看到 confirm 卡,
+                        # 不会再看到当初弹出来的 input 卡。
+                        if _confirm and _s.history:
+                            for _t in reversed(_s.history):
+                                _comps = _t.get("components") or []
+                                if any(c.get("type") == "lead_input" for c in _comps):
+                                    _t["components"] = [_confirm]
+                                    break
                         _ss.save(_s)
             except Exception:
                 pass  # 不影响 lead 落库的主流程
