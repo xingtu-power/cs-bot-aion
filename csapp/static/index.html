@@ -168,12 +168,6 @@ body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microso
 </div>
 <script>
 let sessionId=null, market="", lang="en", currentSessionMeta=null;
-// 会话级状态:用于门控「联系方式已记录 / 合规版本」之类的小条,
-// 仅在状态首次出现(true)或合规版本变更时显示一次,避免每次追问都重复。
-function _resetSessionHints(){
-  lastTargetReached=false; lastConsentVersion=null;
-}
-_resetSessionHints();
 function getUserId(){let u=localStorage.getItem("cs_bot_uid");if(!u){u="u_"+(crypto.randomUUID?crypto.randomUUID().replace(/-/g,""):(Math.random().toString(36).slice(2)+Date.now().toString(36)));localStorage.setItem("cs_bot_uid",u);}return u;}
 let userId=getUserId();
 const $=id=>document.getElementById(id);
@@ -427,6 +421,7 @@ function add(cls, html, timeIso){
 }
 async function send(q){
   q=(q||$("inp").value).trim(); if(!q)return;
+  const wasNewSession=!sessionId;          // 是否本次发送才创建新会话
   $("inp").value=""; $("send").disabled=true;
   // 清理上一次会话可能残留的 ended-banner,避免脏 UI
   clearEndedBanner();
@@ -475,22 +470,12 @@ async function send(q){
     // 刷新时间(用本地时间,与 meta 里的一致)
     const tEl=tkWrap.querySelector(".msgtime");
     if(tEl) tEl.textContent=fmtTime(new Date().toISOString());
-    // 「联系方式已记录」仅在状态从未达成→首次达成时显示一次,避免每次追问复读 lead id
-    if(d.targetReached && !lastTargetReached){
-      const ref=(d.leadRecord&&d.leadRecord.leadId)||d.leadId||'';
-      add("ok", T.done+(ref?(' · '+esc(ref)):''));
-    }
-    lastTargetReached = !!d.targetReached;
-    // 合规版本只在变更时显示一次
-    if(d.consentVersion && d.consentVersion !== lastConsentVersion){
-      add("ok",T.compliance+d.consentVersion);
-    }
-    lastConsentVersion = d.consentVersion || lastConsentVersion;
     ok=true;
   }catch(e){ tk.textContent=I18N[lang].fail+(e.message||e); }
   // 注:不在每次 bot 回复后刷新左侧会话列表 — 会导致列表闪烁/滚动条跳变。
-  // 新会话/切换会话/bot 结束会话时已单独 loadHistory(),用户最后那条消息的
-  // 摘要(若有)会在用户主动切换/刷新时显示。$("send").disabled=false;
+  // 但如果是本次发送才创建的新会话,需要刷新一次,否则左侧列表不会出现它。
+  if(wasNewSession){ loadHistory(); }
+  $("send").disabled=false;
 }
 function esc(s){s=String(s);return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
 // ---- 历史侧栏 / 新会话 / 关闭 ----
@@ -545,13 +530,24 @@ async function resumeSession(id){
     currentSessionMeta={market:s.market||null, language:s.language||null};
     renderUserInfo();
     const ms=$("msgs"); ms.innerHTML=""; let n=0;
-    _resetSessionHints();   // 进入新会话,「联系方式已记录」门控重置
-    (s.history||[]).forEach(t=>{
+    // 重开会话时,同一 lead-card-id 只保留最后一次状态(confirm 覆盖 input),
+    // 避免 input 卡和 confirm 卡同时出现。
+    const lastCardIdx=new Map();
+    (s.history||[]).forEach((t, idx)=>{
+      if(Array.isArray(t.components)){
+        t.components.forEach(c=>{ if(c && c.id) lastCardIdx.set(c.id, idx); });
+      }
+    });
+    (s.history||[]).forEach((t, idx)=>{
       if(t.user){ add("user", esc(t.user), t.t||""); n++; }
       if(t.bot){ add("bot", esc(t.bot), t.t||""); n++; }
-      // 重开会话一并回放历史里的 UI 卡片 (lead_input / lead_confirm)
+      // 仅渲染每个 card-id 的最后一次出现
       if(Array.isArray(t.components)){
-        t.components.forEach(c=>{ if(c){ appendLeadCardMessage(c, s.sessionId); n++; } });
+        t.components.forEach(c=>{
+          if(c && c.id && lastCardIdx.get(c.id)===idx){
+            appendLeadCardMessage(c, s.sessionId); n++;
+          }
+        });
       }
     });
     if(!n) add("bot", I18N[lang].greet, new Date().toISOString());
@@ -577,7 +573,6 @@ function clearEndedBanner(){
 function newSession(clearMsg){
   sessionId=null;
   clearEndedBanner();   // 关键:新会话也要清 banner,否则上一个 ended 会话的提示会残留
-  _resetSessionHints(); // 新会话:门控重置(lead/consent 提示会再次首次出现)
   $("inp").disabled=false; $("send").disabled=false;
   // 顶部副标题回到全局默认(无当前会话)
   currentSessionMeta=null;
