@@ -161,7 +161,12 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
         _fb = _fallback_text(new_intent, reply_lang)
         if new_intent in intent_mod.KNOWLEDGE_GAP_INTENTS:
             _fb += "\n\n" + (_knowledge_gap_lead(new_intent, reply_lang) or "")
+            _phase24_gap = True   # 标记 Phase 2.4 path 也"追加了兜底"
+        else:
+            _phase24_gap = False
         response = _fb
+    else:
+        _phase24_gap = False
     session._answer_llm = response
     session._question = question
 
@@ -326,11 +331,11 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
             session.intent in intent_mod.KNOWLEDGE_GAP_INTENTS
             and session.step_index == 0
             and lead_record is None
-            and not _kg_appended
+            and not (_kg_appended or _phase24_gap)
         )
         if comp_mod.should_attach_lead_card(
             intent=session.intent,
-            kg_appended=bool(_kg_appended),
+            kg_appended=bool(_kg_appended or _phase24_gap),
             lead_record_present=bool(lead_record),
             first_contact_step=_first_contact,
         ):
