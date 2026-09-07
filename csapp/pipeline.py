@@ -4,7 +4,7 @@
 → 澄清/锁定 → 引导卡执行 → 持久化 → 返回响应。
 """
 import re, difflib, time
-from . import config, intent as intent_mod, cards as card_mod, compliance, debug
+from . import config, intent as intent_mod, cards as card_mod, compliance, debug, components as comp_mod
 from .state import StateStore
 from .langdetect import detect_language
 from .market import route_market, market_kb, extract_market
@@ -100,6 +100,15 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
         session.collected["lat"] = location.get("lat")
         session.collected["lng"] = location.get("lng")
 
+    # 1.5) 早期采集联系方式:任何阶段用户留了 phone/email 都先存到 session
+    card_mod.try_collect_contact_early(session, message)
+
+    # 1.6) Phase 2.6:contact 是否已收集(本会话 session.collected)。
+    # 2026-09 起:不再跨会话查 db.find_recent_lead_by_user。
+    # 留资状态会话粒度 — 新会话重新留。
+    _p_now, _e_now, _ = comp_mod._resolve_lead_contact(session)
+    _contact_already = bool(_p_now or _e_now or getattr(session, "has_shown_lead_card", False))
+
     # 2.5) 内容安全:prompt injection 检测(§8.3)
     if compliance.is_prompt_injection(message):
         session.intent = "other"
@@ -160,8 +169,14 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
         # Phase 2.4: fallback 也走知识缺失兜底(若意图是售前类) → 引导留资
         _fb = _fallback_text(new_intent, reply_lang)
         if new_intent in intent_mod.KNOWLEDGE_GAP_INTENTS:
-            _fb += "\n\n" + (_knowledge_gap_lead(new_intent, reply_lang) or "")
+            _fb += "\n\n" + (_knowledge_gap_lead(new_intent, reply_lang,
+                                                  collected_already=_contact_already) or "")
+            _phase24_gap = True   # 标记 Phase 2.4 path 也"追加了兜底"
+        else:
+            _phase24_gap = False
         response = _fb
+    else:
+        _phase24_gap = False
     session._answer_llm = response
     session._question = question
 
@@ -251,20 +266,33 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
         clean_reply = clean_reply + "\n\n(Please refer to official AION policy for confirmed terms.)"
     # 品牌合规兜底:回复里出现其它品牌/竞品/比品牌 → 替换为知识缺失+留资引导
     if compliance.find_competitor(clean_reply):
-        reply["reply"] = _no_knowledge_lead(reply_lang)
+        reply["reply"] = _no_knowledge_lead(reply_lang, collected_already=_contact_already)
     else:
         # 车型防臆造:非 UT 车型不得出现其未提供的功率/扭矩/电池容量等参数(Phase 4.1 多语言)
         reply["reply"] = compliance.guard_model_facts(clean_reply, lang=reply_lang)
 
     # 4.5) Phase 2.3: 后处理知识缺失兜底 — 命中信号且未引导留资时,追加 _knowledge_gap_lead
+    # Phase 2.6:contact already collected 时,模板切到"已留过"变体;同时清残留 pitch 句子
+    # phase24_gap=True 表示 Phase 2.4 已经拼好整段,这里不再追加(否则 user 看到重复段)
     _new_reply, _kg_appended = _apply_knowledge_gap_lead(
-        reply.get("reply", ""), session.intent, reply_lang, market)
+        reply.get("reply", ""), session.intent, reply_lang, market,
+        collected_already=_contact_already,
+        phase24_gap=_phase24_gap,
+    )
     if _kg_appended:
         reply["reply"] = _new_reply
-        debug.record(evt="knowledge_gap_lead_appended", intent=session.intent, lang=reply_lang)
+        debug.record(evt="knowledge_gap_lead_appended", intent=session.intent, lang=reply_lang,
+                     collected=_contact_already)
 
-    session.persist()
-    session.append_turn(message, reply.get("reply", ""), session.intent, reply.get("emotion", 0))
+    # Phase 2.6: contact already collected → 移除 LLM 写出的"留个手机/邮箱/share your phone"等 ask 句
+    if _contact_already:
+        _scrubbed = _scrub_lead_pitch(reply.get("reply", ""), reply_lang,
+                                       collected_already=True)
+        if _scrubbed != reply.get("reply", ""):
+            reply["reply"] = _scrubbed
+            debug.record(evt="lead_pitch_scrubbed_when_collected", lang=reply_lang,
+                         intent=session.intent)
+
     session.persist()
 
     # 5) 自建库落库(幂等):留资 / 转人工 / 救援工单
@@ -319,6 +347,49 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     lead_record = getattr(session, "lead_record", None)
     resp["consentVersion"] = compliance.CONSENT_VERSION if lead_record else None
     resp["leadRecord"] = lead_record
+    # ----------- Lead Card 装配(components schema 给前端渲染) -----------
+    # 触发: (a) 知识缺失兜底已追加 (b) lead_record 刚生成 (c) 售前/经销商首次 contact 步
+    #       (d) 本会话/历史已采到联系方式但还没给过确认卡
+    try:
+        _first_contact = bool(
+            session.intent in intent_mod.KNOWLEDGE_GAP_INTENTS
+            and session.step_index == 0
+            and lead_record is None
+            and not (_kg_appended or _phase24_gap)
+        )
+        _has_shown_lead_card = getattr(session, "has_shown_lead_card", False)
+        # 提前解析一次联系方式,用于触发判断(只看本会话 collected,不再跨会话查 db)
+        _phone, _email, _ = comp_mod._resolve_lead_contact(session)
+        _collected_contact = bool(_phone or _email)
+        if comp_mod.should_attach_lead_card(
+            intent=session.intent,
+            kg_appended=bool(_kg_appended or _phase24_gap),
+            lead_record_present=bool(lead_record),
+            first_contact_step=_first_contact,
+            collected_contact=_collected_contact,
+            has_shown_lead_card=_has_shown_lead_card,
+        ):
+            card = comp_mod._build_lead_card(session, reply_lang, market)
+            if card:
+                resp["components"] = [card]
+                # NOTE: 这里**不**设 has_shown_lead_card=True。
+                # 「已留过」仅由 /api/v1/lead 提交成功后置位 (server.py),
+                # 这样用户没提交就换问题,bot 仍然愿意再发 lead_input 引导他留资。
+                debug.record(evt="lead_card_attached", session=session.id,
+                             type=card.get("type"), source=card.get("source", "input"))
+            else:
+                resp["components"] = []
+        else:
+            resp["components"] = []
+    except Exception as _e:
+        debug.record(evt="lead_card_error", err=str(_e)[:200])
+        resp["components"] = []
+
+    # 4.7) 落本轮 history(含 components 卡片 schema),保证重开会话时能一并回放
+    session.append_turn(message, reply.get("reply", ""), session.intent,
+                        reply.get("emotion", 0),
+                        components=resp.get("components") or None)
+    session.persist()
     return resp
 
 
@@ -355,41 +426,118 @@ _KNOWLEDGE_GAP_LEAD = {
 }
 
 
-def _knowledge_gap_lead(intent, lang, market=None):
-    """知识缺失兜底话术。按意图返回 4 语言模板;售前类引导留资,售后/紧急返回 None。"""
+# Phase 2.6: contact already collected → 切换到"已留过"变体,不再诱导用户留号
+# (结构对齐 _KNOWLEDGE_GAP_LEAD,只是文案不同)
+_KNOWLEDGE_GAP_LEAD_COLLECTED = {
+    "product-inquiry": {
+        "zh": "针对该市场的具体在售车型和价格，我们这边暂时没有更详细的信息。我们已收到您留的联系方式，当地 AION 专员将按当地在售车型与实际报价与您联系。",
+        "en": "I do not have the exact on-sale models and pricing for your market here. We've already noted your contact — a local AION specialist will follow up with the right local models and pricing for you.",
+        "th": "ดิฉันไม่มีข้อมูลรุ่นและราคาที่วางจำหน่ายในพื้นที่ของคุณ เราได้รับข้อมูลติดต่อของคุณแล้ว เจ้าหน้าที่ AION ในท้องถิ่นจะติดตามเรื่องรุ่นและราคาในท้องถิ่นให้ครับ/ค่ะ",
+        "es": "No tengo aquí la lista exacta de modelos y precios disponibles en su mercado. Ya hemos registrado sus datos: un especialista local de AION le hará seguimiento con los modelos y precios disponibles en su zona.",
+    },
+    "dealer-lookup": {
+        "zh": "针对您所在区域的授权经销商名单，我们这边暂时没有更详细的信息。我们已收到您留的联系方式，当地 AION 专员会按您所在区域的授权门店与您联系。",
+        "en": "I do not have the exact list of authorized dealers for your area here. We've already noted your contact — a local AION specialist will follow up with the authorized dealer list for your area.",
+        "th": "ดิฉันไม่มีรายชื่อตัวแทนจำหน่ายที่ได้รับอนุญาตในพื้นที่ของคุณ เราได้รับข้อมูลติดต่อของคุณแล้ว เจ้าหน้าที่ AION ในท้องถิ่นจะส่งรายชื่อตัวแทนจำหน่ายที่ได้รับอนุญาตในพื้นที่ของคุณให้ครับ/ค่ะ",
+        "es": "No tengo aquí la lista exacta de concesionarios autorizados en su zona. Ya hemos registrado sus datos: un especialista local de AION le hará seguimiento con la lista de concesionarios autorizados en su zona.",
+    },
+    "after-sales": {
+        "zh": "针对您当地的具体服务流程/配件库存/预约时段，我们这边暂时没有更详细信息。我们已收到您留的联系方式，当地 AION 服务专员将按当地服务流程与配件库存与您联系。",
+        "en": "I do not have the exact local service procedure, parts availability or appointment slots here. We've already noted your contact — a local AION service specialist will follow up with the local procedure and parts availability for you.",
+        "th": "ดิฉันไม่มีข้อมูลขั้นตอนการบริการ/อะไหล่/ช่วงเวลานัดหมายในพื้นที่ของคุณ เราได้รับข้อมูลติดต่อของคุณแล้ว เจ้าหน้าที่บริการ AION ในท้องถิ่นจะติดตามเรื่องขั้นตอนการบริการและอะไหล่ในท้องถิ่นให้ครับ/ค่ะ",
+        "es": "No tengo aquí el procedimiento exacto de servicio, disponibilidad de recambios ni horarios de cita en su zona. Ya hemos registrado sus datos: un especialista de servicio AION local le hará seguimiento con el procedimiento y la disponibilidad de recambios en su zona.",
+    },
+}
+
+
+def _knowledge_gap_lead(intent, lang, market=None, collected_already=False):
+    """知识缺失兜底话术。按意图返回 4 语言模板;售前类引导留资,售后/紧急返回 None。
+
+    Phase 2.6: collected_already=True 时,返回"已留过"变体,不再 ask。
+    """
     if not intent or intent not in intent_mod.KNOWLEDGE_GAP_INTENTS:
         return None
-    table = _KNOWLEDGE_GAP_LEAD.get(intent, {})
+    table = (_KNOWLEDGE_GAP_LEAD_COLLECTED if collected_already
+             else _KNOWLEDGE_GAP_LEAD).get(intent, {})
     return table.get((lang or "en").lower(), table.get("en"))
 
 
-def _apply_knowledge_gap_lead(reply_text, intent, lang, market=None):
+def _apply_knowledge_gap_lead(reply_text, intent, lang, market=None, collected_already=False,
+                              phase24_gap=False):
     """Phase 2.3: 后处理兜底 — 若 LLM 回复命中知识缺失信号且还没引导留资,追加兜底话术。
-    返回 (new_text, appended_flag)。"""
+    Phase 2.6: contact already collected → 模板切到"已留过"变体。
+    返回 (new_text, appended_flag)。
+    phase24_gap=True 表示 Phase 2.4 兜底 path 已经拼好整段,这里不要再加(否则 user 会看到重复段)。
+    """
     if not reply_text or not intent or intent not in intent_mod.KNOWLEDGE_GAP_INTENTS:
+        return reply_text, False
+    if phase24_gap:
         return reply_text, False
     if not intent_mod.is_knowledge_gap(reply_text, lang):
         return reply_text, False
-    if intent_mod.already_pitching_lead(reply_text):
-        return reply_text, False   # LLM 已经引导了,避免重复追加
-    lead = _knowledge_gap_lead(intent, lang, market)
+    # contact 已留过 → LLM 是否曾 pitch 都不重复 ask
+    if not collected_already and intent_mod.already_pitching_lead(reply_text):
+        return reply_text, False
+    lead = _knowledge_gap_lead(intent, lang, market, collected_already=collected_already)
     if not lead:
         return reply_text, False
     return (reply_text.rstrip() + "\n\n" + lead), True
 
 
-def _no_knowledge_lead(lang):
-    """知识缺失/无对应配置时,禁推其它品牌 → 引导留资/联系专员(品牌合规兜底)。"""
-    m = {"en": "AION UT is a 5-seat model and doesn't currently offer 6 seats. I don't have information "
-               "beyond that here — may I connect you with an AION specialist, or could you leave your contact "
-               "details for a follow-up?",
-         "zh": "AION UT 是 5 座车型，目前没有 6 座版本。这边暂时没有更多信息——我可以帮您转接 AION 专员，"
-               "或者您方便留个联系方式，让专员为您跟进吗？",
-         "th": "AION UT เป็นรุ่น 5 ที่นั่ง และยังไม่มีรุ่น 6 ที่นั่งในตอนนี้ ตรงนี้ยังไม่มีข้อมูลเพิ่มเติม—"
-               "ขอเชื่อมต่อคุณกับผู้เชี่ยวชาญ AION หรือฝากข้อมูลติดต่อเพื่อให้เจ้าหน้าที่ติดตามได้ไหม?",
-         "es": "El AION UT es un modelo de 5 plazas y no ofrece 6 plazas actualmente. No tengo más información "
-               "al respecto: ¿le conecto con un especialista de AION o podría dejar sus datos de contacto para un seguimiento?"}
-    return m.get(lang, m["en"])
+def _no_knowledge_lead(lang, collected_already=False):
+    """知识缺失/无对应配置时,禁推其它品牌 → 引导留资/联系专员(品牌合规兜底)。
+    Phase 2.6: collected_already=True 时切到"已留过"变体,不再 ask。
+    """
+    m_ask = {
+        "en": "AION UT is a 5-seat model and doesn't currently offer 6 seats. I don't have information "
+              "beyond that here — may I connect you with an AION specialist, or could you leave your contact "
+              "details for a follow-up?",
+        "zh": "AION UT 是 5 座车型，目前没有 6 座版本。这边暂时没有更多信息——我可以帮您转接 AION 专员，"
+              "或者您方便留个联系方式，让专员为您跟进吗？",
+        "th": "AION UT เป็นรุ่น 5 ที่นั่ง และยังไม่มีรุ่น 6 ที่นั่งในตอนนี้ ตรงนี้ยังไม่มีข้อมูลเพิ่มเติม—"
+              "ขอเชื่อมต่อคุณกับผู้เชี่ยวชาญ AION หรือฝากข้อมูลติดต่อเพื่อให้เจ้าหน้าที่ติดตามได้ไหม?",
+        "es": "El AION UT es un modelo de 5 plazas y no ofrece 6 plazas actualmente. No tengo más información "
+              "al respecto: ¿le conecto con un especialista de AION o podría dejar sus datos de contacto para un seguimiento?",
+    }
+    m_done = {
+        "en": "The AION UT is a 5-seat model and doesn't currently offer 6 seats. We've already noted your contact — "
+              "a local AION specialist will follow up with the right local details for you.",
+        "zh": "AION UT 是 5 座车型，目前没有 6 座版本。我们已收到您留的联系方式，当地专员会按当地实际与您联系。",
+        "th": "AION UT เป็นรุ่น 5 ที่นั่ง และยังไม่มีรุ่น 6 ที่นั่งในตอนนี้ เราได้รับข้อมูลติดต่อของคุณแล้ว "
+              "เจ้าหน้าที่ในท้องถิ่นจะติดตามด้วยข้อมูลที่ถูกต้องในท้องถิ่นให้ครับ/ค่ะ",
+        "es": "El AION UT es un modelo de 5 plazas y no ofrece 6 plazas actualmente. Ya hemos registrado sus datos: "
+              "un especialista local le hará seguimiento con los detalles correctos para su zona.",
+    }
+    table = m_done if collected_already else m_ask
+    return table.get((lang or "en").lower(), table["en"])
+
+
+def _scrub_lead_pitch(text, lang, collected_already=False):
+    """Phase 2.6: contact already collected → 把含 pitch 模式的整句替换为"感谢已留"。
+    
+    Pitch 模式借用 intent_mod._ALREADY_PITCHING_LEAD_RE(中/英/泰/西)。
+    只在 collected_already=True 时启用。
+    """
+    if not text or not collected_already:
+        return text
+    sents = _sents(text)
+    if not sents:
+        return text
+    pitch_pat = intent_mod._ALREADY_PITCHING_LEAD_RE
+    thanks = intent_mod._THANKS_FOR_SHARING.get(
+        (lang or "en").lower(), intent_mod._THANKS_FOR_SHARING["en"]
+    )
+    changed = False
+    out = []
+    for s in sents:
+        if pitch_pat.search(s):
+            out.append(thanks)
+            changed = True
+        else:
+            out.append(s)
+    if not changed:
+        return text
+    return " ".join(out).strip() or text
 
 
 _SENT_SPLIT = r"(?<=[。！？!?])|(?<=\.)(?=\s|$)"   # 。！？!? 后即切; ASCII 句点仅在跟空格/结尾时切(避免拆小数 4.6)
@@ -441,6 +589,7 @@ def _reset_conversation(session):
     session.escalated = False; session.resolved = False; session.target_reached = False
     session.ask_confirm = False; session.escalate_reason = None; session.emotion_score = 0
     session.lead_id = None; session.rescue_ticket_id = None; session.lead_record = None
+    session.has_shown_lead_card = False
     session.history = []
 
 

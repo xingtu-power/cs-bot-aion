@@ -51,7 +51,7 @@ curl -X POST http://127.0.0.1:8020/api/v1/chat -H 'Content-Type: application/jso
 - 知识来自 `kb/{AU,THA}/`(规格/文档/经销商/FAQ + 4 语言 FAQ 烘焙 `faq_localized.json`)。
 - 前端为原生单页(`csapp/static/index.html`),零构建;`/` 页服务之。
 - 指标:多语言意图准确率 **100%**(57 条评测集);单轮延迟 ~1-2s;泰文向量 recall@5 e5-large 0.186 vs MiniLM 0.129。
-- **回复质量护栏**(`compliance.py` + `pipeline._polish_reply`,单次 LLM 调用内完成):长度硬限 `REPLY_MAX_CHARS=300`(句读边界截断)、禁 AI 感/机器感(`strip_ai_phrases`)、话术去重(与近 3 轮首句 >`REPEAT_SIM_THRESHOLD` 重复则裁剪)。
+- **回复质量护栏**(`compliance.py` + `pipeline._polish_reply`,单次 LLM 调用内完成):长度硬限 `REPLY_MAX_CHARS=500`(句读边界截断;含知识缺失兜底句——en/th/es 套话较长)、禁 AI 感/机器感(`strip_ai_phrases`)、话术去重(与近 3 轮首句 >`REPEAT_SIM_THRESHOLD` 重复则裁剪)。
 - **槽位收集护栏**(`cards.py`):需输入槽位(contact/concern/confirm/consent_rescue)累计追问,超 `SLOT_MAX_ASK=3` 转人工(`session.step_asks` 跨轮持久化);已收集有效槽位不重问。
 - **品牌合规护栏**(提示词 + `compliance.find_competitor`):只推 AION/广汽,禁提/禁比其它品牌;知识缺失或无对应配置时改为"留联系方式转接 AION 专员/到店咨询"(4 语言)。
 - **话题边界与丝滑拉回**(提示词):超出广汽/汽车范畴的问题(天气/新闻等)不展开答,改为自然桥接回 AION(如"好天气适合家庭出游→推荐 AION UT")并引导,跟随用户语言。

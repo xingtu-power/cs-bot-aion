@@ -4,6 +4,12 @@ data/
 # 工作区内嵌私人 memory log（不进 git；本机留存）
 .workbuddy/memory/
 
+# 工作区内嵌 skill 生成物（zip + 目录为本地产物；SKILL.md 源文件如需共享可手动复制）
+.workbuddy/skills/
+
+# 本地 playwright-cli 调试产物（截图/YAML trace/控制台日志）
+.playwright-cli/
+
 # 密钥(勿入库;模板见 deploy/.env.example)
 .env
 deploy/.env

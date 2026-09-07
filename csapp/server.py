@@ -4,7 +4,7 @@
 启动:python -m csapp.server --port 8000
 生产可换用 FastAPI(见 api.py,需 pip 安装 fastapi/uvicorn)。
 """
-import json, time, os
+import json, time, os, re, hashlib
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse
 from . import pipeline, db
@@ -128,17 +128,82 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(200, r)
         if path == "/api/v1/lead":
             db.init_db()
-            lead = body.get("lead", {})
-            rec = {"leadId": lead.get("leadId") or ("lead_" + (body.get("sessionId") or "x")[-8:]),
-                   "sessionId": body.get("sessionId"), "market": lead.get("market", "AU"),
-                   "channel": "web", "intent": lead.get("intent"),
-                   "name": lead.get("name"), "phone": lead.get("phone"), "email": lead.get("email"),
-                   "consentAt": None if not body.get("consent") else time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                   "consentVersion": body.get("consentVersion", "v1"),
-                   "dedupeKey": lead.get("dedupeKey"),
-                   "createdAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+            # 支持两种调用形态:
+            # 1) 嵌套: {"lead":{phone,email,market,intent,name}, sessionId, consent, consentVersion}
+            # 2) 平铺: {phone, email, market, intent, name, sessionId, userId, consentVersion, consentAt}
+            lead = body.get("lead", {}) or {}
+            _ph = lead.get("phone") or body.get("phone")
+            _em = lead.get("email") or body.get("email")
+            _mk = lead.get("market") or body.get("market") or "AU"
+            _it = lead.get("intent") or body.get("intent")
+            _nm = lead.get("name") or body.get("name")
+            # ===== 联系方式格式校验 — 防止脏数据入 leads 表 =====
+            from . import cards as _cards_v
+            _ok_v, _err = _cards_v.validate_contact(_ph, _em, _mk)
+            if not _ok_v:
+                return self._json(400, {"ok": False, "error": "invalid_contact",
+                                        "errorKey": _err, "field": _err.split("_")[0]})
+            # 生成稳定 dedupe_key:(user_phone_email_market) 的 sha1 前 12 位,空值用占位避免 NULL 撞唯一索引
+            import hashlib
+            _key_src = "|".join([
+                (body.get("userId") or "").strip(),
+                (re.sub(r"\s+", "", _ph or "")).strip() or "_",
+                (re.sub(r"\s+", "", _em or "")).strip().lower() or "_",
+                (_mk or "_").strip(),
+            ])
+            _ddk = hashlib.sha1(_key_src.encode("utf-8")).hexdigest()[:12]
+            rec = {
+                "leadId":  lead.get("leadId") or ("lead_" + hashlib.sha1((body.get("sessionId") or "x").encode()).hexdigest()[:8]),
+                "sessionId": body.get("sessionId"),
+                "market":  _mk,
+                "channel": "web",
+                "intent":  _it,
+                "name":    _nm,
+                "phone":   _ph,
+                "email":   _em,
+                "consentAt": body.get("consentAt") or (time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()) if body.get("consent") else None),
+                "consentVersion": body.get("consentVersion", "v1"),
+                "userId":  body.get("userId"),
+                "dedupeKey": _ddk,
+                "createdAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            }
             ok = db.insert_lead(rec)
-            return self._json(200, {"ok": True, "leadId": rec["leadId"], "inserted": bool(ok)})
+            # 直接返回 lead_confirm schema,前端用其原地替换 input 卡为新的确认消息
+            try:
+                from . import components as _cm
+                _lang = body.get("lang") or body.get("langHint") or "en"
+                _confirm = _cm.build_confirm_card(_ph, _em, "collected", _lang,
+                                                   session_id=rec.get("sessionId") or "now")
+            except Exception as _e:
+                _confirm = None
+            # ====== 标记该会话"已留资成功" ======
+            # 同一会话后续 chat 不再发任何 lead card(input 与 confirm 都不发),
+            # 避免每次新问题都弹已留提示打扰用户。
+            try:
+                from .state import StateStore as _SS
+                _sid = body.get("sessionId")
+                if _sid:
+                    _ss = _SS()
+                    _s = _ss.get(_sid)
+                    if _s:
+                        _s.collected["phone"] = _ph or _s.collected.get("phone")
+                        _s.collected["email"] = _em or _s.collected.get("email")
+                        _s.has_shown_lead_card = True   # 已留过 → 后续 chat 不再发 lead card
+                        # 把 history 中**最后一个**含 lead_input 的 turn 的 components
+                        # 替换为 [lead_confirm],重开会话时就只看到 confirm 卡,
+                        # 不会再看到当初弹出来的 input 卡。
+                        if _confirm and _s.history:
+                            for _t in reversed(_s.history):
+                                _comps = _t.get("components") or []
+                                if any(c.get("type") == "lead_input" for c in _comps):
+                                    _t["components"] = [_confirm]
+                                    break
+                        _ss.save(_s)
+            except Exception:
+                pass  # 不影响 lead 落库的主流程
+            return self._json(200, {"ok": True, "leadId": rec["leadId"],
+                                    "inserted": bool(ok), "dedupeKey": _ddk,
+                                    "leadConfirm": _confirm})
         if path == "/api/v1/escalate":
             db.init_db()
             return self._json(200, {"ok": True, "ticketId": "tkt_" + (body.get("sessionId") or "x")[-8:],

@@ -235,17 +235,24 @@ _KNOWLEDGE_GAP_RE = {
 
 
 # LLM 回复里已经在引导留资的信号(避免后处理重复追加)
+# Phase 2.6: 扩展覆盖 — LLM 自己写出的 pitch 句(模板漏掉的同义变体)也命中,
+# 让 _scrub_lead_pitch 能整句替换为"已留过"句。
 _ALREADY_PITCHING_LEAD_RE = re.compile(
     r"(留(个|一下)?(手机|电话|联系方式|邮箱)|方便留(个|一下)?|"
     r"留下(您的)?(手机|电话|联系方式|邮箱)|"
+    r"(请|麻烦)(您|你)?(提供|告诉|留下)(一下)?(手机|电话|联系方式|邮箱|信息)|"
     r"专员.{0,15}(联系|跟进)|"
     r"leave (your )?(phone|email|contact|details)|"
+    r"share (your )?(phone|email|contact|details)|"
+    r"(please |kindly )?(provide|send|give) (us )?(your )?(phone|email|contact|details)|"
     r"may i (have|get|connect)|"
     r"connect (you )?with (a |an )?(local )?(specialist|dealer)|"
     r"follow[- ]up|"
-    r"ฝาก(ข้อมูล)?(ติดต่อ)?|เจ้าหน้าที่(จะ)?(ติดตาม|ติดต่อ)|"
-    r"deje (su |sus |el )(datos|contacto|teléfono|telefono|correo)|"
-    r"deja (tu |tus |el )(datos|contacto|teléfono|telefono|correo)|"
+    r"ฝาก(ข้อมูล)?(ติดต่อ)?|แบ่งปัน(ข้อมูล)?|ส่ง(ข้อมูล)?ติดต่อ|"
+    r"เจ้าหน้าที่(จะ)?(ติดตาม|ติดต่อ)|"
+    r"deje (su |sus |el )(datos|contacto|tel[eé]fono|correo)|"
+    r"deja (tu |tus |el )(datos|contacto|tel[eé]fono|correo)|"
+    r"comparte? (su |el )(datos|contacto|tel[eé]fono|correo|informaci[oó]n)|"
     r"le (pongo en contacto|conecto con))",
     re.I)
 
@@ -270,3 +277,18 @@ def already_pitching_lead(text: str) -> bool:
 
 # 后处理兜底适用意图(售前类 + 售后服务;usage-guide 不留资走 hotline)
 KNOWLEDGE_GAP_INTENTS = frozenset({"product-inquiry", "dealer-lookup", "after-sales"})
+
+
+# ============== 已留过联系方式变体 ==============
+# Phase 2.6 留资卡片提交后:
+#   - 卡片不再弹出(由 has_shown_lead_card 守门)
+#   - 回复文本里**也不应该**再问用户留电话/邮箱
+# 当 contact 已收集时,用 _THANKS_FOR_SHARING_* 替换 ask-pitch 句子。
+_THANKS_FOR_SHARING = {
+    "zh": "我们已收到您留的联系方式，当地 AION 专员将按您提供的信息与您联系。",
+    "en": "Thanks — we've already noted your contact. A local AION specialist will follow up using the details you provided.",
+    "th": "ขอบคุณ — เราได้รับข้อมูลติดต่อของคุณแล้ว เจ้าหน้าที่ AION ในพื้นที่จะติดตามด้วยข้อมูลที่คุณให้ไว้",
+    "es": "Gracias — ya hemos registrado sus datos. Un especialista local de AION le hará seguimiento con la información que ha proporcionado.",
+}
+# 通用兜底(竞品/兜底场景下,无法特化意图,就用这一句)
+_THANKS_FOR_SHARING_GENERIC = _THANKS_FOR_SHARING
