@@ -298,12 +298,18 @@ function renderLeadInputCard(c, sid){
     const btn=wrap.querySelector("button"); btn.disabled=true; btn.textContent="…";
     try{
       const r=await fetch("/api/v1/lead",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({sessionId:sid, phone, email, consentVersion:c.consentVersion||"v1", source:"lead_input_card"})});
+        body:JSON.stringify({sessionId:sid, phone, email, market, lang,
+                            userId: (typeof userId!=="undefined")?userId:"",
+                            consentVersion:c.consentVersion||"v1", source:"lead_input_card"})});
       const d=await r.json();
-      // 提交后原地变为轻量确认条
-      wrap.innerHTML=`<div class="lc-ok">`+esc((L.submit||"OK")+" ✓ — "+ (c.title||"")) +`</div>`;
-      // 触发一次新对话让 bot 收到 phone, 转换为 lead_confirm
-      setTimeout(()=>{ if(!sessionId||sessionId===sid) send(phone||email); }, 350);
+      if(!d.ok){ btn.disabled=false; btn.textContent=L.submit||"Submit"; return; }
+      // 找到该 input 卡所在的 msgrow 容器,移除整条消息
+      const parentRow = wrap.closest(".msgrow.bot");
+      if(parentRow) parentRow.remove();
+      // 服务端直接返回 lead_confirm schema,以独立 bot 消息追加
+      if(d.leadConfirm){
+        appendLeadCardMessage(d.leadConfirm, sid);
+      }
     }catch(e){ btn.disabled=false; btn.textContent=L.submit||"Submit"; }
   };
   return wrap;

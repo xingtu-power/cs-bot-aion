@@ -162,7 +162,17 @@ class Handler(BaseHTTPRequestHandler):
                 "createdAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             }
             ok = db.insert_lead(rec)
-            return self._json(200, {"ok": True, "leadId": rec["leadId"], "inserted": bool(ok), "dedupeKey": _ddk})
+            # 直接返回 lead_confirm schema,前端用其原地替换 input 卡为新的确认消息
+            try:
+                from . import components as _cm
+                _lang = body.get("lang") or body.get("langHint") or "en"
+                _confirm = _cm.build_confirm_card(_ph, _em, "collected", _lang,
+                                                   session_id=rec.get("sessionId") or "now")
+            except Exception as _e:
+                _confirm = None
+            return self._json(200, {"ok": True, "leadId": rec["leadId"],
+                                    "inserted": bool(ok), "dedupeKey": _ddk,
+                                    "leadConfirm": _confirm})
         if path == "/api/v1/escalate":
             db.init_db()
             return self._json(200, {"ok": True, "ticketId": "tkt_" + (body.get("sessionId") or "x")[-8:],

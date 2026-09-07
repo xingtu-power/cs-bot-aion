@@ -113,6 +113,31 @@ def _resolve_lead_contact(session, db_history=None) -> Tuple[Optional[str], Opti
 
 
 # ============== 卡片装配 ==============
+def build_confirm_card(phone: Optional[str], email: Optional[str], source: str,
+                       lang: str, session_id: str = "now") -> Optional[dict]:
+    """纯数据版本:不依赖 session,直接根据 phone/email/lang 返回 confirm schema。"""
+    if not (phone or email):
+        return None
+    lang = (lang or "en").lower()
+    if lang not in _LEAD_LABELS:
+        lang = "en"
+    labels = _LEAD_LABELS[lang]
+    masked = _mask_phone(phone) if phone else None
+    hint = labels["phone_mask_tpl"].format(phone=(masked or email or ""))
+    return {
+        "id":     f"lead-card-{session_id}",
+        "lang":   lang,
+        "title":  labels["title"],
+        "type":   "lead_confirm",
+        "source": source,
+        "phoneMasked": masked,
+        "email":  email,
+        "specialistHint": hint,
+        "changeHint":  labels["change_hint"],
+        "phone":  phone,
+    }
+
+
 def _build_lead_card(session, reply_lang: str, market: Optional[str] = None,
                      db_history=None) -> Optional[dict]:
     """主入口:根据当前会话状态返回一张 lead 卡片 schema。
