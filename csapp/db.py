@@ -69,6 +69,37 @@ def init_db():
 
 
 # ---------- leads ----------
+def find_recent_lead_by_user(user_id, market=None, limit=1):
+    """按 user_id 取最近的留资记录(同 market 优先)。返回 dict 或 None。
+
+    用于:跨会话识别"访客之前留过号码",match 后 next turn 直接发 lead_confirm 而非 lead_input。
+    """
+    if not user_id:
+        return None
+    c = _conn()
+    try:
+        if market:
+            row = c.execute("""
+                SELECT * FROM leads
+                WHERE user_id=? AND market=? AND (phone IS NOT NULL OR email IS NOT NULL)
+                ORDER BY created_at DESC LIMIT ?""", (user_id, market, limit)).fetchall()
+            if not row:
+                row = c.execute("""
+                    SELECT * FROM leads
+                    WHERE user_id=? AND (phone IS NOT NULL OR email IS NOT NULL)
+                    ORDER BY created_at DESC LIMIT ?""", (user_id, limit)).fetchall()
+        else:
+            row = c.execute("""
+                SELECT * FROM leads
+                WHERE user_id=? AND (phone IS NOT NULL OR email IS NOT NULL)
+                ORDER BY created_at DESC LIMIT ?""", (user_id, limit)).fetchall()
+        if not row:
+            return None
+        return dict(row[0])
+    finally:
+        c.close()
+
+
 def insert_lead(lead_rec):
     """幂等:按 (dedupe_key, market) 去重;已存在则不重复插入。"""
     if not lead_rec or not lead_rec.get("leadId"):
