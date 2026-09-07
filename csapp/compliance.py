@@ -133,25 +133,27 @@ def is_vague_reply(text):
 # 若回复把这类参数写给非 UT 车型 -> 该句强制替换为"暂无确切信息,建议联系授权经销商/官方热线核实"。
 _NON_UT_RE = re.compile(r"(AION\s+Y\s*Plus|AION\s*RT|AION\s*N60|AION\s*V\b|昊铂\s*GT|昊铂\s*HL|AION\s*LX|Hyper\s*GT|Hyper\s*HL)", re.I)
 _FAB_SPEC_RE = re.compile(r"\d+(?:\.\d+)?\s*(?:kw|kw\b|马力|n·m|nm\b|牛·米|kwh\b|度\b|扭矩|功率)", re.I)
-_FAB_REPL = {"zh": "（该具体参数目前暂无确切信息，建议联系授权经销商或官方热线核实）",
-            "en": "(This specific spec is not available at the moment — please contact an authorized dealer or the official hotline.)",
-            "th": "(ข้อมูลจำเพาะนี้ยังไม่มีในขณะนี้ กรุณาติดต่อตัวแทนจำหน่ายที่ได้รับอนุญาตหรือสายด่วนอย่างเป็นทางการ)",
-            "es": "(Este dato concreto no está disponible por ahora: contacte con un concesionario autorizado o la línea oficial.)"}
+# Phase 4.1: 多语言化 —— 非 UT 车型出现详细参数时按用户语言替换
+_FAB_REPL = {
+    "zh": "（该具体参数目前暂无确切信息，建议联系授权经销商或官方热线核实）",
+    "en": "(That specific spec is not confirmed here — please verify with an authorized dealer or the official hotline.)",
+    "th": "(ข้อมูลจำเพาะนี้ยังไม่ได้รับการยืนยัน กรุณาตรวจสอบกับตัวแทนจำหน่ายที่ได้รับอนุญาตหรือสายด่วนทางการ)",
+    "es": "(Ese dato específico no está confirmado aquí — por favor verifique con un concesionario autorizado o la línea oficial.)",
+}
 
 
-def _fab_repl(lang):
-    return _FAB_REPL.get(lang, _FAB_REPL["en"])
+def guard_model_facts(reply, lang="en"):
+    """非 UT 车型不得出现其未提供的详细参数(功率/扭矩/电池容量等);否则替换该句。
 
-
-def guard_model_facts(reply, lang="zh"):
-    """非 UT 车型不得出现其未提供的详细参数(功率/扭矩/电池容量等);否则替换该句。"""
+    Phase 4.1: 多语言 —— 按用户语言返回兜底说明(中英泰西)。"""
     if not reply or not _NON_UT_RE.search(reply):
         return reply
+    repl = _FAB_REPL.get((lang or "en").lower(), _FAB_REPL["en"])
     segs = re.split(r"(?<=[。！？!?])", reply)
     out = []
     for seg in segs:
         if _NON_UT_RE.search(seg) and _FAB_SPEC_RE.search(seg):
-            out.append(_fab_repl(lang))
+            out.append(repl)
         else:
             out.append(seg)
     return "".join(out)
