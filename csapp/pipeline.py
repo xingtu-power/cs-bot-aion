@@ -294,8 +294,6 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
                          intent=session.intent)
 
     session.persist()
-    session.append_turn(message, reply.get("reply", ""), session.intent, reply.get("emotion", 0))
-    session.persist()
 
     # 5) 自建库落库(幂等):留资 / 转人工 / 救援工单
     try:
@@ -386,6 +384,12 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     except Exception as _e:
         debug.record(evt="lead_card_error", err=str(_e)[:200])
         resp["components"] = []
+
+    # 4.7) 落本轮 history(含 components 卡片 schema),保证重开会话时能一并回放
+    session.append_turn(message, reply.get("reply", ""), session.intent,
+                        reply.get("emotion", 0),
+                        components=resp.get("components") or None)
+    session.persist()
     return resp
 
 

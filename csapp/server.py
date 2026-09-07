@@ -183,6 +183,9 @@ class Handler(BaseHTTPRequestHandler):
                         _s.collected["phone"] = _ph or _s.collected.get("phone")
                         _s.collected["email"] = _em or _s.collected.get("email")
                         _s.has_shown_lead_card = True   # 已留过 → 后续 chat 不再发 lead card
+                        # 落回 history:让重开会话能看到这条 lead_confirm 卡
+                        if _confirm:
+                            _s.append_components([_confirm], intent="lead-submit")
                         _ss.save(_s)
             except Exception:
                 pass  # 不影响 lead 落库的主流程

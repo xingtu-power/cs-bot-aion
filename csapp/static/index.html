@@ -546,8 +546,14 @@ async function resumeSession(id){
     renderUserInfo();
     const ms=$("msgs"); ms.innerHTML=""; let n=0;
     _resetSessionHints();   // 进入新会话,「联系方式已记录」门控重置
-    let _resumeTarget=false;
-    (s.history||[]).forEach(t=>{ if(t.user){add("user",esc(t.user), t.t||"");n++;} if(t.bot){add("bot",esc(t.bot), t.t||"");n++;} });
+    (s.history||[]).forEach(t=>{
+      if(t.user){ add("user", esc(t.user), t.t||""); n++; }
+      if(t.bot){ add("bot", esc(t.bot), t.t||""); n++; }
+      // 重开会话一并回放历史里的 UI 卡片 (lead_input / lead_confirm)
+      if(Array.isArray(t.components)){
+        t.components.forEach(c=>{ if(c){ appendLeadCardMessage(c, s.sessionId); n++; } });
+      }
+    });
     if(!n) add("bot", I18N[lang].greet, new Date().toISOString());
     // 已结束会话:加横幅提示 + 禁用 Send/Input(允许查看,禁止继续)
     if(s.ended){
