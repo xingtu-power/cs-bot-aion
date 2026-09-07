@@ -36,8 +36,8 @@ _MODEL_LINEUP = (
 
 # 跨标准规格参考: 同一车型在不同市场用不同测试循环标注(WLTP/NEDC/CLTC), 应报全标准, 不要否认任一标准。
 _MODEL_SPECS = (
-    "CROSS-STANDARD reference (同一车型在不同市场用不同测试循环标注, 应报全标准, 不要说某标准不存在): "
-    "AION UT 综合续航: WLTP 430km / NEDC 500km(500 Premium) / NEDC 420km(420 Standard) / CLTC 320-530km; "
+    "CROSS-STANDARD reference (仅 AION UT; 以 AU/THA 规格表为准, 同一车型不同市场用不同测试循环, 应报全标准, 不要说某标准不存在): "
+    "AION UT 综合续航: WLTP 430km / NEDC 500km(500 Premium) / NEDC 420km(420 Standard); "
     "AION UT 电池容量: 60kWh(500 Premium / AU) / 50.27kWh(420 Standard); "
     "AION UT 充电: 交流 11kW, 直流快充 30-80% 约 24 分钟.")
 
