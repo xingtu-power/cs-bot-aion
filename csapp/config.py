@@ -27,7 +27,7 @@ EMOTION_GAP = 3                     # 紧急意图下 >=3 即转人工
 
 # ---- 回复质量护栏(售前通用框架参考) ----
 REPLY_DAILY_MAX = int(os.environ.get("CSAPP_REPLY_DAILY_MAX", "220"))   # 日常建议长度(提示词目标)
-REPLY_MAX_CHARS = int(os.environ.get("CSAPP_REPLY_MAX_CHARS", "300"))   # 绝对上限(硬截断)
+REPLY_MAX_CHARS = int(os.environ.get("CSAPP_REPLY_MAX_CHARS", "500"))   # 绝对上限(硬截断) — 含知识缺失兜底留资句(中文短,EN/TH/ES 套话较长,统一 500)
 REPEAT_SIM_THRESHOLD = 0.80          # 与近几轮 bot 回复相似度 > 此值判重复
 
 # ---- 槽位收集护栏 ----
