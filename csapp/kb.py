@@ -34,6 +34,13 @@ _MODEL_LINEUP = (
     "快速抄作业: <9万市区代步→UT; 家庭大空间能躺平→Y Plus; 大轿车长续航跑高速→RT; 12万激光雷达智驾SUV→N60(强烈推荐); 重底盘轿跑20万→昊铂GT; 多孩6-7座→昊铂HL. "
     "提示: 冬季优先选 CLTC≥500km 版本; 有家充优先纯电; 长途无家充可看换电版本(RT).")
 
+# 跨标准规格参考: 同一车型在不同市场用不同测试循环标注(WLTP/NEDC/CLTC), 应报全标准, 不要否认任一标准。
+_MODEL_SPECS = (
+    "CROSS-STANDARD reference (同一车型在不同市场用不同测试循环标注, 应报全标准, 不要说某标准不存在): "
+    "AION UT 综合续航: WLTP 430km / NEDC 500km(500 Premium) / NEDC 420km(420 Standard) / CLTC 320-530km; "
+    "AION UT 电池容量: 60kWh(500 Premium / AU) / 50.27kWh(420 Standard); "
+    "AION UT 充电: 交流 11kW, 直流快充 30-80% 约 24 分钟.")
+
 # 复用 Phase 0 检索逻辑
 sys.path.insert(0, os.path.join(config.ROOT, "tools"))
 import search as _search
@@ -365,5 +372,6 @@ class KnowledgeBase:
                 self._citations.append({"doc": "Emergency Rescue Guide", "page": None, "source": "rescue-hotline"})
                 parts.append(f"- [来源: Emergency Rescue Guide] {hl}")
         # 全系车型清单(产品咨询推荐用):作为可引用的事实注入,LLM 可据此推荐 AION 各车型。
+        parts.append(_MODEL_SPECS)
         parts.append(_MODEL_LINEUP)
         return "\n".join(parts)
