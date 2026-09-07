@@ -1,6 +1,9 @@
 # 运行态数据(会话/业务库/调试日志)
 data/
 
+# 工作区内嵌私人 memory log（不进 git；本机留存）
+.workbuddy/memory/
+
 # 密钥(勿入库;模板见 deploy/.env.example)
 .env
 deploy/.env
