@@ -244,7 +244,8 @@ _ALREADY_PITCHING_LEAD_RE = re.compile(
     r"connect (you )?with (a |an )?(local )?(specialist|dealer)|"
     r"follow[- ]up|"
     r"ฝาก(ข้อมูล)?(ติดต่อ)?|เจ้าหน้าที่(จะ)?(ติดตาม|ติดต่อ)|"
-    r"deje (sus |el )(datos|contacto|teléfono|correo)|"
+    r"deje (su |sus |el )(datos|contacto|teléfono|telefono|correo)|"
+    r"deja (tu |tus |el )(datos|contacto|teléfono|telefono|correo)|"
     r"le (pongo en contacto|conecto con))",
     re.I)
 
