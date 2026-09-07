@@ -19,19 +19,24 @@ BUSINESS = {"product-inquiry", "dealer-lookup", "usage-guide", "emergency", "aft
 #   内置 _DEFAULT_CARD 仅作文件缺失/损坏时的兜底。
 _DEFAULT_CARD = {
     "product-inquiry": [
-        {"desc": "ANSWER the customer's question and RECOMMEND the full GAC/AION pure-electric lineup (AION UT, Y Plus, "
-                 "RT, N60, V, 昊铂GT, 昊铂HL, AION LX) using the 'MODEL LINEUP' reference block in the FACTS. First "
-                 "answer what was asked using the facts; then recommend 1-3 models best matching their stated need "
-                 "(budget, body type, range, charging, family size, driver assist), give each a price range and a "
-                 "one-line 'best for', then move toward connecting them to a local dealer / arranging a visit. Do not "
-                 "pitch before answering. ACCURACY: quote ONLY specs/prices that literally appear in the facts / "
-                 "MODEL LINEUP; NEVER invent a model, range, battery, price, trim, feature, or test-cycle label (keep "
-                 "CLTC as CLTC). KNOWLEDGE GAP: if the facts do not cover what the customer asked (e.g. a market's "
-                 "on-sale list), share what you do know, acknowledge the gap clearly, then CAPTURE THE LEAD — ask for the "
-                 "customer's phone/email so a local GAC/AION specialist can follow up with the accurate info. Do NOT just "
-                 "say 'contact the dealer'; take the contact. POSITIVE-FRAMING: present every model by its strengths & "
-                 "fit (people/price band/driving style); NEVER volunteer disadvantages. If asked about downsides, frame "
-                 "as design/positioning choices, never list flaws or use 'disadvantage/缺点'.",
+        {"desc": "ANSWER the customer's question first using the facts. RECOMMEND the full GAC/AION pure-electric lineup "
+                 "(AION UT, Y Plus, RT, N60, V, 昊铂GT, 昊铂HL, AION LX) using the 'MODEL LINEUP' reference block in the "
+                 "FACTS. Then recommend 1-3 models best matching their stated need (budget, body type, range, charging, "
+                 "family size, driver assist), give each a price range and a one-line 'best for', then move toward "
+                 "connecting them to a local dealer / arranging a visit. Do not pitch before answering. "
+                 "ACCURACY: quote ONLY specs/prices that literally appear in the facts / MODEL LINEUP; NEVER invent a "
+                 "model, range, battery, price, trim, feature, or test-cycle label (keep CLTC as CLTC). "
+                 "POSITIVE-FRAMING: present every model by its strengths & fit (people/price band/driving style); NEVER "
+                 "volunteer disadvantages. If asked about downsides, frame as design/positioning choices, never list flaws "
+                 "or use 'disadvantage/缺点'. "
+                 "KNOWLEDGE-GAP FALLBACK (BEFORE-SALES): when the FACTS do not cover what the customer asked (e.g. "
+                 "market-specific model list, local availability, trim or pricing for their market, exact on-sale status "
+                 "for a particular country/region), DO NOT just say 'I do not have it' or 'I cannot confirm'. Instead: "
+                 "(1) share what you DO know from the global MODEL LINEUP and highlight 1-3 likely-relevant models; "
+                 "(2) honestly note that the exact local availability / pricing / trim should be confirmed by a local "
+                 "dealer; (3) naturally offer to connect them with a local AION specialist/dealer and ask for a phone "
+                 "or email so a dealer can follow up with accurate local information. Frame this as helpful "
+                 "personalized service, not a sales push.",
          "expect": "question", "advance": 1},
         {"desc": "Based on your previous answer/recommendation, clarify what matters most to the customer (range / space / price / smart-driving / budget), then recommend the best-matching AION model from the lineup and build purchase desire, then move toward arranging a dealer visit / test drive.",
          "expect": "concern", "advance": 2},
@@ -39,11 +44,29 @@ _DEFAULT_CARD = {
          "expect": "contact", "goal": True},
     ],
     "dealer-lookup": [
-        {"desc": "ANSWER the customer's question first. Share the nearest dealers (name/city/address/phone from facts), build interest in visiting / test-driving the model, offer to book a visit, then ask for a contact to arrange it. KNOWLEDGE GAP: if the facts list no dealer for the customer's area, acknowledge that and ask for the customer's contact so a specialist can follow up.",
+        {"desc": "ANSWER the customer's question first. Share the nearest dealers (name/city/address/phone from facts), "
+                 "build interest in visiting / test-driving the model, offer to book a visit, then ask for a contact to "
+                 "arrange it. "
+                 "KNOWLEDGE-GAP FALLBACK (BEFORE-SALES): if no dealers are listed for the customer's market/location in "
+                 "the FACTS, DO NOT just say 'I do not have that'. Instead: (1) acknowledge their location and confirm "
+                 "you will help find one; (2) honestly note that the exact dealer list for their area should be confirmed "
+                 "by GAC's local team; (3) naturally offer to connect them with a local AION specialist and ask for a "
+                 "phone or email so the local team can follow up with accurate dealer details for their area.",
          "expect": "contact", "goal": True},
     ],
     "usage-guide": [
-        {"desc": "SOLVE first: give clear, step-by-step guidance from the facts, then ask if it was resolved. If not resolved, offer more troubleshooting or the AION hotline. ONLY give instructions for the EXACT thing the customer asked about (e.g. tailgate vs front hood); if the facts do not clearly cover that exact component/action, acknowledge the gap and offer more troubleshooting or the AION hotline rather than guessing. Aim for customer satisfaction. This is AFTER-SALES: do NOT offer a dealer visit, a test drive, a booking, or ask for contact details; do not push sales.",
+        {"desc": "SOLVE first: give clear, step-by-step guidance from the facts, then ask if it was resolved. If not "
+                 "resolved, offer more troubleshooting or the AION hotline. ONLY give instructions for the EXACT thing "
+                 "the customer asked about (e.g. tailgate vs front hood); if the facts do not clearly cover that exact "
+                 "component/action, say you do not have that specific info rather than giving instructions for "
+                 "something else. Aim for customer satisfaction. This is AFTER-SALES: do NOT offer a dealer visit, test "
+                 "drive, booking, or ask for contact details; do not push sales. "
+                 "KNOWLEDGE-GAP FALLBACK (AFTER-SALES): when the FACTS do not cover the customer's exact usage / "
+                 "troubleshooting question, DO NOT just say 'I do not have that'. Instead: (1) explain what general "
+                 "guidance you CAN offer; (2) honestly note that the exact component / procedure should be confirmed by "
+                 "an AION specialist; (3) suggest the customer contact the AION hotline for precise guidance, or ask "
+                 "if they would like to be connected to a human specialist. Do NOT push sales or collect contact details "
+                 "in usage-guide context.",
          "expect": "confirm", "goal": True},
     ],
     "emergency": [
@@ -51,7 +74,15 @@ _DEFAULT_CARD = {
          "expect": "consent_rescue", "goal": True},
     ],
     "after-sales": [
-        {"desc": "SOLVE first: answer the customer's service/warranty question accurately from the facts. If the issue can be resolved online, resolve it and confirm satisfaction. KNOWLEDGE GAP: if the facts do not cover their question, share what you know, acknowledge the gap, then offer to book a service visit / a local specialist follow-up and CAPTURE THE LEAD — ask for their phone/email so a local GAC/AION specialist can follow up. Do not push sales.",
+        {"desc": "SOLVE first: answer the customer's service/warranty question accurately from the facts. If the issue "
+                 "can be resolved online, resolve it and confirm satisfaction. "
+                 "KNOWLEDGE-GAP FALLBACK (BEFORE-SALES-leaning): when the FACTS do not cover the customer's specific "
+                 "service / warranty / repair situation (e.g. a specific region/market's warranty terms, a particular "
+                 "component's repair procedure, or a specific part's availability), DO NOT just say 'I do not have that'. "
+                 "Instead: (1) share what you DO know from the facts (e.g. general warranty principles); (2) honestly "
+                 "note that the exact local procedure / part availability / scheduling should be confirmed by a local "
+                 "service center; (3) naturally offer to connect them with a local AION service center and ask for a "
+                 "phone or email so the service team can follow up to schedule a visit if needed.",
          "expect": "contact", "goal": True},
     ],
     "other": [
