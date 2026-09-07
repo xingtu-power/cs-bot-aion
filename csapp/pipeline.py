@@ -4,7 +4,7 @@
 → 澄清/锁定 → 引导卡执行 → 持久化 → 返回响应。
 """
 import re, difflib, time
-from . import config, intent as intent_mod, cards as card_mod, compliance, debug
+from . import config, intent as intent_mod, cards as card_mod, compliance, debug, components as comp_mod
 from .state import StateStore
 from .langdetect import detect_language
 from .market import route_market, market_kb, extract_market
@@ -319,6 +319,36 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     lead_record = getattr(session, "lead_record", None)
     resp["consentVersion"] = compliance.CONSENT_VERSION if lead_record else None
     resp["leadRecord"] = lead_record
+    # ----------- Lead Card 装配(components schema 给前端渲染) -----------
+    # 触发: (a) 知识缺失兜底已追加 (b) lead_record 刚生成 (c) 售前/经销商首次 contact 步
+    try:
+        _first_contact = bool(
+            session.intent in intent_mod.KNOWLEDGE_GAP_INTENTS
+            and session.step_index == 0
+            and lead_record is None
+            and not _kg_appended
+        )
+        if comp_mod.should_attach_lead_card(
+            intent=session.intent,
+            kg_appended=bool(_kg_appended),
+            lead_record_present=bool(lead_record),
+            first_contact_step=_first_contact,
+        ):
+            card = comp_mod._build_lead_card(
+                session, reply_lang, market,
+                db_history=lambda uid, mkt: db.find_recent_lead_by_user(uid, mkt),
+            )
+            if card:
+                resp["components"] = [card]
+                debug.record(evt="lead_card_attached", session=session.id,
+                             type=card.get("type"), source=card.get("source", "input"))
+            else:
+                resp["components"] = []
+        else:
+            resp["components"] = []
+    except Exception as _e:
+        debug.record(evt="lead_card_error", err=str(_e)[:200])
+        resp["components"] = []
     return resp
 
 
