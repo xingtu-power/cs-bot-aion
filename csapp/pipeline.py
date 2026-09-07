@@ -157,7 +157,11 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
         conf = max(conf, 0.7)
     # 兜底:respond 失败/空回复时给非空简短回复,避免"哑巴"
     if not response:
-        response = _fallback_text(new_intent, reply_lang)
+        # Phase 2.4: fallback 也走知识缺失兜底(若意图是售前类) → 引导留资
+        _fb = _fallback_text(new_intent, reply_lang)
+        if new_intent in intent_mod.KNOWLEDGE_GAP_INTENTS:
+            _fb += "\n\n" + (_knowledge_gap_lead(new_intent, reply_lang) or "")
+        response = _fb
     session._answer_llm = response
     session._question = question
 
