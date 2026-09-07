@@ -195,18 +195,77 @@ def is_ambiguous(confidence: float, threshold: float = None) -> bool:
     return confidence < (threshold or config.INTENT_CONFIDENCE_THRESHOLD)
 
 
-# ---- 知识缺口检测(兜底留资用) ----
-# 回复中出现"没有/暂无/说不清/建议联系经销商"等"我不知道"信号 => 知识缺口。
-# 用于第2层硬保险: 命中且该意图应留资、且回复还没引导留资时, 由 pipeline 追加留资话术。
-_KB_GAP_RE = re.compile(
-    r"(暂时没有|暂无|不清楚|无法确认|无法确定|需确认|没有.{0,3}该|该市场.{0,6}(没有|暂时)|"
-    r"建议.{0,4}联系|请您.{0,4}联系|未能提供|无法提供|查询不到|查不到|"
-    r"don'?t have|no information|cannot confirm|can'?t confirm|no data|not available|we do not have|we don'?t|"
-    r"please contact|refer to|there is no|i don'?t have|"
-    r"ไม่มีข้อมูล|ไม่ทราบ|ไม่มีราย|ไม่สามารถยืนยัน|โปรดติดต่อ|ยังไม่มี|ไม่มีใน|"
-    r"no tenemos|no dispongo|no hay información|no podemos confirmar|por favor contacte|no está disponible|no tengo info)", re.I)
+# ---------------- 知识缺失信号检测(Phase 2.1: 后处理兜底用) ----------------
+# LLM 回复里出现"暂无/无法确认/建议联系"等信号时,即使 prompt 已经给了 FALLBACK 指令,
+# 也可能因遵循度不够而漏引导。后处理做硬保险。
+# 仅在售前类意图(product-inquiry / dealer-lookup / after-sales)触发;
+# 售后类(usage-guide)和紧急救援(emergency)不适用留资引导,见 _knowledge_gap_lead 的设计。
+_KNOWLEDGE_GAP_RE = {
+    "zh": re.compile(
+        r"(暂时没有|暂无|没有该|没有具体|不清楚|不了解|无法确认|无法提供|无法核实|"
+        r"需要(联系|咨询)|建议(联系|咨询)|请(联系|咨询)|"
+        r"暂无该|暂无确切|暂时没有该|暂时没有该信息|没有详细信息|"
+        r"请联系(当地|授权|经销|官方|总部)|联系经销商|联系专员|联系客服|联系(当地)?(授权)?经销商|"
+        r"以(官方|当地|授权)为准|以(经销商|官方)为准)"
+    ),
+    "en": re.compile(
+        r"(i (do not|don't) have|i'm not (sure|able)|"
+        r"no (information|details?|info) (on|about|for|here)|"
+        r"(not able|cannot|can'?t) (to )?(confirm|provide|verify)|"
+        r"(please|kindly) (contact|reach out to|refer to)|"
+        r"(contact|reach out to|refer to) (your |a |the )?(local |authorized )?(dealer|specialist)|"
+        r"please (consult|check with|verify with)|"
+        r"subject to (local |authorized )?(availability|confirmation|pricing|verification))",
+        re.I),
+    "th": re.compile(
+        r"(ยังไม่มี|ไม่มี(ข้อมูล)?|ไม่สามารถ(ยืนยัน|ให้ข้อมูล)|"
+        r"กรุณา(ติดต่อ|สอบถาม)|ติดต่อ(ตัวแทน|เจ้าหน้าที่|ผู้เชี่ยวชาญ)|"
+        r"ขึ้นอยู่กับ(ตัวแทน|เจ้าหน้าที่)?(ในพื้นที่)?(จำหน่าย)?|"
+        r"ไม่แน่ใจ|ไม่ทราบ|รอการยืนยัน)",
+        re.I),
+    "es": re.compile(
+        r"(no (tengo|cuento con|dispongo de)|"
+        r"no (hay|tengo) (información|detalles?)|"
+        r"no (puedo|podemos) (confirmar|proporcionar|verificar)|"
+        r"(por favor )?contacte?( con)? (su |el |un )?(concesionario|especialista|distribuidor)|"
+        r"consulte (con|al) (su |el )?(concesionario|especialista|distribuidor)|"
+        r"sujeto a (disponibilidad|confirmación|verificación) (local|del concesionario)?)",
+        re.I),
+}
 
 
-def is_knowledge_gap(text):
-    """回复是否为"知识缺失/不知道"信号(4 语言)。"""
-    return bool(_KB_GAP_RE.search(text or ""))
+# LLM 回复里已经在引导留资的信号(避免后处理重复追加)
+_ALREADY_PITCHING_LEAD_RE = re.compile(
+    r"(留(个|一下)?(手机|电话|联系方式|邮箱)|方便留(个|一下)?|"
+    r"留下(您的)?(手机|电话|联系方式|邮箱)|"
+    r"专员.{0,15}(联系|跟进)|"
+    r"leave (your )?(phone|email|contact|details)|"
+    r"may i (have|get|connect)|"
+    r"connect (you )?with (a |an )?(local )?(specialist|dealer)|"
+    r"follow[- ]up|"
+    r"ฝาก(ข้อมูล)?(ติดต่อ)?|เจ้าหน้าที่(จะ)?(ติดตาม|ติดต่อ)|"
+    r"deje (sus |el )(datos|contacto|teléfono|correo)|"
+    r"le (pongo en contacto|conecto con))",
+    re.I)
+
+
+def is_knowledge_gap(text: str, lang: str = "en") -> bool:
+    """检测 LLM 回复是否含"知识缺失"信号(4 语言)。
+    返回 True → 后处理应追加 _knowledge_gap_lead。"""
+    if not text:
+        return False
+    pat = _KNOWLEDGE_GAP_RE.get((lang or "en").lower())
+    if not pat:
+        pat = _KNOWLEDGE_GAP_RE["en"]
+    return bool(pat.search(text))
+
+
+def already_pitching_lead(text: str) -> bool:
+    """检测 LLM 回复是否已经在引导留资/联系专员 → 避免后处理重复追加。"""
+    if not text:
+        return False
+    return bool(_ALREADY_PITCHING_LEAD_RE.search(text))
+
+
+# 后处理兜底适用意图(售前类 + 售后服务;usage-guide 不留资走 hotline)
+KNOWLEDGE_GAP_INTENTS = frozenset({"product-inquiry", "dealer-lookup", "after-sales"})
