@@ -283,8 +283,8 @@ function renderLeadInputCard(c, sid){
     `<div class="lc-head"><span class="dot"></span>`+esc(c.title||"")+`</div>`+
     `<form autocomplete="off">`+
       `<div class="lc-row"><label>`+esc(L.phone||"Phone")+`</label>`+
-        `<input name="phone" placeholder="`+esc(L.phone_ph||"")+`" inputmode="tel" required></div>`+
-      `<div class="lc-row"><label>`+esc(L.email||"Email")+` (optional)</label>`+
+        `<input name="phone" placeholder="`+esc(L.phone_ph||"")+`" inputmode="tel"></div>`+
+      `<div class="lc-row"><label>`+esc(L.email||"Email")+`</label>`+
         `<input name="email" placeholder="`+esc(L.email_ph||"")+`" type="email"></div>`+
       `<div class="lc-consent">`+esc(L.consent||"")+`</div>`+
       `<button type="submit">`+esc(L.submit||"Submit")+`</button>`+
@@ -317,13 +317,25 @@ function renderLeadInputCard(c, sid){
 function renderLeadConfirmCard(c, sid){
   const wrap=document.createElement("div"); wrap.className="lead-card"; wrap.dataset.cardId=c.id||("lc-"+Date.now());
   const srcTag=c.source?`<span class="lc-src">`+esc(c.source==="history"?"已留·回访":"刚留·已收到")+`</span>`:"";
-  const masked=c.phoneMasked || (c.email?`<${esc(c.email)}>`:"");
+  // 主脱敏(用 hint 里的 phone 或 email 原文占位)
+  const maskedPhone=c.phoneMasked;
+  const maskedEmail=c.emailMasked;
+  // 邮箱若是仅有邮箱的情况(specialistHint 用 email_mask_tpl),会把 masked 放进去
+  // 双联系方式时,hint 只用一种,但还要展示另一个
+  let extraLine="";
+  if(c.email && maskedPhone && maskedEmail){
+    // 邮箱也脱敏展示一行
+    extraLine = `<div class="lc-extra">邮箱:`+esc(maskedEmail)+`</div>`;
+  }
   wrap.innerHTML=
     `<div class="lc-head"><span class="dot"></span>联系人已记录 ${srcTag}</div>`+
     `<div class="lc-hint">`+esc(c.specialistHint||"")+`</div>`+
+    extraLine+
     (c.changeHint?`<div class="lc-change">`+esc(c.changeHint)+`</div>`:"");
-  // 让卡片显示完整的 masked，便于用户确认
-  if(c.phoneMasked) wrap.querySelector(".lc-hint").innerHTML = wrap.querySelector(".lc-hint").innerHTML.replace(esc(c.phoneMasked), `<b>${esc(c.phoneMasked)}</b>`);
+  // hint 加粗:电话掩码 / 邮箱掩码
+  const hintEl = wrap.querySelector(".lc-hint");
+  if(maskedPhone) hintEl.innerHTML = hintEl.innerHTML.replace(esc(maskedPhone), `<b>${esc(maskedPhone)}</b>`);
+  else if(maskedEmail) hintEl.innerHTML = hintEl.innerHTML.replace(esc(maskedEmail), `<b>${esc(maskedEmail)}</b>`);
   return wrap;
 }
 // ---- 工具:头像 / 昵称 / 时间(本地时区) ----

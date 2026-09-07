@@ -170,6 +170,22 @@ class Handler(BaseHTTPRequestHandler):
                                                    session_id=rec.get("sessionId") or "now")
             except Exception as _e:
                 _confirm = None
+            # ====== 标记该会话"已留资成功" ======
+            # 同一会话后续 chat 不再发任何 lead card(input 与 confirm 都不发),
+            # 避免每次新问题都弹已留提示打扰用户。
+            try:
+                from .state import StateStore as _SS
+                _sid = body.get("sessionId")
+                if _sid:
+                    _ss = _SS()
+                    _s = _ss.get(_sid)
+                    if _s:
+                        _s.collected["phone"] = _ph or _s.collected.get("phone")
+                        _s.collected["email"] = _em or _s.collected.get("email")
+                        _s.has_shown_lead_card = True   # 已留过 → 后续 chat 不再发 lead card
+                        _ss.save(_s)
+            except Exception:
+                pass  # 不影响 lead 落库的主流程
             return self._json(200, {"ok": True, "leadId": rec["leadId"],
                                     "inserted": bool(ok), "dedupeKey": _ddk,
                                     "leadConfirm": _confirm})
