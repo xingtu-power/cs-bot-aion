@@ -1,0 +1,57 @@
+{
+  "market": "THA",
+  "status": "placeholder-待补",
+  "lastUpdated": "2026-09-07",
+  "note": "本市场在售车型清单【示例结构，待运营/产品确认后补全】。未列出的车型不代表不在售；以下车型/价格/状态均为占位，请勿据此断言客户问题的答案。",
+  "models": [
+    {
+      "name": "AION UT",
+      "variants": ["420 Standard", "500 Premium"],
+      "priceRange": "待补",
+      "availability": "待确认",
+      "note": "参考: 城市代步, 空间越级; 续航 NEDC 420km(420 Standard)/500km(500 Premium)"
+    },
+    {
+      "name": "AION Y Plus",
+      "variants": ["待补"],
+      "priceRange": "待补",
+      "availability": "待确认",
+      "note": "参考: 家用大空间, 可放平"
+    },
+    {
+      "name": "AION RT",
+      "variants": ["待补"],
+      "priceRange": "待补",
+      "availability": "待确认",
+      "note": "参考: 中大型轿跑, 长续航"
+    },
+    {
+      "name": "AION N60",
+      "variants": ["待补"],
+      "priceRange": "待补",
+      "availability": "待确认",
+      "note": "参考: 智驾"
+    },
+    {
+      "name": "AION V",
+      "variants": ["待补"],
+      "priceRange": "待补",
+      "availability": "待确认",
+      "note": "参考: 家用SUV"
+    },
+    {
+      "name": "昊铂 GT",
+      "variants": ["待补"],
+      "priceRange": "待补",
+      "availability": "待确认",
+      "note": "参考: 高端轿跑"
+    },
+    {
+      "name": "昊铂 HL",
+      "variants": ["待补"],
+      "priceRange": "待补",
+      "availability": "待确认",
+      "note": "参考: 六/七座SUV"
+    }
+  ]
+}

@@ -339,6 +339,32 @@ class KnowledgeBase:
                     return v
         return ""
 
+    def _market_models_text(self, mpath):
+        """解析 kb/<mkt>/models.json → 易读文本给 LLM(作为该市场权威来源)。"""
+        try:
+            data = json.load(open(mpath, encoding="utf-8"))
+            market = data.get("market", "")
+            updated = data.get("lastUpdated", "")
+            lines = [f"[本市场在售车型清单] ({market} · {updated})"]
+            lines.append("未列出的车型不代表不在售；以下以登记为准:")
+            for m in data.get("models", []):
+                name = m.get("name", "")
+                variants = m.get("variants") or []
+                v = ",".join(variants) if isinstance(variants, list) else str(variants)
+                line = f"- {name}"
+                if v and v.strip() not in ("", "-", "[]"):
+                    line += f" | 版本: {v}"
+                if m.get("priceRange"):
+                    line += f" | 价格: {m['priceRange']}"
+                if m.get("availability"):
+                    line += f" | 状态: {m['availability']}"
+                if m.get("note"):
+                    line += f" | 亮点: {m['note']}"
+                lines.append(line)
+            return "\n".join(lines)
+        except Exception as e:
+            return f"[本市场在售车型清单] (待补全: 解析失败 {e})"
+
     def context(self, query, lang="en", topk=3):
         """RAG 上下文:向量语义 top-k(文档+FAQ) + 结构化规格,拼成给 LLM 的上下文串。
         向量索引未建时回退关键词 FAQ + 规格。"""
@@ -373,13 +399,10 @@ class KnowledgeBase:
                 self._citations.append({"doc": "Emergency Rescue Guide", "page": None, "source": "rescue-hotline"})
                 parts.append(f"- [来源: Emergency Rescue Guide] {hl}")
         # 全系车型清单(产品咨询推荐用):作为可引用的事实注入,LLM 可据此推荐 AION 各车型。
-        # 市场在售车型清单(若提供): 作为该市场权威来源注入
+        # 市场在售车型清单(若提供): 解析后拼成易读文本作为该市场权威来源注入
         mpath = os.path.join(config.KB_ROOT, self.market, "models.json")
         if os.path.exists(mpath):
-            try:
-                parts.append("[本市场在售车型清单]\n" + open(mpath, encoding="utf-8").read())
-            except Exception:
-                pass
+            parts.append(self._market_models_text(mpath))
         parts.append(_MODEL_SPECS)
         parts.append(_MODEL_LINEUP)
         return "\n".join(parts)
