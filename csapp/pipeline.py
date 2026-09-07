@@ -103,11 +103,10 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     # 1.5) 早期采集联系方式:任何阶段用户留了 phone/email 都先存到 session
     card_mod.try_collect_contact_early(session, message)
 
-    # 1.6) Phase 2.6:contact 是否已收集(本会话 or 跨会话历史 or 已留过卡)。
-    # 决定后续兜底话术切换为"已留过"变体,避免再次诱导用户留号。
-    _p_now, _e_now, _ = comp_mod._resolve_lead_contact(
-        session, db_history=lambda uid, mkt: db.find_recent_lead_by_user(uid, mkt)
-    )
+    # 1.6) Phase 2.6:contact 是否已收集(本会话 session.collected)。
+    # 2026-09 起:不再跨会话查 db.find_recent_lead_by_user。
+    # 留资状态会话粒度 — 新会话重新留。
+    _p_now, _e_now, _ = comp_mod._resolve_lead_contact(session)
     _contact_already = bool(_p_now or _e_now or getattr(session, "has_shown_lead_card", False))
 
     # 2.5) 内容安全:prompt injection 检测(§8.3)
@@ -361,10 +360,8 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
             and not (_kg_appended or _phase24_gap)
         )
         _has_shown_lead_card = getattr(session, "has_shown_lead_card", False)
-        # 提前解析一次联系方式,用于触发判断
-        _phone, _email, _ = comp_mod._resolve_lead_contact(
-            session, db_history=lambda uid, mkt: db.find_recent_lead_by_user(uid, mkt)
-        )
+        # 提前解析一次联系方式,用于触发判断(只看本会话 collected,不再跨会话查 db)
+        _phone, _email, _ = comp_mod._resolve_lead_contact(session)
         _collected_contact = bool(_phone or _email)
         if comp_mod.should_attach_lead_card(
             intent=session.intent,
@@ -374,10 +371,7 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
             collected_contact=_collected_contact,
             has_shown_lead_card=_has_shown_lead_card,
         ):
-            card = comp_mod._build_lead_card(
-                session, reply_lang, market,
-                db_history=lambda uid, mkt: db.find_recent_lead_by_user(uid, mkt),
-            )
+            card = comp_mod._build_lead_card(session, reply_lang, market)
             if card:
                 resp["components"] = [card]
                 # NOTE: 这里**不**设 has_shown_lead_card=True。

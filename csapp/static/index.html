@@ -8,15 +8,15 @@
 :root{--brand:#0b6e5f;--brand2:#0a8f79;--bg:#f4f6f8;--card:#fff;--line:#e3e8ec;--txt:#1c2a33;--mut:#6b7a86;--warn:#c0392b;--side:#0d3b32;--side2:#14524a;--av-size:34px}
 *{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
-.app{display:grid;grid-template-columns:280px 1fr;height:100vh;overflow:hidden}
+.app{display:grid;grid-template-columns:280px 1fr;grid-template-rows:minmax(0,1fr);height:100vh;overflow:hidden}
 /* 左侧栏 */
-.side{background:linear-gradient(180deg,var(--side),var(--side2));color:#fff;display:flex;flex-direction:column;padding:18px 14px 14px}
+.side{background:linear-gradient(180deg,var(--side),var(--side2));color:#fff;display:flex;flex-direction:column;padding:18px 14px 14px;min-height:0;overflow:hidden}
 .side .b-t{font-size:19px;font-weight:800;margin-bottom:2px}
 .side .b-s{font-size:12px;color:#a8cbc4;margin-bottom:14px}
-.newbtn{margin-bottom:14px}
-.side-foot{font-size:11px;color:#8fb3ac;margin-top:auto;line-height:1.5}
+.newbtn{margin-bottom:14px;flex-shrink:0}
+.side-foot{font-size:11px;color:#8fb3ac;margin-top:auto;line-height:1.5;flex-shrink:0}
 /* 历史列表 */
-.histlist{flex:1;overflow-y:auto;padding-right:2px}
+.histlist{flex:1 1 0;min-height:0;overflow-y:auto;padding-right:2px}
 .histlist::-webkit-scrollbar{width:6px}.histlist::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:3px}
 .hg{font-size:12px;font-weight:700;color:#9fc0ba;margin:12px 4px 6px;text-transform:capitalize}
 .hist-item{display:flex;gap:10px;align-items:flex-start;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:9px 10px;margin-bottom:6px;cursor:pointer;transition:.15s}
@@ -168,6 +168,12 @@ body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microso
 </div>
 <script>
 let sessionId=null, market="", lang="en", currentSessionMeta=null;
+// 会话级状态:用于门控「联系方式已记录 / 合规版本」之类的小条,
+// 仅在状态首次出现(true)或合规版本变更时显示一次,避免每次追问都重复。
+function _resetSessionHints(){
+  lastTargetReached=false; lastConsentVersion=null;
+}
+_resetSessionHints();
 function getUserId(){let u=localStorage.getItem("cs_bot_uid");if(!u){u="u_"+(crypto.randomUUID?crypto.randomUUID().replace(/-/g,""):(Math.random().toString(36).slice(2)+Date.now().toString(36)));localStorage.setItem("cs_bot_uid",u);}return u;}
 let userId=getUserId();
 const $=id=>document.getElementById(id);
@@ -177,7 +183,7 @@ const I18N={
      reached:"达成",notReached:"未达",emergency:"紧急",escalate:"转人工",cite:"引用：",
      hint:"语言跟随用户 · 自动识别意图(二段式:关键词 + 大模型语义) · 按市场路由 · 引导卡驱动留资/预约 · 紧急意图优先 · 引用可溯源 · 内容安全护栏",
      greet:"👋 我是 GAC 智能助手，GAC 旗下有 AION、昊铂 Hyper 等品牌。可以问车型配置、经销商、使用方法、售后或紧急救援，点击下方示例快速体验。",
-     done:"✓ 已达成目标 · 联系人已留资",compliance:"合规 ✓ consentVersion=",fail:"请求失败: ",
+     done:"✓ 联系方式已记录，专员会按当地安排联系您",compliance:"合规 ✓ consentVersion=",fail:"请求失败: ",
      history:"历史",newChat:"＋ 新会话",noHistory:"暂无历史会话",ended:"已结束",ongoing:"进行中",continue:"继续",
      close:"结束咨询",online:"在线",user:"用户",botName:"智能客服",channel:"Web",auto:"自动",
      today:"今天",yesterday:"昨天",lastWeek:"上周",earlier:"更早",endedTip:"本次咨询已结束，请开新会话",
@@ -189,7 +195,7 @@ const I18N={
      placeholder:"Type a message…",send:"Send",reached:"✓",notReached:"—",emergency:"Emergency",escalate:"Escalate",cite:"Cite:",
      hint:"Follows the user's language · Intent recognition · Market routing · Guided lead/booking · Emergency-first · Traceable citations · Content-safety guards",
      greet:"👋 I'm the GAC assistant. GAC's AION & Hyper brands cover specs, dealers, usage, service and roadside help. Tap an example below to try it.",
-     done:"✓ Goal reached · lead saved",compliance:"Compliance ✓ consentVersion=",fail:"Request failed: ",
+     done:"✓ We've noted your contact — a specialist will follow up shortly",compliance:"Compliance ✓ consentVersion=",fail:"Request failed: ",
      history:"History",newChat:"New chat",noHistory:"No history yet",ended:"Ended",ongoing:"Ongoing",continue:"Continue",
      close:"End chat",online:"Online",user:"User",botName:"AI Assistant",channel:"Web",auto:"Auto",
      today:"Today",yesterday:"Yesterday",lastWeek:"Last week",earlier:"Earlier",endedTip:"This session has ended — please start a new chat",
@@ -201,7 +207,7 @@ const I18N={
      placeholder:"Escriba un mensaje…",send:"Enviar",reached:"✓",notReached:"—",emergency:"Emergencia",escalate:"Escalar",cite:"Cita:",
      hint:"Sigue el idioma del usuario · Reconocimiento de intención · Enrutado por mercado · Guía de captación/reserva · Emergencia primero · Citas trazables · Seguridad de contenido",
      greet:"👋 Soy el asistente GAC. Las marcas AION y Hyper de GAC cubren especificaciones, concesionarios, uso, servicio y asistencia en carretera. Toque un ejemplo para probar.",
-     done:"✓ Meta lograda · contacto guardado",compliance:"Cumplimiento ✓ consentVersion=",fail:"Error de petición: ",
+     done:"✓ Ya registramos su contacto — un especialista le contactará en breve",compliance:"Cumplimiento ✓ consentVersion=",fail:"Error de petición: ",
      history:"Historial",newChat:"Nueva conversación",noHistory:"Sin historial aún",ended:"Finalizada",ongoing:"En curso",continue:"Continuar",
      close:"Finalizar",online:"En línea",user:"Usuario",botName:"Asistente IA",channel:"Web",auto:"Auto",
      today:"Hoy",yesterday:"Ayer",lastWeek:"Semana pasada",earlier:"Antes",endedTip:"Esta sesión ha finalizado — inicie una nueva conversación",
@@ -213,7 +219,7 @@ const I18N={
      placeholder:"พิมพ์ข้อความ…",send:"ส่ง",reached:"✓",notReached:"—",emergency:"ฉุกเฉิน",escalate:"ส่งต่อเจ้าหน้าที่",cite:"อ้างอิง:",
      hint:"ตามภาษาผู้ใช้ · ตรวจจับเจตนา · จัดเส้นทางตามตลาด · นำไปสู่การฝากข้อมูล/นัดหมาย · ฉุกเฉินก่อน · อ้างอิงตรวจสอบได้ · ความปลอดภัยเนื้อหา",
      greet:"👋 ผมคือผู้ช่วย GAC แบรนด์ AION และ Hyper ของ GAC ครอบคลุมสเปก ตัวแทนจำหน่าย การใช้งาน บริการ และช่วยเหลือฉุกเฉิน แตะตัวอย่างด้านล่างเพื่อลองใช้",
-     done:"✓ บรรลุเป้าหมาย · ฝากข้อมูลแล้ว",compliance:"ปฏิบัติตาม ✓ consentVersion=",fail:"คำขอผิดพลาด: ",
+     done:"✓ ได้รับข้อมูลติดต่อแล้ว — เจ้าหน้าที่จะติดต่อกลับตามข้อมูลของคุณ",compliance:"ปฏิบัติตาม ✓ consentVersion=",fail:"คำขอผิดพลาด: ",
      history:"ประวัวิต",newChat:"แชทใหม่",noHistory:"ยังไม่มีประวัติ",ended:"จบแล้ว",ongoing:"กำลังคุย",continue:"ต่อ",
      close:"จบการสนทนา",online:"ออนไลน์",user:"ผู้ใช้",botName:"ผู้ช่วย AI",channel:"เว็บ",auto:"อัตโนมัติ",
      today:"วันนี้",yesterday:"เมื่อวาน",lastWeek:"สัปดาห์ก่อน",earlier:"ก่อนหน้า",endedTip:"สิ้นสุดการสนทนาแล้ว — เริ่มแชทใหม่",
@@ -469,17 +475,22 @@ async function send(q){
     // 刷新时间(用本地时间,与 meta 里的一致)
     const tEl=tkWrap.querySelector(".msgtime");
     if(tEl) tEl.textContent=fmtTime(new Date().toISOString());
-    if(d.targetReached){
+    // 「联系方式已记录」仅在状态从未达成→首次达成时显示一次,避免每次追问复读 lead id
+    if(d.targetReached && !lastTargetReached){
       const ref=(d.leadRecord&&d.leadRecord.leadId)||d.leadId||'';
-      add("ok",T.done+(ref?(' · '+esc(ref)):''));
+      add("ok", T.done+(ref?(' · '+esc(ref)):''));
     }
-    if(d.consentVersion)add("ok",T.compliance+d.consentVersion);
+    lastTargetReached = !!d.targetReached;
+    // 合规版本只在变更时显示一次
+    if(d.consentVersion && d.consentVersion !== lastConsentVersion){
+      add("ok",T.compliance+d.consentVersion);
+    }
+    lastConsentVersion = d.consentVersion || lastConsentVersion;
     ok=true;
   }catch(e){ tk.textContent=I18N[lang].fail+(e.message||e); }
-  // 关键:每次发送后刷新左侧会话列表,摘要会显示刚刚这条最新消息
-  // 即使失败也刷新,以防前端认为"新会话不存在"
-  loadHistory();
-  $("send").disabled=false;
+  // 注:不在每次 bot 回复后刷新左侧会话列表 — 会导致列表闪烁/滚动条跳变。
+  // 新会话/切换会话/bot 结束会话时已单独 loadHistory(),用户最后那条消息的
+  // 摘要(若有)会在用户主动切换/刷新时显示。$("send").disabled=false;
 }
 function esc(s){s=String(s);return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
 // ---- 历史侧栏 / 新会话 / 关闭 ----
@@ -534,6 +545,8 @@ async function resumeSession(id){
     currentSessionMeta={market:s.market||null, language:s.language||null};
     renderUserInfo();
     const ms=$("msgs"); ms.innerHTML=""; let n=0;
+    _resetSessionHints();   // 进入新会话,「联系方式已记录」门控重置
+    let _resumeTarget=false;
     (s.history||[]).forEach(t=>{ if(t.user){add("user",esc(t.user), t.t||"");n++;} if(t.bot){add("bot",esc(t.bot), t.t||"");n++;} });
     if(!n) add("bot", I18N[lang].greet, new Date().toISOString());
     // 已结束会话:加横幅提示 + 禁用 Send/Input(允许查看,禁止继续)
@@ -558,6 +571,7 @@ function clearEndedBanner(){
 function newSession(clearMsg){
   sessionId=null;
   clearEndedBanner();   // 关键:新会话也要清 banner,否则上一个 ended 会话的提示会残留
+  _resetSessionHints(); // 新会话:门控重置(lead/consent 提示会再次首次出现)
   $("inp").disabled=false; $("send").disabled=false;
   // 顶部副标题回到全局默认(无当前会话)
   currentSessionMeta=null;

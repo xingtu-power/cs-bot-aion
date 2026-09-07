@@ -147,19 +147,18 @@ def _specialist_hint(labels: dict, phone_masked: str, email_masked: str) -> str:
 
 
 # ============== 数据源解析 ==============
-# 返回 (phone, email, source) — source ∈ "collected" | "history" | None
-def _resolve_lead_contact(session, db_history=None) -> Tuple[Optional[str], Optional[str], Optional[str]]:
-    """优先本会话 collected,然后跨会话 leads 历史。"""
+# 返回 (phone, email, source) — source ∈ "collected" | None
+def _resolve_lead_contact(session) -> Tuple[Optional[str], Optional[str], Optional[str]]:
+    """仅看本会话 collected 是否已记录到 phone/email。
+
+    2026-09 起:不再跨会话查询 leads 历史(user_id → leads 表)。
+    原因:用户场景要求"会话粒度"的留资状态,跨会话会让用户对新会话感到
+    "怎么已经留过?",体验干扰。等真有此需求时再用 dedupeKey 或显式
+    「复用上次的联系方式」交互开启。"""
     ph = (session.collected.get("phone") or "").strip() or None
     em = (session.collected.get("email") or "").strip() or None
     if ph or em:
         return ph, em, "collected"
-    if db_history and getattr(session, "user_id", None):
-        rec = db_history(session.user_id, getattr(session, "market", None)) or {}
-        ph2 = rec.get("phone")
-        em2 = rec.get("email")
-        if ph2 or em2:
-            return (ph2 or "").strip() or None, (em2 or "").strip() or None, "history"
     return None, None, None
 
 
@@ -191,8 +190,7 @@ def build_confirm_card(phone: Optional[str], email: Optional[str], source: str,
     }
 
 
-def _build_lead_card(session, reply_lang: str, market: Optional[str] = None,
-                     db_history=None) -> Optional[dict]:
+def _build_lead_card(session, reply_lang: str, market: Optional[str] = None) -> Optional[dict]:
     """主入口:根据当前会话状态返回一张 lead 卡片 schema。
 
     返回 dict(id, type, lang, ...),return None 表示"不发卡片"。
@@ -201,7 +199,7 @@ def _build_lead_card(session, reply_lang: str, market: Optional[str] = None,
     if lang not in _LEAD_LABELS:
         lang = "en"
     labels = _LEAD_LABELS[lang]
-    phone, email, source = _resolve_lead_contact(session, db_history=db_history)
+    phone, email, source = _resolve_lead_contact(session)
     base = {
         "id":   f"lead-card-{session.id}",
         "lang": lang,
@@ -215,7 +213,7 @@ def _build_lead_card(session, reply_lang: str, market: Optional[str] = None,
         return {
             **base,
             "type":  "lead_confirm",
-            "source": source,                  # "collected" / "history"
+            "source": source,                  # "collected"
             "phoneMasked": phone_masked,
             "emailMasked":  email_masked,
             "email":     email,
