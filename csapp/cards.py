@@ -19,14 +19,16 @@ BUSINESS = {"product-inquiry", "dealer-lookup", "usage-guide", "emergency", "aft
 #   内置 _DEFAULT_CARD 仅作文件缺失/损坏时的兜底。
 _DEFAULT_CARD = {
     "product-inquiry": [
-        {"desc": "ANSWER the customer's question and RECOMMEND the full AION/GAC pure-electric lineup (AION UT, Y Plus, "
+        {"desc": "ANSWER the customer's question and RECOMMEND the full GAC/AION pure-electric lineup (AION UT, Y Plus, "
                  "RT, N60, V, 昊铂GT, 昊铂HL, AION LX) using the 'MODEL LINEUP' reference block in the FACTS. First "
                  "answer what was asked using the facts; then recommend 1-3 models best matching their stated need "
                  "(budget, body type, range, charging, family size, driver assist), give each a price range and a "
                  "one-line 'best for', then move toward connecting them to a local dealer / arranging a visit. Do not "
                  "pitch before answering. ACCURACY: quote ONLY specs/prices that literally appear in the facts / "
                  "MODEL LINEUP; NEVER invent a model, range, battery, price, trim, feature, or test-cycle label (keep "
-                 "CLTC as CLTC). If a detail is not listed, say you do not have it.",
+                 "CLTC as CLTC). If a detail is not listed, say you do not have it. POSITIVE-FRAMING: present every model "
+                 "by its strengths & fit (people/price band/driving style); NEVER volunteer disadvantages. If asked about "
+                 "downsides, frame as design/positioning choices, never list flaws or use 'disadvantage/缺点'.",
          "expect": "question", "advance": 1},
         {"desc": "Based on your previous answer/recommendation, clarify what matters most to the customer (range / space / price / smart-driving / budget), then recommend the best-matching AION model from the lineup and build purchase desire, then move toward arranging a dealer visit / test drive.",
          "expect": "concern", "advance": 2},
@@ -38,7 +40,7 @@ _DEFAULT_CARD = {
          "expect": "contact", "goal": True},
     ],
     "usage-guide": [
-        {"desc": "SOLVE first: give clear, step-by-step guidance from the facts, then ask if it was resolved. If not resolved, offer more troubleshooting or the AION hotline. Aim for customer satisfaction. This is AFTER-SALES: do NOT offer a dealer visit, a test drive, a booking, or ask for contact details; do not push sales.",
+        {"desc": "SOLVE first: give clear, step-by-step guidance from the facts, then ask if it was resolved. If not resolved, offer more troubleshooting or the AION hotline. ONLY give instructions for the EXACT thing the customer asked about (e.g. tailgate vs front hood); if the facts do not clearly cover that exact component/action, say you do not have that specific info rather than giving instructions for something else. Aim for customer satisfaction. This is AFTER-SALES: do NOT offer a dealer visit, a test drive, a booking, or ask for contact details; do not push sales.",
          "expect": "confirm", "goal": True},
     ],
     "emergency": [
@@ -50,7 +52,7 @@ _DEFAULT_CARD = {
          "expect": "contact", "goal": True},
     ],
     "other": [
-        {"desc": "Greet, introduce yourself as the AION assistant, and guide the customer into a topic with a friendly menu of options (specs / dealers / usage / after-sales / emergency). Do not force sales.",
+        {"desc": "Greet, introduce yourself as the GAC assistant (AION / Hyper are GAC sub-brands), and guide the customer into a topic with a friendly menu of options (specs / dealers / usage / after-sales / emergency). Do not force sales.",
          "expect": "none", "advance": 0},
     ],
 }

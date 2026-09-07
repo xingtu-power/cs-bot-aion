@@ -13,23 +13,26 @@ from . import config
 # ⚠️ 严格约束: 只能引用以下列出的数值/特性; 严禁臆造/补充任何车型的续航、电池、价格、配置、
 #   测试循环标签(如把 CLTC 说成 WLTP)、以及未列出的车型。缺失即说"暂无该信息"。
 _MODEL_LINEUP = (
-    "MODEL LINEUP (AION + 昊铂Hyper, 全系弹匣电池, 价格为人民币万元, 北方冬季 CLTC 实际约 6-7 折) — "
+    "MODEL LINEUP (GAC 广汽国际 · AION + 昊铂Hyper, 全系弹匣电池, 价格为人民币万元, 北方冬季 CLTC 实际约 6-7 折) — "
     "STRICT: beyond this MODEL LINEUP, the other detailed facts (power/torque/battery kWh/dimensions) are for AION UT "
-    "ONLY. For every model OTHER than AION UT, this MODEL LINEUP is the ONLY allowed data source; do NOT apply AION "
-    "UT's specs (e.g. 150kW/210N·m/60kWh) to any other model. Quote ONLY these listed values; NEVER invent or "
-    "extrapolate any model's range/battery/power/torque/price/feature, do NOT copy a spec from one model onto another, "
-    "do NOT change the test-cycle label (keep CLTC as CLTC), and do NOT mention any AION model not listed. If a "
-    "requested detail is not listed, say you do not have it.: "
-    "7-10万(城市代步/家用入门): AION UT 6.98-10.18万小型两厢, CLTC 320-530km, 轴距2750mm, 好开好停/空间越级/宜通勤接娃(缺点: 高速稳定一般/底盘偏硬); "
-    "AION Y Plus 8.68万起紧凑SUV, CLTC 430-510km, 后排大沙发/放平当床/90°大门, 家用爆款(缺点: 内饰塑料/高速风噪). "
-    "10-14万(家用主力/智驾强): AION RT 9.98-12.38万中型轿跑, CLTC 605-710km, 车长4865mm, 大后备箱, 支持换电, 3C快充, 高速NOA标配(缺点: 后扭力梁/无四驱); "
-    "AION N60 10.68-12.68万紧凑SUV, CLTC 410/510/610km, 全系激光雷达+4D毫米波, 副驾零重力, 同级智驾硬件无敌/性价比高——12万左右强烈推荐(缺点: 车机流畅一般); "
+    "ONLY. For every model OTHER than AION UT, this MODEL LINEUP is the ONLY allowed data source; do NOT apply AION UT "
+    "specs (e.g. 150kW/210N·m/60kWh) to any other model. Quote ONLY these listed values; NEVER invent or extrapolate any "
+    "model range/battery/power/torque/price/feature, do NOT copy a spec from one model onto another, do NOT change the "
+    "test-cycle label (keep CLTC as CLTC), and do NOT mention any model not listed. If a requested detail is not listed, "
+    "say you do not have it. "
+    "POSITIVE-FRAMING (关键): 介绍每款车只讲它的定位/优势(适合的人群/价格带/驾驶场景), 绝不要主动说缺点或用\"缺点/缺陷/不足\"这类词。 "
+    "即使客户问\"这车有什么缺点/不足\", 也要用**正向设计定位**来迂回表达, 例如: \"这是一款为城市通勤设计的紧凑车型, 适合 1-2 人日常使用; "
+    "如果经常 4 人或以上乘坐, 空间会相对紧凑；电池容量是按该价位定位来匹配的, 比更大尺寸车型小是正常的。\" "
+    "不要列出任何硬伤式的缺点清单。: "
+    "7-10万(城市代步/家用入门): AION UT 6.98-10.18万小型两厢, CLTC 320-530km, 轴距2750mm, 好开好停/空间越级/宜通勤接娃; "
+    "AION Y Plus 8.68万起紧凑SUV, CLTC 430-510km, 后排大沙发/放平当床/90°大门, 家用爆款. "
+    "10-14万(家用主力/智驾强): AION RT 9.98-12.38万中型轿跑, CLTC 605-710km, 车长4865mm, 大后备箱, 支持换电, 3C快充, 高速NOA标配; "
+    "AION N60 10.68-12.68万紧凑SUV, CLTC 410/510/610km, 全系激光雷达+4D毫米波, 副驾零重力, 同级智驾硬件领先/性价比高——12万左右强烈推荐; "
     "AION V 10.98-14.18万家用SUV, 空间均衡/底盘舒适/外放电, 求稳家用. "
-    "18万以上(昊铂高端): 昊铂GT 约20万纯电轿跑, 800V/后驱/零百5.5s/CLTC710km/风阻0.197/前双叉臂+后多连杆(缺点: 后排头部/城市NOA需高配——重底盘操控); "
+    "18万以上(昊铂高端): 昊铂GT 约20万纯电轿跑, 800V/后驱/零百5.5s/CLTC710km/风阻0.197/前双叉臂+后多连杆; "
     "昊铂HL 22万起中大六/七座SUV, 纯电/增程, 空气悬架, 家庭长途; AION LX 28万起旗舰SUV, 全铝底盘/双电机四驱/大空间豪华. "
     "快速抄作业: <9万市区代步→UT; 家庭大空间能躺平→Y Plus; 大轿车长续航跑高速→RT; 12万激光雷达智驾SUV→N60(强烈推荐); 重底盘轿跑20万→昊铂GT; 多孩6-7座→昊铂HL. "
-    "提示: 冬季优先选 CLTC≥500km 版本; 有家充优先纯电; 长途无家充可看换电版本(RT)."
-)
+    "提示: 冬季优先选 CLTC≥500km 版本; 有家充优先纯电; 长途无家充可看换电版本(RT).")
 
 # 复用 Phase 0 检索逻辑
 sys.path.insert(0, os.path.join(config.ROOT, "tools"))
