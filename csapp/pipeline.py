@@ -257,6 +257,13 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
             if _gap:
                 reply["reply"] = (reply["reply"] or "").rstrip() + "\n\n" + _gap
 
+    # 4.5) Phase 2.3: 后处理知识缺失兜底 — 命中信号且未引导留资时,追加 _knowledge_gap_lead
+    _new_reply, _kg_appended = _apply_knowledge_gap_lead(
+        reply.get("reply", ""), session.intent, reply_lang, market)
+    if _kg_appended:
+        reply["reply"] = _new_reply
+        debug.record(evt="knowledge_gap_lead_appended", intent=session.intent, lang=reply_lang)
+
     session.persist()
     session.append_turn(message, reply.get("reply", ""), session.intent, reply.get("emotion", 0))
     session.persist()
@@ -351,6 +358,53 @@ def _fallback_text(intent, lang):
     base = m.get(lang, m["en"])
     lead = _knowledge_gap_lead(lang, intent)
     return base + ("\n\n" + lead if lead else "")
+
+
+# ---------------- Phase 2.2: 知识缺失兜底话术(售前类引导留资) ----------------
+_KNOWLEDGE_GAP_LEAD = {
+    "product-inquiry": {
+        "zh": "针对该市场的具体在售车型和价格，我们这边暂时没有更详细的信息。为了给您更准确的回复，我可以帮您联系当地 AION 专员，您方便留个手机或邮箱，让专员按当地实际为您跟进吗?",
+        "en": "I do not have the exact on-sale models and pricing for your market here. To give you an accurate answer, may I connect you with a local AION specialist? If you share your phone or email, they can follow up with the right local information.",
+        "th": "ดิฉันไม่มีข้อมูลรุ่นและราคาที่วางจำหน่ายในพื้นที่ของคุณ ขอเชื่อมต่อคุณกับผู้เชี่ยวชาญ AION ในท้องถิ่น หากคุณฝากเบอร์โทรหรืออีเมล เจ้าหน้าที่จะติดตามด้วยข้อมูลที่ถูกต้องให้ครับ/ค่ะ",
+        "es": "No tengo aquí la lista exacta de modelos y precios disponibles en su mercado. Para darle una respuesta precisa, ¿puedo ponerle en contacto con un especialista local de AION? Si comparte su teléfono o correo, el equipo local le dará la información correcta.",
+    },
+    "dealer-lookup": {
+        "zh": "针对您所在区域的授权经销商名单，我们这边暂时没有更详细的信息。为了帮您找到最近的门店，我可以为您对接当地 AION 专员，您方便留个手机或邮箱，专员按当地门店为您跟进吗?",
+        "en": "I do not have the exact list of authorized dealers for your area here. To help you find the nearest store, may I connect you with a local AION specialist? If you share your phone or email, the local team will follow up with the dealer details.",
+        "th": "ดิฉันไม่มีรายชื่อตัวแทนจำหน่ายที่ได้รับอนุญาตในพื้นที่ของคุณ ขอเชื่อมต่อคุณกับผู้เชี่ยวชาญ AION ในท้องถิ่น หากคุณฝากเบอร์โทรหรืออีเมล เจ้าหน้าที่จะส่งรายชื่อตัวแทนจำหน่ายที่ใกล้คุณให้ครับ/ค่ะ",
+        "es": "No tengo aquí la lista exacta de concesionarios autorizados en su zona. Para ayudarle a encontrar la tienda más cercana, ¿puedo ponerle en contacto con un especialista local de AION? Si comparte su teléfono o correo, el equipo local le enviará los detalles del concesionario.",
+    },
+    "after-sales": {
+        "zh": "针对您当地的具体服务流程/配件库存/预约时段，我们这边暂时没有更详细信息。为了给您更准确的安排，我可以为您对接当地 AION 服务中心，您方便留个手机或邮箱，让当地服务专员为您跟进吗?",
+        "en": "I do not have the exact local service procedure, parts availability or appointment slots here. To give you an accurate arrangement, may I connect you with a local AION service center? If you share your phone or email, the local service team will follow up.",
+        "th": "ดิฉันไม่มีข้อมูลขั้นตอนการบริการ/อะไหล่/ช่วงเวลานัดหมายในพื้นที่ของคุณ ขอเชื่อมต่อคุณกับศูนย์บริการ AION ในท้องถิ่น หากคุณฝากเบอร์โทรหรืออีเมล เจ้าหน้าที่บริการจะติดตามให้ครับ/ค่ะ",
+        "es": "No tengo aquí el procedimiento exacto de servicio, disponibilidad de recambios ni horarios de cita en su zona. Para darle una atención precisa, ¿puedo ponerle en contacto con un centro de servicio AION local? Si comparte su teléfono o correo, el equipo local le hará el seguimiento.",
+    },
+    # usage-guide / emergency 不补留资引导:售后类走 hotline,紧急救援走 rescue
+}
+
+
+def _knowledge_gap_lead(intent, lang, market=None):
+    """知识缺失兜底话术。按意图返回 4 语言模板;售前类引导留资,售后/紧急返回 None。"""
+    if not intent or intent not in intent_mod.KNOWLEDGE_GAP_INTENTS:
+        return None
+    table = _KNOWLEDGE_GAP_LEAD.get(intent, {})
+    return table.get((lang or "en").lower(), table.get("en"))
+
+
+def _apply_knowledge_gap_lead(reply_text, intent, lang, market=None):
+    """Phase 2.3: 后处理兜底 — 若 LLM 回复命中知识缺失信号且还没引导留资,追加兜底话术。
+    返回 (new_text, appended_flag)。"""
+    if not reply_text or not intent or intent not in intent_mod.KNOWLEDGE_GAP_INTENTS:
+        return reply_text, False
+    if not intent_mod.is_knowledge_gap(reply_text, lang):
+        return reply_text, False
+    if intent_mod.already_pitching_lead(reply_text):
+        return reply_text, False   # LLM 已经引导了,避免重复追加
+    lead = _knowledge_gap_lead(intent, lang, market)
+    if not lead:
+        return reply_text, False
+    return (reply_text.rstrip() + "\n\n" + lead), True
 
 
 def _no_knowledge_lead(lang):
