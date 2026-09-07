@@ -101,6 +101,17 @@ class Session:
         """刷新最近活动时间(活动即未空闲)。"""
         self.last_active = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
+    def end(self, reason, ended_at=None):
+        """标记会话结束(幂等)。会 persist 到磁盘。"""
+        if self.ended:
+            return False
+        self.ended = True
+        self.ended_reason = reason
+        self.ended_at = ended_at or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        self.updated_at = self.ended_at
+        self.persist()
+        return True
+
     def should_escalate(self):
         # 转人工条件:轮数/澄清超限 / 用户要求 / 高情绪(在此判断情绪分)
         if self.emotion_score >= config.EMOTION_ESCALATE_SCORE:
@@ -119,11 +130,14 @@ class StateStore:
         self.dir = directory or config.STATE_DIR
 
     def get(self, session_id):
+        # 短路:空 id 不读盘,直接返回新 Session(避免拼出 None.json 路径污染新会话)
+        if not session_id:
+            return Session()
         path = os.path.join(self.dir, f"{session_id}.json")
         if os.path.exists(path):
             with open(path, encoding="utf-8") as f:
                 return Session.from_dict(json.load(f))
-        return Session(session_id or new_session_id())
+        return Session(session_id)
 
     def save(self, session):
         session.persist()
@@ -153,12 +167,28 @@ class StateStore:
             if user_id and d.get("user_id") != user_id:
                 continue
             first = ""
+            last_user_msg = ""
+            last_bot_msg = ""
             for t in d.get("history", []):
                 if t.get("user"):
-                    first = t["user"]; break
+                    first = first or t["user"]
+                    last_user_msg = t["user"]
+                if t.get("bot"):
+                    last_bot_msg = t["bot"]
+            # 最后一条消息:同轮内 bot 后写,所以优先 bot(时序最后);fallback 到 last user
+            if last_bot_msg:
+                last_message = last_bot_msg; last_message_role = "bot"
+            elif last_user_msg:
+                last_message = last_user_msg; last_message_role = "user"
+            elif first:
+                last_message = first; last_message_role = "user"
+            last_message = (last_message[:60] + "…") if len(last_message) > 60 else last_message
             rows.append({
                 "sessionId": d.get("id"),
+                "userId": d.get("user_id"),
                 "title": (first[:40] if first else (d.get("intent") or "new session")),
+                "lastMessage": last_message,
+                "lastMessageRole": last_message_role,
                 "market": d.get("market"),
                 "language": d.get("language"),
                 "intent": d.get("intent"),
@@ -172,9 +202,57 @@ class StateStore:
         return rows[:limit]
 
     def get_session(self, session_id):
-        """返回单个会话 dict(含 history),供前端恢复显示;不存在返回 None。"""
+        """返回单个会话 dict(含 history),供前端恢复显示;不存在或空 id 返回 None。"""
+        if not session_id:
+            return None
         path = os.path.join(self.dir, f"{session_id}.json")
         if not os.path.exists(path):
             return None
         with open(path, encoding="utf-8") as f:
             return json.load(f)
+
+    def mark_ended(self, session_id, reason):
+        """接受外部结束(如用户关闭):加载会话→end(reason)→persist。返回 ended 是否新置位。"""
+        if not session_id:
+            return False
+        s = self.get(session_id)
+        if not s:
+            return False
+        changed = s.end(reason)
+        if changed:
+            s.persist()
+        return changed
+
+    def cleanup_none_files(self):
+        """启动时清理磁盘上残留的 None.json / 空 id 命名的脏文件(防御性)。"""
+        n = 0
+        for p in glob.glob(os.path.join(self.dir, "None*.json")):
+            try:
+                os.remove(p); n += 1
+            except Exception:
+                pass
+        return n
+
+    def idle_mark(self, ttl):
+        """后台巡检:把超过 ttl 秒未活动且未结束的会话标为 idle。返回标记数量。"""
+        import datetime as dt
+        now = dt.datetime.now(dt.timezone.utc)
+        n = 0
+        for p in glob.iglob(os.path.join(self.dir, "*.json")):
+            try:
+                with open(p, encoding="utf-8") as f:
+                    d = json.load(f)
+                if d.get("ended"):
+                    continue
+                la = d.get("last_active")
+                if not la:
+                    continue
+                t = dt.datetime.strptime(la, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=dt.timezone.utc)
+                if (now - t).total_seconds() > ttl:
+                    s = Session.from_dict(d)
+                    s.end("idle")
+                    s.persist()
+                    n += 1
+            except Exception:
+                continue
+        return n

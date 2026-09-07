@@ -47,7 +47,18 @@ END_NOTICE = {"zh": "本次咨询已结束，感谢使用。如需继续请开�
               "en": "This session has ended. Thank you. Please start a new conversation to continue.",
               "th": "สิ้นสุดการสนทนานี้แล้ว ขอบคุณ หากต้องการต่อ กรุณาเริ่มบทสนทนาใหม่",
               "es": "Esta sesión ha finalizado. Gracias. Para continuar, inicie una nueva conversación."}
-GOODBYE_RE = r"(再见|拜拜|结束会话|会话结束|告别|sayonara|\bbye\b|\bgoodbye\b|感谢|谢谢|结束)"
+# 告别/结束(多语言, 词边界 + "暂时不+X"结构, 避免误判"暂时没钱/暂时的没事")
+GOODBYE_RE = (
+    r"(再见|拜拜|结束会话|告别|先这样|先到这|够了|算了|到此为止|到此为止吧"
+    r"|不用了?|不需要|暂时不需要|暂时不用|暂时先不|先不|先不要|今天先|够用了"
+    r"|不用了谢谢|先这样吧|就这样吧|好的不需要了?|先不聊了"
+    r"|谢谢|感谢|谢谢了)"
+    r"|(\bbye[-]?bye\b|\bsee\s*you\b|\bcya\b|\bgood\s*bye\b"
+    r"|\bthanks?\b|\bthank\s*you\b|\bcheers\b|\bthat'?s?\s*all\b|\benough\b|\bnot\s+now\b|\bnever\s*mind\b|\blater\b)"
+    r"|(ลาก่อน|ไม่ต้องการ|ไม่ต้อง|ขอบคุณ|พอแล้ว|ไม่เอาแล้ว|ไปก่อน|ไม่คุยแล้ว|วันหลังค่อย)"
+    r"|(adiós|adios|hasta\s+luego|hasta\s+pronto|no\s+necesito|no\s+gracias|gracias|salir|ya\s+no|con\s+eso\s+basta)"
+)
+NO_PROGRESS_MAX_CLARIFY = 2   # 连续 ≥2 轮澄清/无业务进展 → 标记不再纠缠(no_progress)
 
 # ---- 语言检测 ----
 # 脚本 -> 语言 的强启发式(覆盖目标市场):泰文脚本->th,中文->zh,拉丁->en/其它,

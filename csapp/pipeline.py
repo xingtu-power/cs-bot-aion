@@ -278,7 +278,7 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
                  reply_head=(reply.get("reply") or "")[:80], escalated=bool(reply.get("escalate")),
                  target=bool(reply.get("target_reached", session.target_reached)))
 
-    # 会话结束判定:达成终态 / 转人工 / 用户告别 → 标记 ended + 对话内提示
+    # 会话结束判定:达成终态 / 转人工 / 用户告别 / 无进展 → 标记 ended + 对话内提示
     if not session.ended:
         reason = None
         if session.target_reached:
@@ -287,10 +287,10 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
             reason = "escalated"
         elif re.search(config.GOODBYE_RE, message, re.I):
             reason = "goodbye"
+        elif session.clarify_rounds >= config.NO_PROGRESS_MAX_CLARIFY:
+            reason = "no_progress"   # 连续 ≥2 轮澄清/无业务进展 → 不再纠缠
         if reason:
-            session.ended = True
-            session.ended_reason = reason
-            session.ended_at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            session.end(reason)
     if session.ended:
         notice = config.END_NOTICE.get(reply_lang, config.END_NOTICE["en"])
         reply["reply"] = (reply.get("reply", "") or "") + "\n\n" + notice

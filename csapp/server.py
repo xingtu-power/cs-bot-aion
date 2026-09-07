@@ -143,6 +143,18 @@ class Handler(BaseHTTPRequestHandler):
             db.init_db()
             return self._json(200, {"ok": True, "ticketId": "tkt_" + (body.get("sessionId") or "x")[-8:],
                                     "reason": body.get("reason")})
+        if path == "/api/v1/session/end":
+            from .state import StateStore as _SS
+            sid = body.get("sessionId")
+            if not sid:
+                return self._json(400, {"error": "sessionId required"})
+            ss = _SS()
+            if not ss.get_session(sid):
+                return self._json(404, {"success": False, "error": "session not found"})
+            reason = body.get("reason") or "user_closed"
+            changed = ss.mark_ended(sid, reason)
+            return self._json(200, {"success": True, "sessionId": sid,
+                                    "ended": True, "endedReason": reason, "changed": bool(changed)})
         return self._json(404, {"error": "not found"})
 
     def log_message(self, *a):
@@ -169,6 +181,21 @@ def main():
         from .state import StateStore as _SS
         _n = _SS().cleanup(_cfg.ARCHIVE_DAYS)
         print(f"清理过期会话:删除了 {_n} 个")
+        _nn = _SS().cleanup_none_files()
+        if _nn:
+            print(f"清理脏文件(None*.json):删除了 {_nn} 个")
+        # 后台 idle 巡检:每 60s 把超过 TTL_RECENT 未活动且未结束的会话标为 idle
+        import threading
+        def _idle_loop():
+            while True:
+                try:
+                    _SS().idle_mark(_cfg.TTL_RECENT)
+                except Exception:
+                    pass
+                time.sleep(60)
+        t = threading.Thread(target=_idle_loop, daemon=True)
+        t.start()
+        print("后台 idle 巡检已启动(每 60s)")
     except Exception as e:
         print("cleanup skipped:", e)
     httpd = ThreadingHTTPServer((args.host, args.port), Handler)
