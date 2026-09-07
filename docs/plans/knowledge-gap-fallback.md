@@ -235,9 +235,56 @@
 
 ## 8. 当前状态
 
-- **分支**：`feat/knowledge-gap-fallback`（基于 `b33140b`）
-- **HEAD**：`6e16831`（Phase 4.1 完成）
-- **实施情况**：Phase 1 + Phase 2 + Phase 4.1 全部完成（共 7 commit，每个子项独立 commit）
-- **待做**：Phase 3（数据补全，中长期）、Phase 4.2（前端按钮，待定）
-- **服务**：rule 模式在 `http://127.0.0.1:8020` 跑（task `rNjUJJ`），E2E 三场景全部通过
-- **下一动作**：deepseek 模式跑真实 LLM 验证（需要 key）；或者你确认后合并到 main
+- **分支**：`feat/knowledge-gap-fallback`（基于 `origin/main` 的 `33f946d`）
+- **HEAD**：`e532d5c`（含西语正则修复）
+- **祖先链路**：`feat(12 commits)` ⊃ `origin/main(33f946d: Phase3 数据路径 + 1a2f4ff: 方案文档 + f236abe: 同主题外部实现 + ...)`
+- **rebase**：用 `git rebase --onto origin/main b33140b` 跳过 cc363b2 + b33140b 早期占位 commit；6 个冲突文件全部 keep theirs（feat 实现的更优版本），其余自然继承 origin/main 的增量
+- **完整实施**：Phase 1 + Phase 2 + Phase 3(origin/main 33f946d) + Phase 4.1 全部完成；feat 6 文件实现 > origin/main 同名实现（详见 §9 实施对比）
+- **额外修复**：`fix(intent)` 西语 `already_pitching_lead` 支持 `deje su / deje sus / deja tu / deja tus` 形态
+- **服务**：rule 模式在 `http://127.0.0.1:8020` 跑（task `lgQ8E8`）
+- **下一动作**：合并到 main？还是 deepseek 模式跑真实 LLM 验证（需要 key）
+
+---
+
+## 9. 实施对比：feat 分支 vs origin/main 的同名实现（rebase 前评估）
+
+> 在 rebase 之前，对 origin/main (`f236abe`) 的同名实现做过完整 review，结果：**feat 分支 6 文件实现整体更优**，因此 rebase 时全部 keep theirs。
+
+| 文件 | origin/main | feat branch | 评价 |
+|---|---|---|---|
+| `csapp/cards.py` | 简短"KNOWLEDGE GAP"句嵌入 desc | 完整"KNOWLEDGE-GAP FALLBACK"段（按意图分类 + 3 步结构） | **feat 优** |
+| `csapp/talk_scripts.json` | 同 cards.py 简洁版 | 同 cards.py 详细版 | **feat 优** |
+| `csapp/llm.py` | POLICY 放在 BRAND 后 | POLICY 放在 `Situation:` 之前更靠前 | **基本等价**（feat 略优） |
+| `csapp/intent.py` | 单一合并正则；只 `is_knowledge_gap(text)`；无防重；无意图集 | 4 语言各自正则；`is_knowledge_gap(text, lang)` 按语言匹配；`already_pitching_lead` 防重；`KNOWLEDGE_GAP_INTENTS` 意图集 | **feat 明显优**（防重是关键） |
+| `csapp/pipeline.py` | 单段通用兜底话术；内 hardcode 售前 + 内置防重；无 debug | 按意图 × 4 语言精准模板（产品→专员、经销商→门店、售后→服务中心）；复用 intent 模块的 `already_pitching_lead` + `KNOWLEDGE_GAP_INTENTS`；`debug.record` 日志 | **feat 明显优** |
+| `csapp/compliance.py` | 4 语言 dict + `_fab_repl()` 包装 | 4 语言 dict + `dict.get` 直接取 | **基本等价** |
+
+**origin/main 独占并已自动继承的 2 个增量**：
+- `e0fa47b` 在 `csapp/kb.py._MODEL_LINEUP` 追加 NOTE（标注"通用车型概览，非任一市场在售清单"）—— prompt 内层软引导
+- `33f946d` 第 3 层数据路径：`kb.py:context()` 注入 `kb/<mkt>/models.json`，新增 `kb/THA/models.json` + `kb/AU/models.json` 占位示例（含 AION UT 真实版本 + 其它车型标"待补"，status=`placeholder-待补`）
+
+## 10. 验收（rebase 后）
+
+### 10.1 单测（38 项）
+
+- `is_knowledge_gap` 4 语言命中：14/14 ✅
+- `already_pitching_lead` 4 语言命中：7/7（含西语 `deje su/tu` 修复后）✅
+- `_knowledge_gap_lead` 4 语言 × 3 售前意图产出非空：12/12 ✅
+- `_apply_knowledge_gap_lead` 4 触发条件：A/B/C/D 全 ✅
+- `guard_model_facts` zh/en 替换：2/2 ✅
+
+### 10.2 E2E curl（5 场景全过）
+
+| # | 输入 | intent / lang / market | 预期 | 结果 |
+|---|---|---|---|---|
+| 1 | 泰国市场卖哪些车型? | product-inquiry / zh / THA | 追加 zh 留资引导 | ✅ "针对该市场的具体在售车型和价格...留个手机或邮箱，让专员按当地实际为您跟进" |
+| 2 | how do I charge at home? | usage-guide / en / AU | 不追加留资（usage-guide 不在 KNOWLEDGE_GAP_INTENTS） | ✅ fallback 短句，未追加 |
+| 3 | my car broke down on the highway | emergency / en / AU | 不追加留资 | ✅ fallback 短句，未追加 |
+| 4 | is the AION LX available in Australia? | other / en / AU | rule 模式不命中 → 不误触发 | ✅ fallback 短句，未追加 |
+| 5 | AION UT มีรุ่นอะไรบ้างในไทย | product-inquiry / th / THA | 追加 th 留资引导 | ✅ "ดิฉันไม่มีข้อมูลรุ่นและราคาที่วางจำหน่าย...ฝากเบอร์โทรหรืออีเมล" |
+
+### 10.3 数据层验证
+
+- `kb.py:context()` 调用 `self._market_models_text(mpath)`，若 `kb/<mkt>/models.json` 存在则注入
+- `kb/THA/models.json` + `kb/AU/models.json` 已存在（来自 origin/main `33f946d`），运营/产品后续补全 `status=placeholder-待补` 字段
+- `_MODEL_LINEUP` 末尾追加 NOTE（来自 origin/main `e0fa47b`），提示 LLM 不要把通用车型概览当作泰国在售清单
