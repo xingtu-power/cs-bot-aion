@@ -377,9 +377,12 @@ def run_card(session, message, kb, lang):
             session, kb.market,
             email=session.collected.get("email"),
             phone=session.collected.get("phone"), consent=True)
+        # NOTE: contact 步达成**不算**会话完成 — 留资只是收集到联系信息,用户应可继续问问题。
+        # 不设 target_reached,避免 pipeline.end("goal") 追加"本次咨询已结束"。
 
-    # 状态推进
-    if received and sd.get("goal"):
+    # 状态推进 — goal 标记仅用于"会话真正完成"的步骤(confirm/已解决/同意派遣救援),
+    # 不包含 contact 留资(只是收集到联系方式,会话继续)。
+    if received and sd.get("goal") and sd["expect"] != "contact":
         session.target_reached = True
         session.resolved = True
     elif received:
@@ -389,6 +392,6 @@ def run_card(session, message, kb, lang):
     response = getattr(session, "_answer_llm", None) or ""
     result = {"reply": response, "emotion": emotion, "intent": intent,
               "collected": session.collected, "advance": bool(received)}
-    if received and sd.get("goal"):
+    if received and sd.get("goal") and sd["expect"] != "contact":
         result["target_reached"] = True
     return result
