@@ -175,6 +175,7 @@ f"the steps, cautions and notes. Only a diagram is supplementary; the text must 
 f"reply with a generic \"What would you like to know?\" / \"Please clarify\" / \"You can ask about specs, dealers "
 "or usage\" for a clear question — answer what was asked. "
 f"BRAND: you represent GAC (广汽国际), a parent brand; AION and Hyper are GAC sub-brands.\n"
+f"KNOWLEDGE-GAP POLICY (highest priority after the Situation block): the Situation above defines the required fallback when the FACTS do not cover what the customer asked. ALWAYS follow the Situation's fallback — never just say \"I do not have it\" / \"please contact the dealer\" without taking the next step the Situation prescribes (capture the lead for pre-sale, offer troubleshooting / the hotline for usage).\n"
 f"POSITIVE-FRAMING: never volunteer a model's disadvantages. If the customer asks about downsides, frame them as "
 f"design/positioning choices (e.g. a compact city car is designed for 1-2 occupants — 4+ means less space; the battery "
 f"is sized to the price point), never list flaws or use 'disadvantage/缺点'.\n"
@@ -228,8 +229,8 @@ f"acknowledge or change the subject.\n"
                    f"model's range, battery, price, trim, feature, dimension, power, torque, or availability. Do NOT "
                    f"copy or transfer a spec from one model to another. Each model's values are ONLY those listed "
                    f"under that model's own name. Do NOT change the test-cycle label (keep 'CLTC' as CLTC). Do NOT "
-                   f"mention any AION model not in the facts. If a requested spec is not in the facts, state that you "
-                   f"do not have that information rather than guessing.\n\n")
+                   f"mention any AION model not in the facts. If a requested spec is not in the facts, follow the KNOWLEDGE-GAP / "
+                   f"Situation fallback defined near the top rather than just saying you don't have it.\n\n")
         if history:
             prompt += f"Recent conversation:\n{history}\n\n"
         prompt += (f"Facts:\n{context or '(none)'}\n\nCustomer message: {message}\n\n"

@@ -193,3 +193,20 @@ def recognize(text: str, llm_confirm=None, **kw):
 
 def is_ambiguous(confidence: float, threshold: float = None) -> bool:
     return confidence < (threshold or config.INTENT_CONFIDENCE_THRESHOLD)
+
+
+# ---- 知识缺口检测(兜底留资用) ----
+# 回复中出现"没有/暂无/说不清/建议联系经销商"等"我不知道"信号 => 知识缺口。
+# 用于第2层硬保险: 命中且该意图应留资、且回复还没引导留资时, 由 pipeline 追加留资话术。
+_KB_GAP_RE = re.compile(
+    r"(暂时没有|暂无|不清楚|无法确认|无法确定|需确认|没有.{0,3}该|该市场.{0,6}(没有|暂时)|"
+    r"建议.{0,4}联系|请您.{0,4}联系|未能提供|无法提供|查询不到|查不到|"
+    r"don'?t have|no information|cannot confirm|can'?t confirm|no data|not available|we do not have|we don'?t|"
+    r"please contact|refer to|there is no|i don'?t have|"
+    r"ไม่มีข้อมูล|ไม่ทราบ|ไม่มีราย|ไม่สามารถยืนยัน|โปรดติดต่อ|ยังไม่มี|ไม่มีใน|"
+    r"no tenemos|no dispongo|no hay información|no podemos confirmar|por favor contacte|no está disponible|no tengo info)", re.I)
+
+
+def is_knowledge_gap(text):
+    """回复是否为"知识缺失/不知道"信号(4 语言)。"""
+    return bool(_KB_GAP_RE.search(text or ""))

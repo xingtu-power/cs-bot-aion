@@ -373,6 +373,13 @@ class KnowledgeBase:
                 self._citations.append({"doc": "Emergency Rescue Guide", "page": None, "source": "rescue-hotline"})
                 parts.append(f"- [来源: Emergency Rescue Guide] {hl}")
         # 全系车型清单(产品咨询推荐用):作为可引用的事实注入,LLM 可据此推荐 AION 各车型。
+        # 市场在售车型清单(若提供): 作为该市场权威来源注入
+        mpath = os.path.join(config.KB_ROOT, self.market, "models.json")
+        if os.path.exists(mpath):
+            try:
+                parts.append("[本市场在售车型清单]\n" + open(mpath, encoding="utf-8").read())
+            except Exception:
+                pass
         parts.append(_MODEL_SPECS)
         parts.append(_MODEL_LINEUP)
         return "\n".join(parts)

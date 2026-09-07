@@ -250,7 +250,12 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
         reply["reply"] = _no_knowledge_lead(reply_lang)
     else:
         # 车型防臆造:非 UT 车型不得出现其未提供的功率/扭矩/电池容量等参数
-        reply["reply"] = compliance.guard_model_facts(clean_reply)
+        reply["reply"] = compliance.guard_model_facts(clean_reply, reply_lang)
+        # 知识缺口 → 兜底留资(硬保险): 命中缺口信号 且 该意图该留资 且 回复还没引导留资 → 追加兜底话术。
+        if intent_mod.is_knowledge_gap(reply["reply"]) and not _already_pitching_lead(reply["reply"]):
+            _gap = _knowledge_gap_lead(reply_lang, session.intent, market)
+            if _gap:
+                reply["reply"] = (reply["reply"] or "").rstrip() + "\n\n" + _gap
 
     session.persist()
     session.append_turn(message, reply.get("reply", ""), session.intent, reply.get("emotion", 0))
@@ -311,13 +316,41 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     return resp
 
 
+# ---- 知识缺口 → 兜底留资 (第2层硬保险; 4 语言) ----
+_LEAD_TEXT = {"zh": "如果您方便，可以留下手机或邮箱，我们会请当地广汽/AION 专员按您的需求跟进，给您准确信息。",
+              "en": "If you'd like, leave your phone or email and a local GAC/AION specialist will follow up with the accurate info.",
+              "th": "หากสะดวก กรุณาเบอร์โทรหรืออีเมล ผู้เชี่ยวชาญ GAC/AION ในพื้นที่จะติดต่อกลับพร้อมข้อมูลที่ถูกต้อง",
+              "es": "Si lo desea, deje su teléfono o correo y un especialista local de GAC/AION le contactará con la información exacta."}
+_HOTLINE_TEXT = {"zh": "如需进一步协助，您也可以拨打 AION 服务热线，或让我帮您转接人工支持。",
+                 "en": "For more help, you can call the AION service hotline or let me connect you to human support.",
+                 "th": "หากต้องการความช่วยเหลือเพิ่มเติม โทรสายด่วน AION หรือให้ผมเชื่อมต่อกับเจ้าหน้าที่",
+                 "es": "Para más ayuda, llame a la línea de AION o pídame conectarle con un agente."}
+_LEAD_PITCH_RE = re.compile(r"(留|手机|电话|邮箱|联系您|联系你|登记|专员.{0,3}(跟|联)|leave your|phone|email|contact|register|โทร|อีเมล|ติดต่อ|correo|teléfono|contacto)", re.I)
+
+
+def _already_pitching_lead(text):
+    """回复是否已在引导留资(避免重复追加)。"""
+    return bool(_LEAD_PITCH_RE.search(text or ""))
+
+
+def _knowledge_gap_lead(lang, intent, market=""):
+    """知识缺口时"应补"的兜底话术(按意图): 售前/售后 → 留资; usage-guide → 热线/转人工(不推销售); 其它 → 空。"""
+    if intent in ("product-inquiry", "dealer-lookup", "after-sales"):
+        return _LEAD_TEXT.get(lang, _LEAD_TEXT["en"])
+    if intent == "usage-guide":
+        return _HOTLINE_TEXT.get(lang, _HOTLINE_TEXT["en"])
+    return ""
+
+
 def _fallback_text(intent, lang):
     """respond 失败/空时的兜底简短回复(按语言)。"""
     m = {"en": "I can help with AION UT. Could you rephrase, or ask about specs, dealers, or how to use it?",
          "zh": "我可以帮您解答 AION UT 的问题，麻烦再说一下？您可以问配置、经销商或使用方法。",
          "th": "ฉันช่วยเรื่อง AION UT ได้ รบกวนลองใหม่ หรือสอบถามสเปก ตัวแทนจำหน่าย หรือการใช้งาน",
          "es": "Puedo ayudarle con el AION UT. ¿Podría reformular? Pregunte por especificaciones, concesionarios o uso."}
-    return m.get(lang, m["en"])
+    base = m.get(lang, m["en"])
+    lead = _knowledge_gap_lead(lang, intent)
+    return base + ("\n\n" + lead if lead else "")
 
 
 def _no_knowledge_lead(lang):
