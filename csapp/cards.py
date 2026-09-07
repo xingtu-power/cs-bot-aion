@@ -227,13 +227,18 @@ def _nat(session, lang, kind):
 
 
 def _collect_contact(session, text):
-    t = text.strip().lower()
-    email = re.search(r"[\w.+-]+@[\w-]+\.[\w.]+", t)
-    phone = re.search(r"\d{4,}", t)
-    if email:
-        session.collected["email"] = email.group(0)
-    if phone:
-        session.collected["phone"] = re.sub(r"\D", "", phone.group(0))
+    """从用户消息中提取联系方式。仅在格式有效时才写入 session.collected,避免脏数据。"""
+    t = text.strip()
+    # 邮箱:用标准正则 match(从头到尾),比 search 严格
+    em_m = re.search(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,24}", t)
+    if em_m and re.match(config.LEAD_EMAIL, em_m.group(0)):
+        session.collected["email"] = em_m.group(0)
+    # 手机号:提取连续 7-15 位数字(可选 + 前缀)
+    ph_m = re.search(r"\+?\d[\d\s\-]{6,18}\d", t)
+    if ph_m:
+        ph_clean = re.sub(r"\D", "", ph_m.group(0))
+        if 7 <= len(ph_clean) <= 15:
+            session.collected["phone"] = ph_clean
     return bool(session.collected.get("phone") or session.collected.get("email"))
 
 
@@ -246,22 +251,59 @@ def try_collect_contact_early(session, message):
 
 
 def _contact_valid(session, market):
-    ph = session.collected.get("phone") or ""
-    em = session.collected.get("email") or ""
-    if ph:
-        if market == "THA":
-            pat = config.LEAD_PHONE_TH
-        elif market == "AU":
-            pat = config.LEAD_PHONE_AU
-        elif market == "CN":
-            pat = config.LEAD_PHONE_CN
-        else:
-            pat = config.LEAD_PHONE_ANY
-        if re.match(pat, ph):
-            return True
-    if em and "@" in em:
+    """校验联系方式是否有效:手机按市场正则(支持国际格式),邮箱按 RFC-like 标准格式。
+    至少一项通过即视为"已留到有效联系方式"。"""
+    ph = (session.collected.get("phone") or "").strip()
+    em = (session.collected.get("email") or "").strip()
+    if ph and _phone_valid(ph, market):
+        return True
+    if em and re.match(config.LEAD_EMAIL, em):
         return True
     return False
+
+
+def validate_contact(phone, email, market):
+    """独立的联系方式校验入口,供 /api/v1/lead 等非 cards 流程复用。
+    返回 (ok, error_key):
+      ok=True  → 至少一项有效
+      ok=False → error_key: 'empty' | 'phone_format' | 'email_format' | 'both_format'
+    """
+    ph = (phone or "").strip()
+    em = (email or "").strip()
+    if not ph and not em:
+        return False, "empty"
+    ph_ok = bool(ph) and _phone_valid(ph, market)
+    em_ok = bool(em) and bool(re.match(config.LEAD_EMAIL, em))
+    if ph_ok or em_ok:
+        return True, None
+    if ph and not ph_ok and em and not em_ok:
+        return False, "both_format"
+    if ph and not ph_ok:
+        return False, "phone_format"
+    return False, "email_format"
+
+
+def _phone_pattern(market):
+    if market == "THA":
+        return config.LEAD_PHONE_TH
+    if market == "AU":
+        return config.LEAD_PHONE_AU
+    if market == "CN":
+        return config.LEAD_PHONE_CN
+    return config.LEAD_PHONE_ANY
+
+
+def _phone_valid(phone, market):
+    """校验手机号。处理国际格式(以 + 开头 + 1-3 位国家码) → 剥掉国家码再用本地正则。"""
+    if not phone:
+        return False
+    s = phone.strip().lstrip("+")
+    # 尝试 1-3 位国家码 + 剩余号码
+    for cc in (3, 2, 1):
+        if len(s) > cc and re.match(_phone_pattern(market), s[cc:]):
+            return True
+    # 兜底:不含 + 的本地号码,或没有合适国家码时直接用本地正则
+    return bool(re.match(_phone_pattern(market), phone))
 
 
 def _check(expect, session, message, kb):

@@ -137,6 +137,12 @@ class Handler(BaseHTTPRequestHandler):
             _mk = lead.get("market") or body.get("market") or "AU"
             _it = lead.get("intent") or body.get("intent")
             _nm = lead.get("name") or body.get("name")
+            # ===== 联系方式格式校验 — 防止脏数据入 leads 表 =====
+            from . import cards as _cards_v
+            _ok_v, _err = _cards_v.validate_contact(_ph, _em, _mk)
+            if not _ok_v:
+                return self._json(400, {"ok": False, "error": "invalid_contact",
+                                        "errorKey": _err, "field": _err.split("_")[0]})
             # 生成稳定 dedupe_key:(user_phone_email_market) 的 sha1 前 12 位,空值用占位避免 NULL 撞唯一索引
             import hashlib
             _key_src = "|".join([
