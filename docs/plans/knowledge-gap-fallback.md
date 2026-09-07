@@ -143,28 +143,28 @@
 
 ---
 
-## 5. 实施清单（待方案确认后开始）
+## 5. 实施清单
 
-### Phase 1：前置 prompt 改造（必做）
+### Phase 1：前置 prompt 改造（已实施）
 
-- [ ] **1.1a** 改 `cards._DEFAULT_CARD["product-inquiry"]` 三步 desc
-- [ ] **1.1b** 改 `cards._DEFAULT_CARD["dealer-lookup"]`（微调，标准化）
-- [ ] **1.1c** 改 `cards._DEFAULT_CARD["after-sales"]`（增强引导）
-- [ ] **1.1d** 改 `cards._DEFAULT_CARD["usage-guide"]`（明确 hotline/转人工）
-- [ ] **1.1e** 保持 `cards._DEFAULT_CARD["emergency"]` 不动
-- [ ] **1.1f** 保持 `cards._DEFAULT_CARD["other"]` 不动
-- [ ] **1.2** 同步 `csapp/talk_scripts.json` 全部 6 张卡片
-- [ ] **1.3** 升级 `llm.respond` MODEL ACCURACY 段
-- [ ] **1.4** 在 `llm.respond` 开头加 KNOWLEDGE-GAP POLICY 规则
+- [x] **1.1a** 改 `cards._DEFAULT_CARD["product-inquiry"]` 三步 desc
+- [x] **1.1b** 改 `cards._DEFAULT_CARD["dealer-lookup"]`（微调，标准化）
+- [x] **1.1c** 改 `cards._DEFAULT_CARD["after-sales"]`（增强引导）
+- [x] **1.1d** 改 `cards._DEFAULT_CARD["usage-guide"]`（明确 hotline/转人工）
+- [x] **1.1e** 保持 `cards._DEFAULT_CARD["emergency"]` 不动
+- [x] **1.1f** 保持 `cards._DEFAULT_CARD["other"]` 不动
+- [x] **1.2** 同步 `csapp/talk_scripts.json` 全部 6 张卡片
+- [x] **1.3** 升级 `llm.respond` MODEL ACCURACY 段
+- [x] **1.4** 在 `llm.respond` 开头加 KNOWLEDGE-GAP POLICY 规则
 
-### Phase 2：后处理保险（必做）
+### Phase 2：后处理保险（已实施）
 
-- [ ] **2.1** `intent.py` 加 `is_knowledge_gap(text, lang)` 4 语言正则
-- [ ] **2.2** `pipeline.py` 加 `_knowledge_gap_lead(lang, intent, market)` 多语言模板
-- [ ] **2.3** `pipeline.py` 主流程加 hit detection + 追加逻辑
-- [ ] **2.4** `pipeline._fallback_text` 同步走 `_knowledge_gap_lead`
+- [x] **2.1** `intent.py` 加 `is_knowledge_gap(text, lang)` 4 语言正则 + `already_pitching_lead(text)`
+- [x] **2.2** `pipeline.py` 加 `_knowledge_gap_lead(intent, lang, market)` 多语言模板（product-inquiry / dealer-lookup / after-sales × 4 语言）
+- [x] **2.3** `pipeline.py` 主流程加 `_apply_knowledge_gap_lead` 后处理（避免重复追加）
+- [x] **2.4** `pipeline._fallback_text` 同步走 `_knowledge_gap_lead`
 
-### Phase 3：数据补全（中长期）
+### Phase 3：数据补全（中长期，未做）
 
 - [ ] **3.1** 建 `kb/THA/models.json`
 - [ ] **3.2** 建 `kb/AU/models.json`
@@ -173,22 +173,29 @@
 
 ### Phase 4：配套
 
-- [ ] **4.1** `compliance._FAB_REPL` 多语言化
-- [ ] **4.2** 前端"📞 留资"快捷按钮（可选，待确认）
+- [x] **4.1** `compliance._FAB_REPL` 多语言化（中英泰西）
+- [ ] **4.2** 前端"📞 留资"快捷按钮（待用户决定，本次未做）
 
 ---
 
 ## 6. 验收方式
 
-### 6.1 Rule 模式（本地可测）
+### 6.1 Rule 模式（本地可测）✅ 已通过
 
-1. Mock LLM 回复："我们暂时没有该市场的确切清单。建议您联系当地授权经销商。"
-2. 调用 `pipeline.chat()`，验证返回 reply 末尾追加了 `_knowledge_gap_lead("zh", "product-inquiry", "THA")`
-3. 验证重复检测：mock LLM 回复"目前 X 车型在泰国上市，建议联系 XX 专员电话或邮箱"，**不**追加
+1. Mock LLM 回复："我们暂时没有该市场的确切清单。建议您联系当地授权经销商。"（rule 模式走 fallback，触发 _knowledge_gap_lead 追加）✅
+2. 后处理 `_apply_knowledge_gap_lead` 14 个测试用例全部通过：
+   - 5 个"知识缺失 + 售前类 + 未引导留资" → 4 语言追加兜底话术 ✅
+   - 3 个"LLM 已引导留资" → 不重复追加 ✅
+   - 3 个"非售前类意图"（usage-guide / emergency / other）→ 不追加 ✅
+   - 2 个"LLM 正常回答" → 不追加 ✅
+3. E2E curl 验证：
+   - `泰国市场卖哪些车型` (zh, product-inquiry) → 回复含留资引导 ✅
+   - `how do I charge` (en, usage-guide) → 无留资引导 ✅
+   - `my car wont start` (en, emergency) → 无留资引导 ✅
 
-### 6.2 Deepseek 模式（真实场景）
+### 6.2 Deepseek 模式（真实场景，待验证）
 
-跑以下 5~10 个真实问题，对照预期回复：
+需要在 deepseek 模式下跑以下真实问答，确认 LLM 是否真的按新策略行动：
 
 | # | 用户输入 | 意图 | 预期回复 |
 |---|---|---|---|
@@ -229,6 +236,8 @@
 ## 8. 当前状态
 
 - **分支**：`feat/knowledge-gap-fallback`（基于 `b33140b`）
-- **当前 HEAD**：`b33140b`（已 revert `cc363b2`）
-- **状态**：待方案确认后开始实施 Phase 1
-- **下一动作**：用户确认 1.x + 2.x 一并改 → 在 `feat/knowledge-gap-fallback` 上执行
+- **HEAD**：`6e16831`（Phase 4.1 完成）
+- **实施情况**：Phase 1 + Phase 2 + Phase 4.1 全部完成（共 7 commit，每个子项独立 commit）
+- **待做**：Phase 3（数据补全，中长期）、Phase 4.2（前端按钮，待定）
+- **服务**：rule 模式在 `http://127.0.0.1:8020` 跑（task `rNjUJJ`），E2E 三场景全部通过
+- **下一动作**：deepseek 模式跑真实 LLM 验证（需要 key）；或者你确认后合并到 main
