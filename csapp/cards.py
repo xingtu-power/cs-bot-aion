@@ -237,6 +237,14 @@ def _collect_contact(session, text):
     return bool(session.collected.get("phone") or session.collected.get("email"))
 
 
+# ============== pipeline 入口早期采集(不依赖 cards 状态机) ==============
+def try_collect_contact_early(session, message):
+    """会话任何阶段先扫一次联系方式。不修改 step,只辅助 lead card/落库。"""
+    if session.collected.get("phone") and session.collected.get("email"):
+        return False
+    return _collect_contact(session, message)
+
+
 def _contact_valid(session, market):
     ph = session.collected.get("phone") or ""
     em = session.collected.get("email") or ""

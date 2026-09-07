@@ -100,6 +100,9 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
         session.collected["lat"] = location.get("lat")
         session.collected["lng"] = location.get("lng")
 
+    # 1.5) 早期采集联系方式:任何阶段用户留了 phone/email 都先存到 session
+    card_mod.try_collect_contact_early(session, message)
+
     # 2.5) 内容安全:prompt injection 检测(§8.3)
     if compliance.is_prompt_injection(message):
         session.intent = "other"
@@ -326,6 +329,7 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     resp["leadRecord"] = lead_record
     # ----------- Lead Card 装配(components schema 给前端渲染) -----------
     # 触发: (a) 知识缺失兜底已追加 (b) lead_record 刚生成 (c) 售前/经销商首次 contact 步
+    #       (d) 本会话/历史已采到联系方式但还没给过确认卡
     try:
         _first_contact = bool(
             session.intent in intent_mod.KNOWLEDGE_GAP_INTENTS
@@ -333,11 +337,19 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
             and lead_record is None
             and not (_kg_appended or _phase24_gap)
         )
+        _has_shown_lead_card = getattr(session, "has_shown_lead_card", False)
+        # 提前解析一次联系方式,用于触发判断
+        _phone, _email, _ = comp_mod._resolve_lead_contact(
+            session, db_history=lambda uid, mkt: db.find_recent_lead_by_user(uid, mkt)
+        )
+        _collected_contact = bool(_phone or _email)
         if comp_mod.should_attach_lead_card(
             intent=session.intent,
             kg_appended=bool(_kg_appended or _phase24_gap),
             lead_record_present=bool(lead_record),
             first_contact_step=_first_contact,
+            collected_contact=_collected_contact,
+            has_shown_lead_card=_has_shown_lead_card,
         ):
             card = comp_mod._build_lead_card(
                 session, reply_lang, market,
@@ -345,6 +357,7 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
             )
             if card:
                 resp["components"] = [card]
+                session.has_shown_lead_card = True
                 debug.record(evt="lead_card_attached", session=session.id,
                              type=card.get("type"), source=card.get("source", "input"))
             else:
@@ -476,6 +489,7 @@ def _reset_conversation(session):
     session.escalated = False; session.resolved = False; session.target_reached = False
     session.ask_confirm = False; session.escalate_reason = None; session.emotion_score = 0
     session.lead_id = None; session.rescue_ticket_id = None; session.lead_record = None
+    session.has_shown_lead_card = False
     session.history = []
 
 

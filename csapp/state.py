@@ -44,6 +44,7 @@ class Session:
         self.anonymous = True
         self.user_id = None             # 若关联到身份设备/宿主用户
         self.lead_id = None
+        self.has_shown_lead_card = False   # UI: 本会话是否已展示过 lead card
         self.created_at = now
         self.updated_at = now
         self.history = []                  # 每轮 [{user, bot, intent, score}]

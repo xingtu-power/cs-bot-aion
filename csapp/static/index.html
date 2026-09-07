@@ -62,6 +62,7 @@ body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microso
 .msg.user{background:var(--brand);color:#fff;border-bottom-right-radius:4px}
 .msg.bot{background:#eef2f5;color:var(--txt);border-bottom-left-radius:4px}
 .msg.bot.em{border:2px solid var(--warn);background:#fdf0ee}
+.msg.bot.lead-msg{background:transparent;padding:0;border:0}
 .cap{font-size:11px;color:var(--mut);margin-top:5px;line-height:1.5}
 .cap .t{border-radius:4px;padding:1px 5px;font-weight:600}
 .cap .int{background:#e8f1ff;color:#2563eb}
@@ -98,7 +99,8 @@ body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microso
 .ended-banner{background:#fff8e6;border:1px solid #f5d57b;color:#8a6d00;padding:8px 14px;border-radius:10px;margin:8px 16px 0;font-size:12px;text-align:center}
 
 /* ====== Lead Card (csapp/components.py schema) ====== */
-.lead-card{margin:8px 0 0;border:1px solid #c8e6d4;background:linear-gradient(135deg,#f6fcf9 0%,#eaf6ef 100%);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;max-width:100%;box-shadow:0 2px 8px rgba(56,193,114,.08)}
+/* 容器为独立的 msgrow bot 消息,卡片本身填充在透明气泡内 */
+.lead-card{margin:0;border:1px solid #c8e6d4;background:linear-gradient(135deg,#f6fcf9 0%,#eaf6ef 100%);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;max-width:420px;box-shadow:0 2px 8px rgba(56,193,114,.08)}
 .lead-card .lc-head{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#1f7a4d}
 .lead-card .lc-head .dot{width:8px;height:8px;border-radius:50%;background:#38c172;box-shadow:0 0 0 3px rgba(56,193,114,.18)}
 .lead-card .lc-title{font-size:13px;color:var(--txt);font-weight:600;line-height:1.4}
@@ -247,6 +249,32 @@ function detectDefaultLang(){
 }
 
 // ============== Lead Card 组件 ==============
+// 卡片作为独立 bot 消息(头像+名字+时间+透明气泡),与其它消息同列展示
+function appendLeadCardMessage(c, sid){
+  const msgs=$("msgs");
+  const timeIso=new Date().toISOString();
+  const wrap=document.createElement("div");
+  wrap.className="msgrow bot";
+  const av=avatarFor("AION","bot");
+  wrap.innerHTML=`<div class="avatar" style="background:${av.color}">${av.svg}</div>`;
+  const body=document.createElement("div");
+  body.className="msgbody";
+  const meta=document.createElement("div");
+  meta.className="msgmeta";
+  const ns=document.createElement("span"); ns.className="msgname"; ns.textContent=I18N[lang].botName||"智能客服";
+  const ts=document.createElement("span"); ts.className="msgtime"; ts.textContent=fmtTime(timeIso);
+  meta.appendChild(ns); meta.appendChild(ts);
+  body.appendChild(meta);
+  const bubble=document.createElement("div");
+  bubble.className="msg bot lead-msg";
+  if(c.type==="lead_input")      bubble.appendChild(renderLeadInputCard(c, sid));
+  else if(c.type==="lead_confirm") bubble.appendChild(renderLeadConfirmCard(c, sid));
+  body.appendChild(bubble);
+  wrap.appendChild(body);
+  msgs.appendChild(wrap);
+  msgs.scrollTop=msgs.scrollHeight;
+  return wrap;
+}
 // card schema 见 csapp/components.py (4 语言标签)
 function renderLeadInputCard(c, sid){
   const wrap=document.createElement("div"); wrap.className="lead-card"; wrap.dataset.cardId=c.id||("lc-"+Date.now());
@@ -416,12 +444,9 @@ async function send(q){
     }
     if(cap.length)html+='<div class="cap">'+cap.join(' &nbsp; ')+'</div>';
     tk.innerHTML=html;
-    // ----- Lead Card 渲染 -----
+    // ----- Lead Card 作为独立消息(头像+时间+气泡,同其他 bot 消息格式) -----
     if(Array.isArray(d.components)&&d.components.length){
-      d.components.forEach(c=>{
-        if(c&&c.type==="lead_input") tkWrap.appendChild(renderLeadInputCard(c, sessionId));
-        else if(c&&c.type==="lead_confirm") tkWrap.appendChild(renderLeadConfirmCard(c, sessionId));
-      });
+      d.components.forEach(c=>{ if(c) appendLeadCardMessage(c, sessionId); });
     }
     // 刷新时间(用本地时间,与 meta 里的一致)
     const tEl=tkWrap.querySelector(".msgtime");
