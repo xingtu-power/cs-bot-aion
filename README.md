@@ -139,3 +139,4 @@ cs-bot-aion/
 - 业务落库于 `data/kd.db`(SQLite)；会话状态存 `data/sessions/`（运行时生成，不入库）。
 - 生产可换用 FastAPI 版（`csapp/api.py`，需 `pip install fastapi uvicorn`）。
 - **部署到阿里云(ECS/轻量)**：见 [`deploy/README.md`](deploy/README.md)（Docker Compose 或 systemd 两种方式，含 .env/模型下载/安全组/运维指南）。
+- **线上发版(先灰度后切换)**：在云服务器 `git pull` 后用 `./deploy/onekey-deploy.sh --test` 起并行测试容器（`csbot-test`，独立数据卷、不动线上），测 OK 再重跑 `./deploy/onekey-deploy.sh` 替换线上；旧镜像自动留 `cs-bot-aion:prev` 可秒回滚（详见 deploy/README「A7」）。

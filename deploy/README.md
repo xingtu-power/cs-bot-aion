@@ -131,6 +131,35 @@ docker volume ls                            # 卷:data / emb_cache / hf_cache
 > 首次启动若因模型下载中断(restart 策略会自动重试),`tools/emb_cache` 卷已持久化,断点续传。
 > 想彻底重来: `docker compose down -v`(会清空数据+模型缓存,慎用)。
 
+### A7. 灰度测试(--test)与切换/回滚
+
+> 适用:线上已是旧镜像,想先部署一个**最新代码的并行测试容器**,测 OK 再替换线上。
+
+```bash
+cd cs-bot-aion && git pull                       # 拉到 main 最新代码
+
+# 1) 并行灰度测试(构建最新镜像,起 csbot-test :8001,独立数据卷,复用模型缓存卷)
+#    线上 csbot 完全不受影响;--admin-token 为分析台 /admin 口令(可选)
+./deploy/onekey-deploy.sh --test --admin-token '你的token'
+#    验证: http://<公网IP>:8001/  与  /admin(X-Admin-Token); curl http://127.0.0.1:8001/health
+
+# 2) 测试 OK → 把线上容器换成最新代码(镜像已就绪,本次只替换 csbot)
+./deploy/onekey-deploy.sh --admin-token '你的token'
+#    或手动: docker compose -f deploy/docker-compose.yml up -d --build
+#    清理测试容器(可选): docker rm -f csbot-test
+
+# 回滚(任一模式构建前都会把旧镜像存为 cs-bot-aion:prev)
+docker tag cs-bot-aion:prev cs-bot-aion:latest \
+  && docker compose -f deploy/docker-compose.yml up -d --force-recreate
+```
+
+`--test` 可选参数:`--test-port PORT`(默认 8001)、`--test-name NAME`(默认 csbot-test)、
+`--test` 使用独立数据卷 `csbot_test_data`,不会读/写线上 `cs-bot-aion_data`,也绝不停删线上容器;
+如需为线上用户持续保留灰度环境,给测试端口在安全组放行即可。
+CSAPP_ADMIN_TOKEN 已由 compose/脚本透传;不设则 /admin 仅本机回环可访问。
+
+> 方式 B(离线 tar.gz)同样支持并行:见下文 `load-and-run.sh` 的 `--container/-p/--data-volume`。
+
 ---
 
 ## 方式 B:本机构建镜像 → 上传 → 云上直接跑(无需在云上 clone)
