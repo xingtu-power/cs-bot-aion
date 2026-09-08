@@ -19,6 +19,10 @@ services:
       # 必填:DeepSeek API Key(缺失则 compose up 直接报错提示)
       DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:?请在 deploy/.env 中配置 DEEPSEEK_API_KEY}
       CSAPP_LLM_MODE: ${CSAPP_LLM_MODE:-deepseek}
+      # 内部效果分析台 /admin 口令(留空 = 仅本机回环可访问)
+      CSAPP_ADMIN_TOKEN: ${CSAPP_ADMIN_TOKEN:-}
+      # 分析库 data/analytics.db 保留天数(默认 180)
+      CSAPP_ANALYTICS_RETENTION_DAYS: ${CSAPP_ANALYTICS_RETENTION_DAYS:-180}
       # 模型下载源:国内用 hf-mirror(默认);海外 ECS 建议 https://huggingface.co
       HF_ENDPOINT: ${HF_ENDPOINT:-https://hf-mirror.com}
       TZ: ${TZ:-Asia/Shanghai}
