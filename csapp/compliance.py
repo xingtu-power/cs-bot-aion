@@ -10,21 +10,21 @@ CONSENT_VERSION = "v1"
 
 # 合规披露(按市场语言;骨架以 en/th 覆盖)
 CONSENT_TEXT = {
-    "AU": {"en": "By sending a contact, you agree that AION / GAC may contact you about your enquiry. "
+    "AU": {"en": "By sending a contact, you agree that GAC Group may contact you about your enquiry. "
                  "We handle your details in line with the Australian Privacy Act (APPs).",
-           "th": "ส่งข้อมูลติดต่อถือว่าคุณยินยอมให้ AION / GAC ติดต่อเกี่ยวกับการสอบถามของคุณ "
+           "th": "ส่งข้อมูลติดต่อถือว่าคุณยินยอมให้ GAC Group ติดต่อเกี่ยวกับการสอบถามของคุณ "
                  "เราจัดการข้อมูลตามพรบ.คุ้มครองข้อมูลส่วนบุคคล (PDPA)",
-           "es": "Al enviar un contacto, acepta que AION / GAC pueda contactarle sobre su consulta. "
+           "es": "Al enviar un contacto, acepta que GAC Group pueda contactarle sobre su consulta. "
                  "Tratamos sus datos conforme a la Ley de Privacidad australiana (APPs).",
-           "zh": "提交联系方式即表示您同意 AION / 广汽（GAC）就您的咨询与您联系。"
+           "zh": "提交联系方式即表示您同意广汽集团（GAC Group）就您的咨询与您联系。"
                  "我们将依照《澳大利亚隐私法》(APPs) 处理您的个人信息。"},
-    "THA": {"en": "By sending a contact, you agree that AION / GAC may contact you about your enquiry. "
+    "THA": {"en": "By sending a contact, you agree that GAC Group may contact you about your enquiry. "
                   "We handle your details in line with the Personal Data Protection Act (PDPA).",
-            "th": "ส่งข้อมูลติดต่อถือว่าคุณยินยอมให้ AION / GAC ติดต่อเกี่ยวกับการสอบถามของคุณ "
+            "th": "ส่งข้อมูลติดต่อถือว่าคุณยินยอมให้ GAC Group ติดต่อเกี่ยวกับการสอบถามของคุณ "
                   "เราจัดการข้อมูลตามพรบ.คุ้มครองข้อมูลส่วนบุคคล (PDPA)",
-            "es": "Al enviar un contacto, acepta que AION / GAC pueda contactarle sobre su consulta. "
+            "es": "Al enviar un contacto, acepta que GAC Group pueda contactarle sobre su consulta. "
                   "Tratamos sus datos conforme a la Ley de Protección de Datos Personales (PDPA).",
-            "zh": "提交联系方式即表示您同意 AION / 广汽（GAC）就您的咨询与您联系。"
+            "zh": "提交联系方式即表示您同意广汽集团（GAC Group）就您的咨询与您联系。"
                   "我们将依照《个人数据保护法》(PDPA) 处理您的个人信息。"},
 }
 
@@ -131,7 +131,7 @@ def is_vague_reply(text):
 # ---------------- 车型信息防臆造(非 UT 车型) ----------------
 # 知识库里除 AION UT 外,其它车型只有用户提供的清单信息;功率/扭矩/电池容量/马力等详细参数一律没有。
 # 若回复把这类参数写给非 UT 车型 -> 该句强制替换为"暂无确切信息,建议联系授权经销商/官方热线核实"。
-_NON_UT_RE = re.compile(r"(AION\s+Y\s*Plus|AION\s*RT|AION\s*N60|AION\s*V\b|昊铂\s*GT|昊铂\s*HL|AION\s*LX|Hyper\s*GT|Hyper\s*HL)", re.I)
+_NON_UT_RE = re.compile(r"(AION\s+Y\s*Plus|AION\s*RT|AION\s*N60|AION\s*V\b|昊铂\s*GT|昊铂\s*HL|AION\s*LX|HYPTEC\s*GT|HYPTEC\s*HL)", re.I)
 _FAB_SPEC_RE = re.compile(r"\d+(?:\.\d+)?\s*(?:kw|kw\b|马力|n·m|nm\b|牛·米|kwh\b|度\b|扭矩|功率)", re.I)
 # Phase 4.1: 多语言化 —— 非 UT 车型出现详细参数时按用户语言替换
 _FAB_REPL = {
