@@ -111,12 +111,13 @@ GAC（广汽国际）= parent brand（母品牌/母公司）
 
 ## 6. 实施清单（每个子项单独 commit，便于 revert）
 
-- [ ] **子项 1**：`llm.py` 品牌结构纠正（165/183 行，三品牌并列 + HYPTEC）
-- [ ] **子项 2**：`kb.py` `_MODEL_LINEUP` 标题纠正（三品牌 + HYPTEC）
-- [ ] **子项 3**：`talk_scripts.json` + `cards.py` 兜底「other」卡自我介绍纠正
-- [ ] **子项 4**：（条件）`compliance.py:134` `_NON_UT_RE` 补传祺车型（仅当 D1=A）
-- [ ] **子项 5**：（条件）传祺车型清单入库 `_MODEL_LINEUP`（仅当 D1=A，依赖用户提供数据）
-- [ ] **子项 6**：竞品清单回归验证 + 评测集跑通
+- [x] **子项 1**：`llm.py` 品牌结构纠正（165/183 行 + classify/answer 旧接口，三品牌并列 + HYPTEC）
+- [x] **子项 2**：`kb.py` `_MODEL_LINEUP` 标题纠正（三品牌 + HYPTEC）
+- [x] **子项 3**：`talk_scripts.json` + `cards.py` 兜底「other」卡自我介绍纠正
+- [x] **子项 3.5（回归补充）**：`compliance.py` 同意条款（AION/GAC→GAC Group）+ 防臆造正则 `_NON_UT_RE`（Hyper→HYPTEC）+ `static/index.html` 四语言问候语 + `README.md` 同步
+- [ ] **子项 4**：（条件）`compliance.py:134` `_NON_UT_RE` 补传祺车型（待传祺车型数据）
+- [ ] **子项 5**：（条件）传祺车型清单入库 `_MODEL_LINEUP`（待用户提供数据）
+- [x] **子项 6**：竞品清单回归验证（✅ 传祺/HYPTEC 未被误伤；评测集跑通待 numpy 就绪）
 
 > 子项 1-3 是核心（必做）；子项 4-5 依赖 D1 决策与外部数据；子项 6 收尾。
 
@@ -151,5 +152,7 @@ GAC（广汽国际）= parent brand（母品牌/母公司）
 - [x] D1 已拍板：**A. 3 品牌全量推荐**（2026-09-08）
 - [x] D2 自我介绍口径：随 A，采用「广汽集团旗下传祺/AION/昊铂三大品牌」口径
 - [x] D3 昊铂英文：Hyper → HYPTEC
-- [ ] 传祺海外车型清单（外部数据，待用户提供）
-- [ ] 拉分支 → 按实施清单逐项落地
+- [x] 子项 1-3 + 3.5（品牌结构纠正 + 遗漏修正）已落地 commit（分支 `feat/brand-structure-fix`）
+- [x] 子项 6 竞品回归验证通过
+- [ ] 传祺海外车型清单（外部数据，待用户提供 → 子项 4-5）
+- [ ] 意图评测冒烟（待 numpy 就绪后跑 `tools/eval_intent_ml.py`）
