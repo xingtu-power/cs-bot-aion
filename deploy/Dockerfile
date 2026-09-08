@@ -27,7 +27,8 @@ RUN pip install --no-cache-dir --index-url ${PIP_INDEX_URL} -r requirements.txt
 # 模型执行 chown -R 而产生额外的镜像层 copy-up。
 RUN useradd --create-home --uid 1000 app \
     && chown app:app /app \
-    && install -d -o app -g app /app/data/sessions /app/tools/emb_cache /app/tools/hf_cache
+    && install -d -o app -g app /app/data/sessions /app/tools/emb_cache /app/tools/hf_cache \
+    && chown app:app /app/data
 
 USER app
 
