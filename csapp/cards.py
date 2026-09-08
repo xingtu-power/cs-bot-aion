@@ -86,7 +86,7 @@ _DEFAULT_CARD = {
          "expect": "contact", "goal": True},
     ],
     "other": [
-        {"desc": "Greet, introduce yourself as the GAC assistant (AION / Hyper are GAC sub-brands), and guide the customer into a topic with a friendly menu of options (specs / dealers / usage / after-sales / emergency). Do not force sales.",
+        {"desc": "Greet, introduce yourself as the GAC Group (广汽集团) assistant serving three brands — GAC Motor (传祺/Trumpchi), AION (埃安), and HYPTEC (昊铂) — and guide the customer into a topic with a friendly menu of options (specs / dealers / usage / after-sales / emergency). Do not force sales.",
          "expect": "none", "advance": 0},
     ],
 }
