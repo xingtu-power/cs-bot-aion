@@ -74,6 +74,11 @@ cp .env.example .env
 vim .env        # 至少填 DEEPSEEK_API_KEY=sk-xxx
 ```
 
+> **内部效果分析台 /admin**(只读):同进程独立页面,与访客聊天窗隔离(无入口)。
+> 仅本机/内网使用可不设口令(默认放行 127.0.0.1/::1);若公网/多机访问,
+> 在 `.env` 设置 `CSAPP_ADMIN_TOKEN=xxx`,访问 `/admin` 与 `/api/v1/admin/*` 时请求头带 `X-Admin-Token`。
+> 每轮咨询的 Trace 落在 `data/analytics.db`(默认保留 180 天,可用 `CSAPP_ANALYTICS_RETENTION_DAYS` 调整)。
+
 国内 ECS 建议同时在 `.env` 打开两行加速(去 #):
 
 ```

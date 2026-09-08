@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>咨询效果分析台 · 内部只读</title>
+<style>
+:root{--bg:#0d1117;--card:#161c26;--card2:#1c2430;--line:#2a3442;--txt:#e6edf3;--mut:#8b98a9;
+      --acc:#4da3ff;--ok:#3fb68b;--warn:#e5a93d;--bad:#e5534b;--violet:#b48bf2;
+      --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.55 -apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif}
+header{display:flex;align-items:center;gap:14px;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--card);position:sticky;top:0;z-index:5;flex-wrap:wrap}
+.logo{font-weight:800;font-size:17px;letter-spacing:.3px}
+.logo b{color:var(--acc)}
+.tag{font-size:11px;color:#ffb3ad;border:1px solid #6b2a26;background:#2b1513;border-radius:999px;padding:1px 9px}
+.sub{font-size:11px;color:var(--mut)}
+.spacer{flex:1}
+button{background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:5px 11px;font-size:12.5px;cursor:pointer;font-family:inherit}
+button:hover{border-color:var(--acc);color:#fff}
+button.primary{background:#1f4f86;border-color:#2f6fb0}
+input,select{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:7px;padding:5px 8px;font-size:12.5px;font-family:inherit;outline:0}
+input:focus,select:focus{border-color:var(--acc)}
+input[type=date]{color-scheme:dark}
+.tabs{display:flex;gap:4px}
+.tabs button{font-size:13px;padding:6px 14px}
+.tabs button.on{background:#1f4f86;border-color:#2f6fb0;font-weight:700}
+.wrap{padding:16px 18px 60px;max-width:1500px;margin:0 auto}
+.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:14px}
+.filters label{font-size:11px;color:var(--mut);margin-right:-3px}
+.filters select{max-width:140px}
+.qin{min-width:220px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.kpi .v{font-size:22px;font-weight:800;line-height:1.2}
+.kpi .k{font-size:11px;color:var(--mut);margin-top:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:1100px){.grid2{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+.panel h3{margin:0 0 10px;font-size:13px;color:#c9d6e4;text-transform:uppercase;letter-spacing:.4px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;color:var(--mut);font-weight:600;border-bottom:1px solid var(--line);padding:6px 8px;white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid #202a36;vertical-align:top}
+tr.clickable{cursor:pointer}
+tr.clickable:hover td{background:#1a2430}
+.mono{font-family:var(--mono);font-size:11.5px}
+.chip{display:inline-block;font-size:10.5px;border-radius:999px;padding:1px 8px;margin:1px 3px 1px 0;border:1px solid transparent;white-space:nowrap}
+.chip.gray{background:#243042;color:#9fb2c6}
+.chip.ok{background:#123528;color:#53d6a6;border-color:#1d5b42}
+.chip.bad{background:#3a1614;color:#ff8f87;border-color:#7c2b25}
+.chip.warn{background:#3a2c0e;color:#f2c14e;border-color:#6b5416}
+.chip.vio{background:#2c1f42;color:#c7a6ff;border-color:#5b3d8f}
+.bars .bar{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:12px}
+.bars .bt{min-width:70px;color:#cdd8e4}
+.bars .bf{background:var(--card2);border-radius:6px;height:14px;flex:1;overflow:hidden}
+.bars .bi{height:100%;border-radius:6px}
+.gaprow{display:flex;gap:8px;align-items:baseline;padding:6px 0;border-bottom:1px dashed #233041;font-size:12.5px}
+.gaprow .n{font-size:16px;font-weight:800;color:var(--warn);min-width:34px;text-align:right}
+.gaprow .msg{flex:1;color:#dfe8f2}
+/* 会话列表 */
+.sess-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:12px;color:var(--mut)}
+.pager{display:flex;gap:8px;align-items:center}
+/* 会话详情 */
+.back{font-size:12.5px;color:var(--acc);cursor:pointer;background:none;border:0;padding:0;margin-bottom:8px}
+.sesshead{display:flex;flex-wrap:wrap;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:13px}
+.sesshead .it b{display:block;font-size:11px;color:var(--mut);font-weight:600;margin-bottom:2px}
+.transcript{max-width:980px;margin:0 auto}
+.row{display:flex;gap:10px;margin-bottom:12px;align-items:flex-start}
+.row.user{flex-direction:row-reverse}
+.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;color:#0d1117}
+.av.u{background:#6b7b8f}.av.b{background:var(--acc);color:#fff}
+.bub{max-width:78%;min-width:0;border-radius:12px;padding:8px 12px;font-size:13px;white-space:pre-wrap;word-break:break-word}
+.row.user .bub{background:#1f3a5c;color:#eaf3ff;border-top-right-radius:3px}
+.row.bot .bub{background:var(--card2);border:1px solid var(--line);border-top-left-radius:3px}
+.meta{font-size:10.5px;color:var(--mut);margin:2px 4px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;max-width:78%}
+.traceBtn{font-size:11px;color:var(--acc);background:none;border:1px dashed #2f4a6b;border-radius:6px;padding:2px 8px;cursor:pointer;margin-top:4px}
+.traceBtn:hover{border-color:var(--acc)}
+.trace{background:#10161f;border:1px solid #27313f;border-radius:10px;padding:8px 6px 4px;margin:6px 0 4px}
+.tstep{display:flex;gap:8px;align-items:flex-start;padding:4px 8px;border-left:2px solid #2a3442}
+.tstep .tname{min-width:92px;font-size:11.5px;color:#9fb2c6;font-weight:700;flex-shrink:0;padding-top:1px}
+.tstep .tms{min-width:52px;text-align:right;font-family:var(--mono);font-size:10.5px;color:#5f7188;flex-shrink:0}
+.tstep .tdet{flex:1;min-width:0;font-size:12px;color:#c9d5e3}
+.tstep details summary{cursor:pointer;color:var(--acc);font-size:11px;margin-top:2px}
+pre{background:#0a0f16;border:1px solid #233041;border-radius:6px;padding:8px;overflow:auto;font-size:11px;color:#b9cddf;white-space:pre-wrap;word-break:break-all;max-height:340px}
+.empty{color:var(--mut);text-align:center;padding:40px 10px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#2a3442;border:1px solid #3d4c60;color:#fff;border-radius:8px;padding:8px 16px;font-size:13px;z-index:60;display:none}
+/* 登录遮罩 */
+.cover{position:fixed;inset:0;background:rgba(5,8,12,.82);display:none;align-items:center;justify-content:center;z-index:50}
+.cover.on{display:flex}
+.login{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:26px;width:340px;text-align:center}
+.login input{width:100%;margin:12px 0}
+.hl{color:var(--warn)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">咨询<b>效果分析台</b></div>
+  <span class="tag">内部 · 只读</span>
+  <span class="sub" id="hostTag"></span>
+  <div class="spacer"></div>
+  <div class="tabs" id="tabs">
+    <button data-v="overview" class="on">概览</button>
+    <button data-v="sessions">会话检索</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="filters" id="filters">
+    <label>范围</label>
+    <select id="fRange">
+      <option value="7">近 7 天</option>
+      <option value="1">今天</option>
+      <option value="30">近 30 天</option>
+      <option value="0">全部</option>
+      <option value="c">自定义</option>
+    </select>
+    <span id="customDates" style="display:none">
+      <input type="date" id="fFrom"> ~ <input type="date" id="fTo">
+    </span>
+    <label>市场</label><select id="fMarket"><option value="">全部</option></select>
+    <label>语言</label>
+    <select id="fLang"><option value="">全部</option>
+      <option>en</option><option>zh</option><option>th</option><option>es</option>
+    </select>
+    <label>意图</label>
+    <select id="fIntent"><option value="">全部</option>
+      <option>product-inquiry</option><option>dealer-lookup</option><option>usage-guide</option>
+      <option>after-sales</option><option>emergency</option><option>other</option>
+    </select>
+    <label>问题信号</label>
+    <select id="fIssue"><option value="">全部</option></select>
+    <label>结束</label>
+    <select id="fEnded"><option value="">全部</option><option value="1">已结束</option><option value="0">进行中</option></select>
+    <input class="qin" id="fQ" placeholder="搜索用户/AI 消息文本…">
+    <button class="primary" onclick="reloadAll()">查询</button>
+    <button onclick="resetFilters()">重置</button>
+    <div class="spacer"></div>
+    <button id="exportBtn" onclick="exportCSV()">导出 CSV</button>
+  </div>
+
+  <div id="v-overview"></div>
+  <div id="v-sessions" style="display:none"></div>
+  <div id="v-detail" style="display:none"></div>
+</div>
+
+<div class="cover" id="cover">
+  <div class="login">
+    <div style="font-size:16px;font-weight:800">需要管理口令</div>
+    <div style="font-size:12px;color:var(--mut);margin-top:6px">分析台仅限内部使用，请输入 <span class="hl">CSAPP_ADMIN_TOKEN</span>（若未配置且从本机访问，可留空直接进入）</div>
+    <input id="tokIn" type="password" placeholder="Admin token">
+    <button class="primary" style="width:100%" onclick="tryLogin()">进入</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const TOKEN_KEY="cs_admin_tok";
+const ISSUE_LABEL={
+  llm_failed:["模型调用失败","bad"],llm_retry:["模型重试","warn"],llm_parse_fail:["LLM 输出解析失败","bad"],
+  empty_reply:["空回复被兜底","warn"],knowledge_gap:["知识缺失·兜底留资","warn"],vague_reply:["空泛反问已重试","warn"],
+  clarify_loop:["澄清循环","warn"],user_repeat:["用户重复追问","warn"],escalated:["转人工","vio"],
+  guard_injection:["注入攻击拦截","bad"],guard_competitor:["竞品内容拦截","warn"],guard_output_filter:["输出过滤拦截","warn"],
+  guard_model_facts:["车型事实护栏纠错","warn"],slow:["慢回复","bad"],no_progress:["无进展结束","warn"]};
+const MARKET_OPT=["AU","THA","CN","ES","FR","MY","ID","IN","US","DE","VN"];
+const state={tab:"overview",page:1,sessionId:null};
+
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",2600);}
+function issueChip(code){const [lb,cl]=ISSUE_LABEL[code]||[code,"gray"];return `<span class="chip ${cl}">${esc(lb)}</span>`;}
+async function api(path){
+  const r=await fetch(path,{headers:{"X-Admin-Token":sessionStorage.getItem(TOKEN_KEY)||""}});
+  if(r.status===403){showLogin();throw new Error("auth");}
+  if(r.status===404)return null;
+  if(!r.ok){let m="";try{m=(await r.json()).error||r.status}catch(e){m=r.status}throw new Error(m);}
+  return r.json();
+}
+function showLogin(){$("cover").classList.add("on");}
+function tryLogin(){sessionStorage.setItem(TOKEN_KEY,$("tokIn").value.trim());$("cover").classList.remove("on");reloadAll();}
+$("tokIn").addEventListener("keydown",e=>{if(e.key==="Enter")tryLogin();});
+
+/* ---------- 时间/筛选 ---------- */
+function rangeDays(){
+  const v=$("fRange").value;
+  if(v==="c")return null;
+  const n=parseInt(v,10);
+  const now=new Date();
+  if(n===0)return {from:"",to:""};
+  const from=new Date(now.getTime()-n*86400000);
+  return {from:from.toISOString(),to:now.toISOString()};
+}
+function filtersObj(){
+  const r=rangeDays();let from=r?r.from:null,to=r?r.to:null;
+  if($("fRange").value==="c"){from=$("fFrom").value?new Date($("fFrom").value+"T00:00:00Z").toISOString():"";to=$("fTo").value?new Date($("fTo").value+"T23:59:59Z").toISOString():"";}
+  const o={market:$("fMarket").value,lang:$("fLang").value,intent:$("fIntent").value,
+           issue:$("fIssue").value,ended:$("fEnded").value,q:$("fQ").value.trim()};
+  if(from)o.from=from;if(to)o.to=to;
+  return o;
+}
+function qs(o){return Object.keys(o).filter(k=>o[k]).map(k=>k+"="+encodeURIComponent(o[k])).join("&");}
+function setTab(t){
+  state.tab=t;
+  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===t));
+  $("v-overview").style.display=t==="overview"?"":"none";
+  $("v-sessions").style.display=t==="sessions"?"":"none";
+  $("v-detail").style.display=t==="detail"?"":"none";
+  if(t==="overview")loadSummary();
+  else if(t==="sessions")loadSessions(1);
+}
+document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>setTab(b.dataset.v));
+function reloadAll(){if(state.tab==="detail"&&state.sessionId)openSession(state.sessionId);else setTab(state.tab);}
+function resetFilters(){
+  ["fRange","fMarket","fLang","fIntent","fIssue","fEnded","fQ"].forEach(id=>$(id).value="");
+  $("fRange").value="7";$("customDates").style.display="none";state.page=1;reloadAll();
+}
+$("fRange").addEventListener("change",()=>{$("customDates").style.display=$("fRange").value==="c"?"":"none";});
+
+/* ---------- 概览 ---------- */
+async function loadSummary(){
+  try{
+    const d=await api("/api/v1/admin/summary?"+qs(filtersObj()));
+    renderSummary(d.summary);
+  }catch(e){ if(e.message!=="auth")toast("概览加载失败: "+e.message); }
+}
+function fmtDate(v){return new Date(v).toLocaleDateString("zh-CN",{month:"numeric",day:"numeric"});}
+function renderSummary(s){
+  const kpis=[["会话数",s.sessions],["消息轮数",s.turns],["已结束",s.sessionsEnded],["解决(goal)",s.resolvedSessions],
+    ["留资会话",s.leadSessions],["转人工",s.escalatedSessions],["平均轮数",s.avgRounds],["平均情绪",s.avgEmotion],
+    ["平均延迟(ms)",s.avgLatencyMs],["P50(ms)",s.latencyP50],["P95(ms)",s.latencyP95],["慢回复(≥8s)",s.slowTurns]];
+  let h='<div class="kpis">'+kpis.map(([k,v])=>`<div class="kpi"><div class="v">${v}</div><div class="k">${esc(k)}</div></div>`).join("")+'</div>';
+  h+='<div class="grid2">';
+  /* 问题信号分布 */
+  const iss=Object.entries(s.issues||{}).filter(([,n])=>n>0).sort((a,b)=>b[1]-a[1]);
+  h+='<div class="panel"><h3>问题信号分布(点击下钻到会话检索)</h3>';
+  if(!iss.length){h+='<div class="empty">该范围内无命中信号 ✨</div>';}
+  else{
+    h+='<div class="bars">';
+    const max=iss[0][1]||1;
+    iss.forEach(([code,n])=>{
+      const [lb,cl]=ISSUE_LABEL[code]||[code,"gray"];
+      h+=`<div class="bar" style="cursor:pointer" onclick="drillIssue('${code}')">
+        <span class="bt">${esc(lb)} <b style="color:var(--txt)">${n}</b></span>
+        <div class="bf"><div class="bi" style="width:${Math.round(n/max*100)}%;background:${cl==="bad"?"#e5534b":cl==="vio"?"#b48bf2":cl==="warn"?"#e5a93d":"#4da3ff"}"></div></div></div>`;
+    });
+    h+='</div>';
+  }
+  h+='</div>';
+  /* Top 知识缺口 */
+  h+='<div class="panel"><h3>Top 知识缺口(答不上来的问题 → 补 KB/FAQ 依据)</h3>';
+  if(!(s.topGaps||[]).length){h+='<div class="empty">该范围内无知识缺失命中</div>';}
+  else{
+    (s.topGaps||[]).forEach(g=>{
+      h+=`<div class="gaprow"><span class="n">${g.n}</span>
+        <div><span class="chip gray">${esc(g.intent||"?")}</span> ${esc(g.m||"")}</div></div>`;
+    });
+  }
+  h+='</div></div>';
+  /* 结束原因分布 */
+  h+='<div class="panel"><h3>结束原因分布</h3><div class="bars">';
+  const er=s.endReasons||[];
+  if(!er.length)h+='<div class="empty">暂无已结束会话</div>';
+  else{
+    const max2=er[0].n||1;
+    er.forEach(r=>{
+      const col=r.r==="goal"?"#3fb68b":r.r==="escalated"?"#b48bf2":r.r==="no_progress"?"#e5a93d":"#6b7b8f";
+      h+=`<div class="bar"><span class="bt">${esc(r.r||"?")}</span>
+        <div class="bf"><div class="bi" style="width:${Math.round(r.n/max2*100)}%;background:${col}"></div></div>
+        <span class="mono" style="color:var(--mut)">${r.n}</span></div>`;
+    });
+  }
+  h+='</div></div>';
+  $("v-overview").innerHTML=h;
+}
+function drillIssue(code){$("fIssue").value=code;setTab("sessions");}
+
+/* ---------- 会话列表 ---------- */
+async function loadSessions(page){
+  state.page=page||1;
+  const o=filtersObj();o.page=state.page;o.size=20;
+  try{
+    const d=await api("/api/v1/admin/sessions?"+qs(o));
+    renderSessions(d);
+  }catch(e){ if(e.message!=="auth")toast("会话列表加载失败: "+e.message); }
+}
+function renderSessions(d){
+  const rows=(d.sessions||[]);
+  let h='<div class="panel"><div class="sess-title"><span>共 '+d.total+' 个会话 · 第 '+d.page+'/'+(Math.ceil(d.total/d.size)||1)+' 页</span>';
+  h+='<span class="pager"><button onclick="loadSessions('+(state.page-1)+')" '+(state.page<=1?"disabled":"")+'>‹ 上一页</button><button onclick="loadSessions('+(state.page+1)+')" '+(state.page*d.size>=d.total?"disabled":"")+'>下一页 ›</button></span></div>';
+  if(!rows.length){h+='<div class="empty">没有匹配的会话</div></div>';$("v-sessions").innerHTML=h;return;}
+  h+='<table><tr><th>时间</th><th>会话</th><th>市场/语言</th><th>意图</th><th>轮数</th><th>结果</th><th>问题信号</th><th>最近消息</th></tr>';
+  rows.forEach(s=>{
+    const when=new Date(s.updated_ts*1000).toLocaleString("zh-CN",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
+    let res="";
+    if(s.ended_reason)res+=`<span class="chip gray">${esc(s.ended_reason)}</span>`;
+    if(s.resolved)res+=`<span class="chip ok">解决</span>`;
+    if(s.lead_captured)res+=`<span class="chip ok">留资</span>`;
+    if(s.escalated)res+=`<span class="chip vio">转人工</span>`;
+    if(!s.ended_reason)res+=`<span class="chip gray">进行中</span>`;
+    const issueChips=(s.issues||[]).slice(0,4).map(issueChip).join("");
+    h+=`<tr class="clickable" onclick="openSession('${esc(s.session_id)}')">
+      <td class="mono" style="white-space:nowrap">${when}</td>
+      <td class="mono">${esc((s.session_id||"").slice(-14))}</td>
+      <td>${esc(s.market||"-")} / ${esc(s.language||"-")}</td>
+      <td>${esc(s.intent_main||"-")}</td>
+      <td>${s.total_rounds}</td><td>${res}</td>
+      <td style="max-width:320px">${issueChips}</td>
+      <td style="max-width:240px;color:var(--mut)">${esc(s.last_reply||s.first_msg||"")}</td></tr>`;
+  });
+  h+='</table></div>';
+  $("v-sessions").innerHTML=h;
+}
+
+/* ---------- 会话详情 ---------- */
+async function openSession(id){
+  state.sessionId=id;setTab("detail");
+  try{
+    const d=await api("/api/v1/admin/session?sessionId="+encodeURIComponent(id));
+    if(!d)return toast("会话不存在(可能已被清理)");
+    renderDetail(d.session,d.turns);
+  }catch(e){ if(e.message!=="auth")toast("详情加载失败: "+e.message); }
+}
+function renderDetail(s,turns){
+  const ended=(s.ended_reason||"进行中");
+  let h=`<div style="max-width:1020px;margin:0 auto">
+    <button class="back" onclick="setTab('sessions')">← 返回会话列表</button>
+    <div class="sesshead">
+      <div class="it"><b>会话</b><span class="mono">${esc(s.session_id)}</span></div>
+      <div class="it"><b>用户</b><span class="mono">${esc(s.user_hash||"-")}</span></div>
+      <div class="it"><b>市场/语言</b>${esc(s.market||"-")} / ${esc(s.language||"-")}</div>
+      <div class="it"><b>主意图</b>${esc(s.intent_main||"-")}</div>
+      <div class="it"><b>轮数</b>${s.total_rounds}</div>
+      <div class="it"><b>结束</b>${esc(ended)}</div>
+      <div class="it"><b>留资</b>${s.lead_captured?"✓":"—"}</div>
+      <div class="it"><b>转人工</b>${s.escalated?"✓":"—"}</div>
+      <div class="it"><b>情绪分</b>${s.avg_emotion}</div>
+      <div class="it"><b>开始</b>${new Date(s.created_ts*1000).toLocaleString("zh-CN")}</div>
+    </div>
+    <div class="transcript">`;
+  turns.forEach((t,idx)=>{
+    const issues=(t.issues||[]);
+    const tr=t.trace||{};
+    const steps=tr.steps||[];
+    const llm=tr.llm||{};
+    h+=`<div style="font-size:11px;color:#5f7188;margin:14px 0 4px" class="mono">#${idx+1} · ${esc(t.t||"")} ${issues.length?'· '+issues.map(issueChip).join(""):""}</div>`;
+    if(t.user_msg)h+=`<div class="row user"><div class="av u">U</div><div class="bub">${esc(t.user_msg)}</div></div>`;
+    if(t.bot_reply)h+=`<div class="row bot"><div class="av b">AI</div><div><div class="bub">${esc(t.bot_reply)}</div>
+      <div class="meta">
+        <span>intent: ${esc(t.intent||"-")}</span>
+        <span>${t.latency_ms!=null?t.latency_ms+"ms":""}</span>
+        <span>market: ${esc(t.market||"-")}</span>
+        ${(tr.outcome&&tr.outcome.citationCount)?`<span>引用×${tr.outcome.citationCount}</span>`:""}
+        <button class="traceBtn" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none'">查看 Trace ▸</button>
+      </div>
+      <div class="trace" style="display:none">`;
+    h+=renderTrace(steps,llm,tr,idx);
+    h+=`</div></div></div>`;
+  });
+  h+='</div></div>';
+  $("v-detail").innerHTML=h;
+}
+const STAGE_LABEL={lang:"语言检测",market:"市场路由",injection:"注入检测",rag:"RAG 检索",intent:"意图规整",card:"卡片状态机",end:"结束判定",llm:"LLM 调用"};
+function renderTrace(steps,llm,tr,idx){
+  if(!steps.length&&!llm.rawOutput)return '<div style="font-size:11px;color:#5f7188">(无中间过程记录)</div>';
+  let h='';
+  (steps||[]).forEach(st=>{
+    const nm=STAGE_LABEL[st.stage]||st.stage;
+    const ms=st.ms!=null?`<span class="tms">${st.ms}ms</span>`:"";
+    let det="";
+    const d=st.detail||{};
+    if(st.stage==="lang")det=`检测: <b>${esc(d.detected||"-")}</b> · 回复语言: <b>${esc(d.replyLang||"-")}</b>`;
+    else if(st.stage==="market")det=`市场: <b>${esc(d.market||"-")}</b> · 来源: ${esc(d.source||"-")}`;
+    else if(st.stage==="injection")det=d.hit?'<span style="color:#ff8f87">命中(已拦截)</span>':"未命中";
+    else if(st.stage==="rag"){
+      const docs=(d.docs||[]);
+      det=`命中 ${docs.length} 条知识来源${d.dealer?" · 注入经销商上下文":""}`+
+          (docs.length?": "+docs.slice(0,5).map(x=>`<span class="chip gray">${esc(x.doc||x.page||"?")}${x.page?" P"+x.page:""}</span>`).join(""):"");
+    }
+    else if(st.stage==="intent")det=`LLM 原始: <b>${esc(d.raw)}</b> → 规整: <b>${esc(d.normalized)}</b> · conf ${d.conf}`+
+        ((d.emergencyOverride||d.greetingOverride||d.continuation)?' <span class="chip warn">覆盖:'+(d.continuation?"延续":d.emergencyOverride?"紧急预检":d.greetingOverride?"问候校正":"")+'</span>':"");
+    else if(st.stage==="card")det=`步骤 index: ${d.stepIndex} · advance: ${d.advance?"✓":"—"} · 达成: ${d.targetReached?"✓":"—"} · 转人工确认: ${d.confirmEscalate?"✓":"—"} · 已收集: ${esc(JSON.stringify(d.collected||{}))}`;
+    else if(st.stage==="llm")det=`第 ${d.call||""} 次调用 · ${d.ms?d.ms+"ms":""}`;
+    else det=esc(JSON.stringify(d));
+    h+=`<div class="tstep"><span class="tname">${esc(nm)}</span>${ms}<div class="tdet">${det}</div></div>`;
+  });
+  if(llm&&llm.rawOutput){
+    const flags=[llm.failed?'<span class="chip bad">调用失败</span>':"",llm.parseFail?'<span class="chip bad">解析失败</span>':"",llm.retried?'<span class="chip warn">有重试</span>':"",llm.callCount>1?`<span class="chip gray">共 ${llm.callCount} 次调用</span>`:""].filter(Boolean).join(" ");
+    h+=`<div class="tstep"><span class="tname">LLM 原始输出</span><div class="tdet"><details><summary>展开原始输出(截断${flags})</summary><pre>${esc(llm.rawOutput)}</pre></details></div></div>`;
+  }
+  if(tr&&tr.steps&&tr.steps.some(s=>/^issue:/.test(s.stage||""))){
+    tr.steps.filter(s=>/^issue:/.test(s.stage||"")).forEach(s=>{
+      h+=`<div class="tstep"><span class="tname" style="color:#e5a93d">信号</span><div class="tdet">${issueChip(s.stage.slice(6))} ${esc(JSON.stringify(s.detail||{}))}</div></div>`;
+    });
+  }
+  h+=`<div class="tstep"><span class="tname">终态</span><div class="tdet">${esc(JSON.stringify(tr.outcome||{}))}</div></div>`;
+  return h;
+}
+
+/* ---------- 导出 ---------- */
+async function exportCSV(){
+  const url="/api/v1/admin/export?"+qs(filtersObj());
+  try{
+    const r=await fetch(url,{headers:{"X-Admin-Token":sessionStorage.getItem(TOKEN_KEY)||""}});
+    if(r.status===403){showLogin();return;}
+    const blob=await r.blob();
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);a.download="analytics_export.csv";a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  }catch(e){toast("导出失败: "+e.message);}
+}
+
+/* ---------- 初始化 ---------- */
+function init(){
+  $("hostTag").textContent=location.hostname+" · "+(new Date().toLocaleString());
+  const ms=$("fMarket");
+  MARKET_OPT.forEach(m=>{const o=document.createElement("option");o.value=m;o.textContent=m;ms.appendChild(o);});
+  const is=$("fIssue");
+  Object.keys(ISSUE_LABEL).forEach(code=>{const o=document.createElement("option");o.value=code;o.textContent=ISSUE_LABEL[code][0];is.appendChild(o);});
+  // 探测:先请求一次,403 则弹口令
+  api("/api/v1/admin/summary").then(d=>renderSummary(d.summary)).catch(e=>{if(e.message==="auth"){}else toast("加载失败: "+e.message);});
+  $("fQ").addEventListener("keydown",e=>{if(e.key==="Enter")reloadAll();});
+}
+init();
+</script>
+</body>
+</html>

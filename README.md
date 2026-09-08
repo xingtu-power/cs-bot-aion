@@ -43,6 +43,11 @@
 python -m csapp.server --port 8020
 # 浏览器打开 http://127.0.0.1:8020/  —— 免登录聊天窗,市场下拉 AU/THA/CN/ES/…/auto
 
+# 1.5) 内部效果分析台(独立页面,只读;与聊天页隔离,访客页无入口)
+# 浏览器打开 http://127.0.0.1:8020/admin
+#   —— 概览 KPI + 问题信号分布 + Top 知识缺口 / 会话检索 / 会话详情(对话历史 + 每轮 Trace 时间线)
+#   本机访问默认放行;跨机器/公网访问设 CSAPP_ADMIN_TOKEN=xxx,请求带 X-Admin-Token 头。
+
 # 2) 交互式 CLI(默认 AU 英文)
 python -m csapp.cli --market AU
 

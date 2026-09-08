@@ -5,6 +5,7 @@
 """
 import re, difflib, time
 from . import config, intent as intent_mod, cards as card_mod, compliance, debug, components as comp_mod
+from . import trace
 from .state import StateStore
 from .langdetect import detect_language
 from .market import route_market, market_kb, extract_market
@@ -56,11 +57,30 @@ def _intent_by_choice(message):
 
 
 def chat(session_id=None, message=None, location=None, explicit_market=None, lang_hint=None, user_id=None):
+    """一次对话轮(带旁路 trace 采集)。message 必填。返回响应 dict(与 API 对齐)。
+
+    采集为纯旁路:begin/flush 包裹 _chat,任何 trace 异常都不影响对话结果与返回体。
+    """
+    trace.begin(session_id=session_id, message=message)
+    resp = None
+    try:
+        resp = _chat(session_id=session_id, message=message, location=location,
+                     explicit_market=explicit_market, lang_hint=lang_hint, user_id=user_id)
+    finally:
+        trace.flush(resp)
+    return resp
+
+
+def _chat(session_id=None, message=None, location=None, explicit_market=None, lang_hint=None, user_id=None):
     """一次对话轮。message 必填。返回响应 dict(与 API 对齐)。"""
     message = (message or "").strip()
     session = _store.get(session_id)
     if user_id:
         session.user_id = user_id  # 关联身份(设备/宿主用户)
+    _tr = trace.current()          # trace:绑定会话(旁路)
+    if _tr:
+        _tr.session = session
+        _tr.session_id = session.id
     # 会话结束/空闲:刷新活动时间;若已超空闲期未结束 → 标记 idle 结束并重置为新一轮
     if not session.ended and session.last_active:
         try:
@@ -76,12 +96,15 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     session.touch()
 
     # 1) 语言检测(用于市场路由;回复语言由下拉框 lang_hint 决定)
+    _t0 = time.time()
     lang = detect_language(message, market=session.market, hint=lang_hint or session.language,
                            llm_detect=getattr(_llm, "detects_language", None))
+    _lang_ms = int((time.time() - _t0) * 1000)
     # 回复语言 = 下拉框所选(lang_hint);无下拉才回落到本次消息检测语言(不跟上次语言)
     reply_lang = lang_hint or lang
     if lang:
         session.language = lang
+    trace.step("lang", {"detected": lang, "replyLang": reply_lang}, ms=_lang_ms)
 
     # 2a) 用户消息里明确说市场(如"印度市场")→ 该市场(manual)
     session._llm = _llm
@@ -94,6 +117,7 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
                                          session_market_source=session.market_source)
     session.market = market
     session.market_source = market_source
+    trace.step("market", {"market": market, "source": market_source})
     kb = KnowledgeBase(market_kb(market))
 
     if location and not session.collected.get("lat"):
@@ -110,7 +134,10 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     _contact_already = bool(_p_now or _e_now or getattr(session, "has_shown_lead_card", False))
 
     # 2.5) 内容安全:prompt injection 检测(§8.3)
-    if compliance.is_prompt_injection(message):
+    _inj_hit = compliance.is_prompt_injection(message)
+    trace.step("injection", {"hit": bool(_inj_hit)})
+    if _inj_hit:
+        trace.issue("guard_injection")
         session.intent = "other"
         session.persist()
         return _response(session, {"reply": _p_inject(reply_lang), "emotion": session.emotion_score,
@@ -118,16 +145,22 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
 
     # 3) 一次 LLM 调用:respond(消息 + 知识上下文 + step状态 + 对话语言 + 最近对话)
     BUSINESS = {"product-inquiry", "dealer-lookup", "usage-guide", "emergency", "after-sales"}
+    _t0 = time.time()
     context = kb.context(message, reply_lang, topk=3)
     # 经销商注入(脱敏:仅名称/地址/城市/距离;按坐标 nearest + 按门店名文本 match)
     dealer_part = kb.dealer_context(message, session.collected.get("lat"), session.collected.get("lng"), lang=reply_lang)
+    trace.step("rag", {"docs": [{"doc": c.get("doc"), "page": c.get("page")}
+                                for c in kb.citations()],
+                       "dealer": bool(dealer_part)}, ms=int((time.time() - _t0) * 1000))
     if dealer_part:
         context = (context + "\n" if context else "") + dealer_part
     conv_lang = reply_lang
     history = _history_str(session.history)
     if session.intent:
         state_desc = card_mod.state_desc(session.intent, session.step_index, message, session, kb)
+        _t0 = time.time()
         r = _llm.respond(message, context, state_desc, conv_lang, history) if hasattr(_llm, "respond") else None
+        trace.llm_call(ms=int((time.time() - _t0) * 1000))
         if r:
             new_intent, conf, question, response = r
         else:
@@ -145,7 +178,9 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
                       "ask for contact details — that is an unwanted sales push.\n"
                       "ALWAYS answer the specific question directly and in detail first; do NOT reply with a generic "
                       "'what would you like to know?'")
+        _t0 = time.time()
         r = _llm.respond(message, context, state_desc, conv_lang, history) if hasattr(_llm, "respond") else None
+        trace.llm_call(ms=int((time.time() - _t0) * 1000))
         if r:
             new_intent, conf, question, response = r
         else:
@@ -164,8 +199,15 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     if intent_mod.greeting(message):
         new_intent = "other"
         conf = max(conf, 0.7)
+    trace.step("intent", {"raw": raw_new_intent, "normalized": new_intent,
+                          "conf": round(float(conf or 0), 2),
+                          "continuation": bool(intent_mod.is_continuation(raw_new_intent)),
+                          "emergencyOverride": bool(intent_mod.emergency_hit(message)),
+                          "greetingOverride": bool(intent_mod.greeting(message))})
     # 兜底:respond 失败/空回复时给非空简短回复,避免"哑巴"
     if not response:
+        if getattr(_llm, "mode", "") == "deepseek":
+            trace.issue("empty_reply", {"intent": new_intent})
         # Phase 2.4: fallback 也走知识缺失兜底(若意图是售前类) → 引导留资
         _fb = _fallback_text(new_intent, reply_lang)
         if new_intent in intent_mod.KNOWLEDGE_GAP_INTENTS:
@@ -232,10 +274,13 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     if (not _pre_intent) and session.intent in BUSINESS \
             and compliance.is_vague_reply(str(reply.get("reply", ""))) \
             and hasattr(_llm, "respond"):
+        trace.issue("vague_reply", {"intent": session.intent})
         _strict_desc = (card_mod.state_desc(session.intent, session.step_index, message, session, kb)
                         + " ANSWER the customer's question directly and completely. Do NOT reply with a generic "
                           "'what would you like to know?' and do NOT ask the customer to clarify.")
+        _t0 = time.time()
         _r2 = _llm.respond(message, context, _strict_desc, reply_lang, history)
+        trace.llm_call(ms=int((time.time() - _t0) * 1000))
         if _r2 and len(_r2) > 3 and _r2[3]:
             session._answer_llm = _r2[3]
             session._question = _r2[2] if len(_r2) > 2 else session._question
@@ -263,13 +308,18 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
     raw_reply = _polish_reply(reply.get("reply", ""), session.history)
     clean_reply, flagged = compliance.output_filter(raw_reply)
     if flagged:
+        trace.issue("guard_output_filter")
         clean_reply = clean_reply + "\n\n(Please refer to official AION policy for confirmed terms.)"
     # 品牌合规兜底:回复里出现其它品牌/竞品/比品牌 → 替换为知识缺失+留资引导
     if compliance.find_competitor(clean_reply):
+        trace.issue("guard_competitor", {"intent": session.intent})
         reply["reply"] = _no_knowledge_lead(reply_lang, collected_already=_contact_already)
     else:
         # 车型防臆造:非 UT 车型不得出现其未提供的功率/扭矩/电池容量等参数(Phase 4.1 多语言)
+        _clean_before = clean_reply
         reply["reply"] = compliance.guard_model_facts(clean_reply, lang=reply_lang)
+        if reply["reply"] != _clean_before:
+            trace.issue("guard_model_facts", {"intent": session.intent})
 
     # 4.5) Phase 2.3: 后处理知识缺失兜底 — 命中信号且未引导留资时,追加 _knowledge_gap_lead
     # Phase 2.6:contact already collected 时,模板切到"已留过"变体;同时清残留 pitch 句子
@@ -283,6 +333,8 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
         reply["reply"] = _new_reply
         debug.record(evt="knowledge_gap_lead_appended", intent=session.intent, lang=reply_lang,
                      collected=_contact_already)
+    if _kg_appended or _phase24_gap:
+        trace.issue("knowledge_gap", {"intent": session.intent, "collected": _contact_already})
 
     # Phase 2.6: contact already collected → 移除 LLM 写出的"留个手机/邮箱/share your phone"等 ask 句
     if _contact_already:

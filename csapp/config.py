@@ -74,6 +74,17 @@ LEAD_PHONE_ANY = r"^\+?\d{7,15}$"   # 其它市场兜底:通用 7-15 位(可选 
 # 邮箱标准格式:本地部分 + @ + 域名 + .顶级域(>=2 字母)。要求严格,避免 "@", "a@", "@b" 之类被误收。
 LEAD_EMAIL = r"^[A-Za-z0-9._%+\-]{1,64}@[A-Za-z0-9.\-]{1,253}\.[A-Za-z]{2,24}$"
 
+# ---- 分析面板 / Trace 采集(旁路,不影响对话) ----
+# 独立分析库(与 90 天会话 JSON 解耦,长期留存趋势数据)
+ANALYTICS_DB = os.path.join(ROOT, "data", "analytics.db")
+ANALYTICS_RETENTION_DAYS = int(os.environ.get("CSAPP_ANALYTICS_RETENTION_DAYS", "180"))
+# 管理面板口令:留空时仅允许本机(127.0.0.1/::1)访问 /admin 与 admin API
+ADMIN_TOKEN = os.environ.get("CSAPP_ADMIN_TOKEN", "")
+# 单轮 trace 落库前的截断阈值(避免超大 payload)
+TRACE_RAW_MAX = int(os.environ.get("CSAPP_TRACE_RAW_MAX", "800"))   # LLM 原始输出截断长度
+TRACE_MSG_MAX = int(os.environ.get("CSAPP_TRACE_MSG_MAX", "600"))   # 消息文本截断长度
+SLOW_MS = int(os.environ.get("CSAPP_SLOW_MS", "8000"))              # 单轮总延迟慢阈值(信号 slow)
+
 # ---- 存储语言(内部统一) ----
 STORAGE_LANG = "en"
 
