@@ -129,8 +129,12 @@ td.loading{padding:10px 14px;color:#8b9bb0}
     </select>
     <label>意图</label>
     <select id="fIntent"><option value="">全部</option>
-      <option>product-inquiry</option><option>dealer-lookup</option><option>usage-guide</option>
-      <option>after-sales</option><option>emergency</option><option>other</option>
+      <option value="product-inquiry">车型配置/价格咨询</option>
+      <option value="dealer-lookup">经销商查询</option>
+      <option value="usage-guide">使用/操作指南</option>
+      <option value="after-sales">售后服务</option>
+      <option value="emergency">紧急救援</option>
+      <option value="other">其它/闲聊</option>
     </select>
     <label>问题信号</label>
     <select id="fIssue"><option value="">全部</option></select>
@@ -174,6 +178,19 @@ const ISSUE_DESC={
   guard_injection:"检测到注入/越权指令并拦截",guard_competitor:"检测到竞品/其它品牌内容被替换",
   guard_output_filter:"命中输出禁区被过滤",guard_model_facts:"车型参数被护栏纠错",
   slow:"总耗时超过慢阈值(8s)",no_progress:"会话因无进展结束"};
+const INTENT_CN={
+  "product-inquiry":"车型配置/价格咨询","dealer-lookup":"经销商查询","usage-guide":"使用/操作指南",
+  "after-sales":"售后服务","emergency":"紧急救援","other":"其它/闲聊"};
+function intentHTML(code){            // "中文 <span>code</span>",无映射则原样
+  code=(code==null?"":code)||"-";
+  const cn=INTENT_CN[code];
+  return cn?esc(cn)+` <span class="mono" style="color:#5f7188">${esc(code)}</span>`:esc(code);
+}
+function intentText(code){            // 纯文本 "中文 (code)"
+  code=(code==null?"":code)||"-";
+  const cn=INTENT_CN[code];
+  return cn?(cn+" ("+code+")"):code;
+}
 const MARKET_OPT=["AU","THA","CN","ES","FR","MY","ID","IN","US","DE","VN"];
 const state={tab:"overview",page:1,openCache:{}};
 
@@ -262,7 +279,7 @@ function renderSummary(s){
   else{
     (s.topGaps||[]).forEach(g=>{
       h+=`<div class="gaprow"><span class="n">${g.n}</span>
-        <div><span class="chip gray">${esc(g.intent||"?")}</span> ${esc(g.m||"")}</div></div>`;
+        <div><span class="chip gray">${intentHTML(g.intent||"?")}</span> ${esc(g.m||"")}</div></div>`;
     });
   }
   h+='</div></div>';
@@ -315,7 +332,7 @@ function renderSessions(d){
       <td class="mono" style="white-space:nowrap">${when}</td>
       <td class="mono">${esc(String(sid).slice(-14))}</td>
       <td>${esc(s.market||"-")} / ${esc(s.language||"-")}</td>
-      <td>${esc(s.intent_main||"-")}</td>
+      <td>${intentHTML(s.intent_main)}</td>
       <td>${s.total_rounds}</td><td>${res}</td>
       <td style="max-width:320px">${issueChips}</td>
       <td style="max-width:220px;color:var(--mut)">${esc(s.last_reply||s.first_msg||"")}</td></tr>`;
@@ -364,7 +381,7 @@ function renderExpanded(s,turns){
     <span><b>会话</b><span class="mono">${esc(s.session_id)}</span></span>
     <span><b>用户</b><span class="mono">${esc(s.user_hash||"-")}</span></span>
     <span><b>市场/语言</b>${esc(s.market||"-")} / ${esc(s.language||"-")}</span>
-    <span><b>主意图</b>${esc(s.intent_main||"-")}</span>
+    <span><b>主意图</b>${intentHTML(s.intent_main)}</span>
     <span><b>轮数</b>${s.total_rounds}</span>
     <span><b>结束</b>${esc(ended)}</span>
     <span><b>留资</b>${s.lead_captured?"✓":"—"}</span>
@@ -386,7 +403,7 @@ function renderExpanded(s,turns){
       </div>
       <div class="cell bot">
         <div class="ct">AI 回复
-          <span style="font-weight:400;color:#5f7188">intent:${esc(t.intent||"-")}${ms?" · "+ms:""}</span>
+          <span style="font-weight:400;color:#5f7188">intent: ${intentText(t.intent)}${ms?" · "+ms:""}</span>
         </div>
         <div class="body">${t.bot_reply?esc(t.bot_reply):'<span class="empty">(无回复)</span>'}</div>
         ${chips?`<div style="margin-top:6px">${chips}</div>`:""}
