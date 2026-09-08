@@ -158,6 +158,13 @@ docker tag cs-bot-aion:prev cs-bot-aion:latest \
 如需为线上用户持续保留灰度环境,给测试端口在安全组放行即可。
 CSAPP_ADMIN_TOKEN 已由 compose/脚本透传;不设则 /admin 仅本机回环可访问。
 
+> ⚠️ **内存**：e5 模型被**每个容器各加载一份**，并行灰度 = 线上与测试两份常驻内存
+> （单份约 2.6GB，4GB 实例会 OOM）。脚本 `--test` 启动前会自动做内存预检，不足会拒绝
+> 并给出三条出路：①加 swap 后重试；②小内存用**停机灰度**——
+> `docker stop csbot && ./deploy/onekey-deploy.sh --test --force-test`（此时只有测试容器在跑，
+> 测完 `docker rm -f csbot-test` 再跑默认脚本切线上）；③升级实例内存。
+> 确知可承担风险再 `--force-test` 强行并行。
+
 > 方式 B(离线 tar.gz)同样支持并行:见下文 `load-and-run.sh` 的 `--container/-p/--data-volume`。
 
 ---

@@ -37,6 +37,8 @@ TEST_MODE=0
 TEST_CONTAINER="${TEST_CONTAINER:-csbot-test}"
 TEST_PORT="${TEST_PORT:-8001}"
 TEST_DATA_VOL="${TEST_DATA_VOL:-csbot_test_data}"
+FORCE_TEST="${FORCE_TEST:-0}"
+E5_MEM_GB="${E5_MEM_GB:-2.6}"     # e5-large 单个常驻进程的内存估算(GB);不够会拒起并行测试容器
 HEALTH_TIMEOUT="${HEALTH_TIMEOUT:-900}"   # 秒;首次启动要下载 e5 模型,可调大
 PULL_TIMEOUT="${PULL_TIMEOUT:-120}"
 SKIP_PULL_TEST="${SKIP_PULL_TEST:-0}"
@@ -58,13 +60,15 @@ usage() {
   -p, --port PORT          线上容器公网端口(默认 8000,需与安全组放行端口一致)
       --test-port PORT     测试容器端口(默认 8001,仅 --test)
       --test-name NAME     测试容器名(默认 csbot-test,仅 --test)
+      --force-test         跳过 --test 的内存预检,强行并行(内存不足时可能 OOM,慎用)
       --overseas           海外 ECS:pip 官方源 + huggingface.co(默认国内镜像配置)
       --docker-mirror URL  把 Docker Hub 加速镜像写入 /etc/docker/daemon.json
                            并重启 Docker(例: https://docker.m.daocloud.io)
   -h, --help               显示帮助
 
-环境变量: HOST_PORT / TEST_PORT / TEST_CONTAINER / DEEPSEEK_API_KEY / CSAPP_ADMIN_TOKEN
-          HEALTH_TIMEOUT / SKIP_PULL_TEST=1 / PUBLIC_IP(手动指定公网 IP,跳过自动探测)
+环境变量: HOST_PORT / TEST_PORT / TEST_CONTAINER / FORCE_TEST=1 / E5_MEM_GB(单份e5常驻估算,默认2.6)
+          DEEPSEEK_API_KEY / CSAPP_ADMIN_TOKEN / HEALTH_TIMEOUT / SKIP_PULL_TEST=1
+          PUBLIC_IP(手动指定公网 IP,跳过自动探测)
 要求: Docker Engine ≥ 20.10 且装有 Compose v2(docker compose),无需 buildx。
 EOF
 }
@@ -80,6 +84,7 @@ while [ "$#" -gt 0 ]; do
     --test) TEST_MODE=1; shift ;;
     --test-port) need_value "$@"; TEST_PORT="$2"; shift 2 ;;
     --test-name) need_value "$@"; TEST_CONTAINER="$2"; shift 2 ;;
+    --force-test) FORCE_TEST=1; shift ;;
     -p|--port) need_value "$@"; HOST_PORT="$2"; shift 2 ;;
     --overseas) OVERSEAS=1; shift ;;
     --docker-mirror) need_value "$@"; DOCKER_MIRROR="$2"; shift 2 ;;
@@ -195,10 +200,36 @@ FREE_GB=$((FREE_KB / 1024 / 1024))
 
 MEM_MB="$(free -m | awk '/^Mem:/ {print $2}')"
 SWAP_MB="$(free -m | awk '/^Swap:/ {print $2}')"
+AVAIL_MB="$(free -m | awk '/^Mem:/ {print $7}')"
+[ -n "$AVAIL_MB" ] && [ "$AVAIL_MB" -gt 0 ] || AVAIL_MB="$MEM_MB"
 if [ "$MEM_MB" -lt 4000 ] && [ "$SWAP_MB" -lt 512 ]; then
   echo "警告: 内存 ${MEM_MB}MB 且无 swap,e5 推理可能内存不足。建议:"
   echo "  fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile"
   echo "  echo '/swapfile none swap sw 0 0' >> /etc/fstab"
+fi
+
+# ---- 并行灰度(--test)内存预检:每个容器各加载一份 e5 模型,内存翻倍 --------------
+if [ "$TEST_MODE" -eq 1 ] && [ "$FORCE_TEST" -ne 1 ]; then
+  ONLINE_RUNNING=0
+  if docker container inspect csbot >/dev/null 2>&1 \
+      && [ "$(docker inspect -f '{{.State.Running}}' csbot 2>/dev/null)" = "true" ]; then
+    ONLINE_RUNNING=1
+  fi
+  # 所需 = (测试容器1份 + 线上在跑的1份) × e5单份 + 系统余量1GB
+  NEED_GB="$(awk -v n=$((ONLINE_RUNNING + 1)) -v e="$E5_MEM_GB" 'BEGIN { printf "%.1f", n*e + 1 }')"
+  AVAIL_GB="$(awk -v a="$AVAIL_MB" 'BEGIN { printf "%.1f", a/1024 }')"
+  echo "==> 内存预检:可用 ${AVAIL_GB}GB,并行灰度需 ≥ ${NEED_GB}GB(e5 模型按进程各占 ${E5_MEM_GB}GB;线上在跑=${ONLINE_RUNNING})"
+  if awk -v a="$AVAIL_GB" -v n="$NEED_GB" 'BEGIN { exit !(a < n) }'; then
+    echo "错误: 内存不足以并行起测试容器(可用 ${AVAIL_GB}GB < 需要 ${NEED_GB}GB)。" >&2
+    echo "      e5 模型会被**每个容器各加载一份**,并行 = 内存翻倍,4GB 实例必 OOM。" >&2
+    echo "      三种解决方式(任选):" >&2
+    echo "        1) 加 swap 后重试: fallocate -l 4G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile" >&2
+    echo "        2) 停机灰度(推荐小内存):先停线上,再只跑一个测试容器 —— docker stop csbot && ./deploy/onekey-deploy.sh --test --force-test" >&2
+    echo "           测完切换: docker rm -f csbot-test && ./deploy/onekey-deploy.sh" >&2
+    echo "        3) 升级实例内存(如 8GB)后再并行灰度" >&2
+    echo "      确知自己在做什么、可接受 OOM 风险: 加 --force-test 强行并行" >&2
+    exit 1
+  fi
 fi
 
 # ---- [2] 初始化 deploy/.env ------------------------------------------------------
