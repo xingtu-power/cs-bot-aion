@@ -63,9 +63,17 @@ DB = None  # 模块级记录上次插入,便于幂等
 
 def init_db():
     c = _conn()
-    c.executescript(SCHEMA)
-    c.commit()
-    c.close()
+    try:
+        c.executescript(SCHEMA)
+        # CREATE TABLE IF NOT EXISTS 不会升级已有表。先取得写锁，避免
+        # 多线程/多进程同时检查旧表后重复 ALTER；旧记录保留，user_id 为 NULL。
+        with c:
+            c.execute("BEGIN IMMEDIATE")
+            columns = {row["name"] for row in c.execute("PRAGMA table_info(leads)")}
+            if "user_id" not in columns:
+                c.execute("ALTER TABLE leads ADD COLUMN user_id TEXT")
+    finally:
+        c.close()
 
 
 # ---------- leads ----------

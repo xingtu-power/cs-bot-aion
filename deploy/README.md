@@ -306,6 +306,42 @@ cd /opt/cs-bot-aion && sudo -u csapp git pull && sudo -u csapp ./venv/bin/pip in
 
 ## 常见问题排查
 
+### 留资报错 `table leads has no column named user_id`
+
+原因是数据卷中的旧 `leads` 表缺少新字段；`CREATE TABLE IF NOT EXISTS` 不会更新已存在的表。
+新版会在服务启动时自动补齐 `user_id TEXT`，保留已有记录；旧记录的该字段为 `NULL`。
+升级时复用原数据卷，不要删除 `kd.db` 或执行 `docker compose down -v`。
+
+若暂时无法更新镜像，可在云服务器执行以下命令（默认容器名 `csbot`）。
+它先用 SQLite backup API 备份，再在写事务内检查并补列，可以重复执行：
+
+```bash
+docker exec -i csbot python - <<'PY'
+import sqlite3
+from datetime import datetime, timezone
+
+path = '/app/data/kd.db'
+backup = path + '.bak-' + datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
+with sqlite3.connect('file:' + path + '?mode=rw', uri=True, timeout=30) as conn:
+    with sqlite3.connect(backup) as dest:
+        conn.backup(dest)
+    print('Backup:', backup)
+    conn.execute('BEGIN IMMEDIATE')
+    columns = {row[1] for row in conn.execute('PRAGMA table_info(leads)')}
+    if not columns:
+        raise RuntimeError('leads table missing; check database path')
+    if 'user_id' not in columns:
+        conn.execute('ALTER TABLE leads ADD COLUMN user_id TEXT')
+        print('Added leads.user_id')
+    else:
+        print('leads.user_id already exists')
+print('Migration committed')
+PY
+```
+
+执行成功后重新提交留资并查看 `docker logs --tail 100 csbot`；无需重启容器。
+此操作只修复现有数据库，后续仍应部署包含自动迁移的新镜像。
+
 | 现象 | 处理 |
 |---|---|
 | `DEEPSEEK_API_KEY` 报错 | 方式 A/B: 检查 `deploy/.env` 或 `docker run -e` 参数;方式 C: 检查 `/etc/csapp.env` 与 unit 的 `EnvironmentFile` |
