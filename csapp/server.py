@@ -66,9 +66,10 @@ class Handler(BaseHTTPRequestHandler):
         if p == "/health":
             return self._json(200, {"ok": True})
         # ---- 独立分析面板(只读,与访客聊天页隔离;访客页无任何入口) ----
+        # 说明: /admin 页面壳本身不含业务数据,放行;真正的数据都在
+        # /api/v1/admin/* 之后,那里做严格口令校验。这样无口令的访问者
+        # 也能看到页面上的登录框输入 token,而不是裸 403 JSON。
         if p == "/admin":
-            if not self._admin_ok():
-                return self._json(403, {"error": "forbidden"})
             return self._file(os.path.join(os.path.dirname(__file__), "static", "admin.html"),
                               "text/html; charset=utf-8")
         if p.startswith("/api/v1/admin/"):
