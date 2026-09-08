@@ -413,6 +413,15 @@ def _chat(session_id=None, message=None, location=None, explicit_market=None, la
         # 提前解析一次联系方式,用于触发判断(只看本会话 collected,不再跨会话查 db)
         _phone, _email, _ = comp_mod._resolve_lead_contact(session)
         _collected_contact = bool(_phone or _email)
+        # 当前引导卡是否正在 ask contact(且用户还没留资)? 正常售前流程到 contact 步也要弹 lead_input 卡。
+        _steps = card_mod.CARD.get(session.intent, card_mod.CARD["other"])
+        _step = min(session.step_index or 0, len(_steps) - 1)
+        _on_contact_step = bool(
+            session.intent in intent_mod.KNOWLEDGE_GAP_INTENTS
+            and _steps[_step].get("expect") == "contact"
+            and not _collected_contact
+            and not lead_record
+        )
         if comp_mod.should_attach_lead_card(
             intent=session.intent,
             kg_appended=bool(_kg_appended or _phase24_gap),
@@ -420,6 +429,7 @@ def _chat(session_id=None, message=None, location=None, explicit_market=None, la
             first_contact_step=_first_contact,
             collected_contact=_collected_contact,
             has_shown_lead_card=_has_shown_lead_card,
+            on_contact_step=_on_contact_step,
         ):
             card = comp_mod._build_lead_card(session, reply_lang, market)
             if card:

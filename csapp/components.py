@@ -241,13 +241,15 @@ def _build_lead_card(session, reply_lang: str, market: Optional[str] = None) -> 
 # ============== 触发点决策 ==============
 def should_attach_lead_card(intent: str, kg_appended: bool, lead_record_present: bool,
                             first_contact_step: bool, collected_contact: bool = False,
-                            has_shown_lead_card: bool = False) -> bool:
+                            has_shown_lead_card: bool = False,
+                            on_contact_step: bool = False) -> bool:
     """在 pipeline.chat() 的 reply 装配阶段判断是否要附 lead card。
 
     触发点:
-    1) 知识缺失兜底已追加 / 首次 contact 步 → 若已采到号码给 confirm,否则给 input
-    2) lead_record 已存在(用户刚提交) → confirm
-    3) 本会话/历史已采到号码且当前售前意图仍缺一张确认卡 → confirm
+    1) 当前处于 contact 步(引导卡索要联系方式)且用户尚未留资 → input
+    2) 知识缺失兜底已追加 / 首次 contact 步 → 若已采到号码给 confirm,否则给 input
+    3) lead_record 已存在(用户刚提交) → confirm
+    4) 本会话/历史已采到号码且当前售前意图仍缺一张确认卡 → confirm
     """
     if has_shown_lead_card:
         return False      # 一轮会话只显示一次,避免重复
@@ -256,6 +258,7 @@ def should_attach_lead_card(intent: str, kg_appended: bool, lead_record_present:
     if collected_contact:
         # 售前类意图且已有联系方式,给确认卡;其它意图不发
         return bool(intent and intent in ("product-inquiry", "dealer-lookup", "after-sales"))
-    if kg_appended or first_contact_step:
-        return True       # 还没留,发 lead_input
+    # 当前引导卡正在 ask contact,或知识缺口/首次 contact 场景 → 发 input
+    if on_contact_step or kg_appended or first_contact_step:
+        return True
     return False
