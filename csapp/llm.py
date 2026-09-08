@@ -4,7 +4,7 @@
 deepseek 提供用 dsh --profile headless 做语义确认/翻译(尽力而为,失败则回退规则)。
 """
 import os, subprocess, json, re, time
-from . import config, debug
+from . import config, debug, trace
 
 
 class BaseLLM:
@@ -117,12 +117,16 @@ class DeepSeekLLM(BaseLLM):
             try:
                 out = self._api_call(prompt, timeout=60)
                 if out:
+                    if attempt > 0:
+                        trace.mark_llm(retried=True)
                     return out
             except Exception as e:
                 last_err = e
                 debug.record(evt="llm_api_retry", attempt=attempt + 1, err=str(e)[:120])
+                trace.mark_llm(retried=True)
                 time.sleep(0.6 * (attempt + 1))
         debug.record(evt="llm_api_failed", err=str(last_err)[:120])
+        trace.mark_llm(failed=True)
         env = dict(os.environ)
         env["DSH_HOME"] = "/Users/mlhs/Documents/aigo/客服系统/tools/dsh_home"
         env["DEEPSEEK_API_KEY"] = key
@@ -243,7 +247,9 @@ f"acknowledge or change the subject.\n"
                      hist_len=len(history or ""))
         out = self._run(prompt)
         debug.record(evt="llm_respond_raw", raw=(out or "")[:600])
+        trace.mark_llm(rawOutput=(out or ""), promptLen=len(prompt))
         if not out:
+            trace.mark_llm(failed=True)
             return None
         try:
             d = _extract_json(out)
@@ -256,6 +262,7 @@ f"acknowledge or change the subject.\n"
             return res
         except Exception:
             debug.record(evt="llm_respond_parse_fail", raw=(out or "")[:300])
+            trace.mark_llm(parseFail=True)
             return None
 
     def confirm_intent(self, text):

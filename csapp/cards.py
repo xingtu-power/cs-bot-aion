@@ -5,7 +5,7 @@
   状态推进(收集/确认/达成)、合规留资与救援工单落库。
 - 不再有手写的 4 语言话术模板。
 """
-import json, os, re
+import json, os, re, time
 from . import config, compliance
 from .emotion import score_emotion
 
@@ -370,6 +370,26 @@ def state_desc(intent, step_index, message, session, kb):
 
 
 def run_card(session, message, kb, lang):
+    """执行当前意图的引导卡(带旁路 trace 采集):校验输入、推进状态、合规落库。"""
+    from . import trace as _trace
+    _t0 = time.time()
+    result = _run_card(session, message, kb, lang)
+    try:
+        _trace.step("card", {
+            "intent": session.intent, "stepIndex": session.step_index,
+            "collected": dict(session.collected or {}),
+            "advance": bool(result.get("advance")),
+            "targetReached": bool(result.get("target_reached") or session.target_reached),
+            "escalated": bool(result.get("escalate") or session.escalated),
+            "confirmEscalate": bool(result.get("confirm_escalate")),
+            "emotion": result.get("emotion", 0),
+        }, ms=int((time.time() - _t0) * 1000))
+    except Exception:
+        pass  # 旁路
+    return result
+
+
+def _run_card(session, message, kb, lang):
     """执行当前意图的引导卡:校验输入、推进状态、合规落库;回复文本取 session._answer_llm。"""
     intent = session.intent or "other"
     steps = CARD.get(intent, CARD["other"])

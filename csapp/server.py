@@ -4,10 +4,10 @@
 启动:python -m csapp.server --port 8000
 生产可换用 FastAPI(见 api.py,需 pip 安装 fastapi/uvicorn)。
 """
-import json, time, os, re, hashlib
+import json, time, os, re, hashlib, secrets
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
-from urllib.parse import urlparse
-from . import pipeline, db
+from urllib.parse import urlparse, unquote
+from . import pipeline, db, config
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -18,6 +18,25 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
+
+    # ---------- /admin 访问控制(独立分析面板,与访客页完全隔离) ----------
+    def _admin_ok(self):
+        """有口令则校验 X-Admin-Token;无口令仅放行本机回环地址。"""
+        tok = self.headers.get("X-Admin-Token", "")
+        if config.ADMIN_TOKEN:
+            return bool(tok) and secrets.compare_digest(tok, config.ADMIN_TOKEN)
+        host = (self.client_address[0] if self.client_address else "") or ""
+        return host in ("127.0.0.1", "::1", "localhost")
+
+    @staticmethod
+    def _qs(path):
+        """解析 query string → dict(首个同名参数)。"""
+        d = {}
+        for kv in urlparse(path).query.split("&"):
+            if "=" in kv:
+                k, v = kv.split("=", 1)
+                d.setdefault(k, unquote(v))
+        return d
 
     def _read_body(self):
         n = int(self.headers.get("Content-Length", 0))
@@ -46,6 +65,69 @@ class Handler(BaseHTTPRequestHandler):
             return self._file(fp, ct)
         if p == "/health":
             return self._json(200, {"ok": True})
+        # ---- 独立分析面板(只读,与访客聊天页隔离;访客页无任何入口) ----
+        if p == "/admin":
+            if not self._admin_ok():
+                return self._json(403, {"error": "forbidden"})
+            return self._file(os.path.join(os.path.dirname(__file__), "static", "admin.html"),
+                              "text/html; charset=utf-8")
+        if p.startswith("/api/v1/admin/"):
+            if not self._admin_ok():
+                return self._json(403, {"error": "forbidden"})
+            from . import analytics as _an
+            q = self._qs(self.path)
+            try:
+                if p == "/api/v1/admin/summary":
+                    return self._json(200, {"success": True, "summary": _an.summary(
+                        from_ts=q.get("from"), to_ts=q.get("to"), market=q.get("market"),
+                        language=q.get("lang"), intent=q.get("intent"))})
+                if p == "/api/v1/admin/sessions":
+                    try:
+                        page = max(1, int(q.get("page", 1))); size = min(100, max(1, int(q.get("size", 20))))
+                    except Exception:
+                        page, size = 1, 20
+                    ended = None
+                    if q.get("ended") in ("1", "true", "yes"):
+                        ended = True
+                    elif q.get("ended") in ("0", "false", "no"):
+                        ended = False
+                    return self._json(200, {"success": True, **_an.list_sessions(
+                        from_ts=q.get("from"), to_ts=q.get("to"), market=q.get("market"),
+                        language=q.get("lang"), intent=q.get("intent"), issue=q.get("issue"),
+                        ended=ended, q=q.get("q"), page=page, size=size)})
+                if p == "/api/v1/admin/session":
+                    s = _an.get_session(q.get("sessionId"))
+                    if not s:
+                        return self._json(404, {"success": False, "error": "not found"})
+                    return self._json(200, {"success": True, **s})
+                if p == "/api/v1/admin/turn":
+                    t = _an.get_turn(q.get("traceId"))
+                    if not t:
+                        return self._json(404, {"success": False, "error": "not found"})
+                    return self._json(200, {"success": True, "turn": t})
+                if p == "/api/v1/admin/export":
+                    import io, csv as _csv
+                    rows = _an.export_turns(from_ts=q.get("from"), to_ts=q.get("to"),
+                                            market=q.get("market"), language=q.get("lang"),
+                                            intent=q.get("intent"), limit=5000)
+                    buf = io.StringIO()
+                    w = _csv.writer(buf)
+                    keys = ["t", "session_id", "round_idx", "market", "language", "intent",
+                            "issues", "latency_ms", "user_msg", "bot_reply"]
+                    w.writerow(keys)
+                    for r in rows:
+                        w.writerow([r.get(k, "") for k in keys])
+                    body = buf.getvalue().encode("utf-8")
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/csv; charset=utf-8")
+                    self.send_header("Content-Disposition", 'attachment; filename="analytics_export.csv"')
+                    self.send_header("Content-Length", str(len(body)))
+                    self.end_headers()
+                    self.wfile.write(body)
+                    return None
+            except Exception as e:
+                return self._json(500, {"success": False, "error": str(e)[:200]})
+            return self._json(404, {"error": "not found"})
         if p == "/api/v1/debug":
             from . import debug as _dbg
             return self._json(200, {"debug": _dbg.read(), "file": _dbg.LOG, "enabled": _dbg.ENABLED})
@@ -250,6 +332,15 @@ def main():
     args = ap.parse_args()
     # 在接收请求前升级持久化数据库；失败时直接停止启动。
     db.init_db()
+    # 分析库(旁路):建表 + 清理超过保留期的旧 trace
+    try:
+        from . import analytics as _an
+        _an.init_db()
+        _n = _an.cleanup()
+        if _n:
+            print(f"分析库清理:删除了 {_n} 条过期记录")
+    except Exception as e:
+        print("analytics init skipped:", e)
     # 预热:启动时加载共享 e5 模型 + 向量索引,避免首条消息付 ~30s
     try:
         print("预热向量模型/索引(第一次约 30s)...")
