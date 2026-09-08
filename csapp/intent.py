@@ -285,10 +285,10 @@ KNOWLEDGE_GAP_INTENTS = frozenset({"product-inquiry", "dealer-lookup", "after-sa
 #   - 回复文本里**也不应该**再问用户留电话/邮箱
 # 当 contact 已收集时,用 _THANKS_FOR_SHARING_* 替换 ask-pitch 句子。
 _THANKS_FOR_SHARING = {
-    "zh": "我们已收到您留的联系方式，当地 AION 专员将按您提供的信息与您联系。",
-    "en": "Thanks — we've already noted your contact. A local AION specialist will follow up using the details you provided.",
-    "th": "ขอบคุณ — เราได้รับข้อมูลติดต่อของคุณแล้ว เจ้าหน้าที่ AION ในพื้นที่จะติดตามด้วยข้อมูลที่คุณให้ไว้",
-    "es": "Gracias — ya hemos registrado sus datos. Un especialista local de AION le hará seguimiento con la información que ha proporcionado.",
+    "zh": "我们已收到您留的联系方式，当地 GAC 专员将按您提供的信息与您联系。",
+    "en": "Thanks — we've already noted your contact. A local GAC specialist will follow up using the details you provided.",
+    "th": "ขอบคุณ — เราได้รับข้อมูลติดต่อของคุณแล้ว เจ้าหน้าที่ GAC ในพื้นที่จะติดตามด้วยข้อมูลที่คุณให้ไว้",
+    "es": "Gracias — ya hemos registrado sus datos. Un especialista local de GAC le hará seguimiento con la información que ha proporcionado.",
 }
 # 通用兜底(竞品/兜底场景下,无法特化意图,就用这一句)
 _THANKS_FOR_SHARING_GENERIC = _THANKS_FOR_SHARING

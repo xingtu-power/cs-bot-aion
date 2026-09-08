@@ -141,7 +141,7 @@ def chat(session_id=None, message=None, location=None, explicit_market=None, lan
                       "visit.\n"
                       "- AFTER-SALES (how to use / how to charge, a problem, service, emergency/rescue): SOLVE it in "
                       "detail using the facts — steps, cautions, notes. Then ask if it is resolved (or offer further "
-                      "troubleshooting / the AION hotline). Do NOT offer a dealer visit, a test drive, a booking, or "
+                      "troubleshooting / the GAC hotline). Do NOT offer a dealer visit, a test drive, a booking, or "
                       "ask for contact details — that is an unwanted sales push.\n"
                       "ALWAYS answer the specific question directly and in detail first; do NOT reply with a generic "
                       "'what would you like to know?'")
@@ -405,22 +405,22 @@ def _fallback_text(intent, lang):
 # ---------------- Phase 2.2: 知识缺失兜底话术(售前类引导留资) ----------------
 _KNOWLEDGE_GAP_LEAD = {
     "product-inquiry": {
-        "zh": "针对该市场的具体在售车型和价格，我们这边暂时没有更详细的信息。为了给您更准确的回复，我可以帮您联系当地 AION 专员，您方便留个手机或邮箱，让专员按当地实际为您跟进吗?",
-        "en": "I do not have the exact on-sale models and pricing for your market here. To give you an accurate answer, may I connect you with a local AION specialist? If you share your phone or email, they can follow up with the right local information.",
-        "th": "ดิฉันไม่มีข้อมูลรุ่นและราคาที่วางจำหน่ายในพื้นที่ของคุณ ขอเชื่อมต่อคุณกับผู้เชี่ยวชาญ AION ในท้องถิ่น หากคุณฝากเบอร์โทรหรืออีเมล เจ้าหน้าที่จะติดตามด้วยข้อมูลที่ถูกต้องให้ครับ/ค่ะ",
-        "es": "No tengo aquí la lista exacta de modelos y precios disponibles en su mercado. Para darle una respuesta precisa, ¿puedo ponerle en contacto con un especialista local de AION? Si comparte su teléfono o correo, el equipo local le dará la información correcta.",
+        "zh": "针对该市场的具体在售车型和价格，我们这边暂时没有更详细的信息。为了给您更准确的回复，我可以帮您联系当地 GAC 专员，您方便留个手机或邮箱，让专员按当地实际为您跟进吗?",
+        "en": "I do not have the exact on-sale models and pricing for your market here. To give you an accurate answer, may I connect you with a local GAC specialist? If you share your phone or email, they can follow up with the right local information.",
+        "th": "ดิฉันไม่มีข้อมูลรุ่นและราคาที่วางจำหน่ายในพื้นที่ของคุณ ขอเชื่อมต่อคุณกับผู้เชี่ยวชาญ GAC ในท้องถิ่น หากคุณฝากเบอร์โทรหรืออีเมล เจ้าหน้าที่จะติดตามด้วยข้อมูลที่ถูกต้องให้ครับ/ค่ะ",
+        "es": "No tengo aquí la lista exacta de modelos y precios disponibles en su mercado. Para darle una respuesta precisa, ¿puedo ponerle en contacto con un especialista local de GAC? Si comparte su teléfono o correo, el equipo local le dará la información correcta.",
     },
     "dealer-lookup": {
-        "zh": "针对您所在区域的授权经销商名单，我们这边暂时没有更详细的信息。为了帮您找到最近的门店，我可以为您对接当地 AION 专员，您方便留个手机或邮箱，专员按当地门店为您跟进吗?",
-        "en": "I do not have the exact list of authorized dealers for your area here. To help you find the nearest store, may I connect you with a local AION specialist? If you share your phone or email, the local team will follow up with the dealer details.",
-        "th": "ดิฉันไม่มีรายชื่อตัวแทนจำหน่ายที่ได้รับอนุญาตในพื้นที่ของคุณ ขอเชื่อมต่อคุณกับผู้เชี่ยวชาญ AION ในท้องถิ่น หากคุณฝากเบอร์โทรหรืออีเมล เจ้าหน้าที่จะส่งรายชื่อตัวแทนจำหน่ายที่ใกล้คุณให้ครับ/ค่ะ",
-        "es": "No tengo aquí la lista exacta de concesionarios autorizados en su zona. Para ayudarle a encontrar la tienda más cercana, ¿puedo ponerle en contacto con un especialista local de AION? Si comparte su teléfono o correo, el equipo local le enviará los detalles del concesionario.",
+        "zh": "针对您所在区域的授权经销商名单，我们这边暂时没有更详细的信息。为了帮您找到最近的门店，我可以为您对接当地 GAC 专员，您方便留个手机或邮箱，专员按当地门店为您跟进吗?",
+        "en": "I do not have the exact list of authorized dealers for your area here. To help you find the nearest store, may I connect you with a local GAC specialist? If you share your phone or email, the local team will follow up with the dealer details.",
+        "th": "ดิฉันไม่มีรายชื่อตัวแทนจำหน่ายที่ได้รับอนุญาตในพื้นที่ของคุณ ขอเชื่อมต่อคุณกับผู้เชี่ยวชาญ GAC ในท้องถิ่น หากคุณฝากเบอร์โทรหรืออีเมล เจ้าหน้าที่จะส่งรายชื่อตัวแทนจำหน่ายที่ใกล้คุณให้ครับ/ค่ะ",
+        "es": "No tengo aquí la lista exacta de concesionarios autorizados en su zona. Para ayudarle a encontrar la tienda más cercana, ¿puedo ponerle en contacto con un especialista local de GAC? Si comparte su teléfono o correo, el equipo local le enviará los detalles del concesionario.",
     },
     "after-sales": {
-        "zh": "针对您当地的具体服务流程/配件库存/预约时段，我们这边暂时没有更详细信息。为了给您更准确的安排，我可以为您对接当地 AION 服务中心，您方便留个手机或邮箱，让当地服务专员为您跟进吗?",
-        "en": "I do not have the exact local service procedure, parts availability or appointment slots here. To give you an accurate arrangement, may I connect you with a local AION service center? If you share your phone or email, the local service team will follow up.",
-        "th": "ดิฉันไม่มีข้อมูลขั้นตอนการบริการ/อะไหล่/ช่วงเวลานัดหมายในพื้นที่ของคุณ ขอเชื่อมต่อคุณกับศูนย์บริการ AION ในท้องถิ่น หากคุณฝากเบอร์โทรหรืออีเมล เจ้าหน้าที่บริการจะติดตามให้ครับ/ค่ะ",
-        "es": "No tengo aquí el procedimiento exacto de servicio, disponibilidad de recambios ni horarios de cita en su zona. Para darle una atención precisa, ¿puedo ponerle en contacto con un centro de servicio AION local? Si comparte su teléfono o correo, el equipo local le hará el seguimiento.",
+        "zh": "针对您当地的具体服务流程/配件库存/预约时段，我们这边暂时没有更详细信息。为了给您更准确的安排，我可以为您对接当地 GAC 服务中心，您方便留个手机或邮箱，让当地服务专员为您跟进吗?",
+        "en": "I do not have the exact local service procedure, parts availability or appointment slots here. To give you an accurate arrangement, may I connect you with a local GAC service center? If you share your phone or email, the local service team will follow up.",
+        "th": "ดิฉันไม่มีข้อมูลขั้นตอนการบริการ/อะไหล่/ช่วงเวลานัดหมายในพื้นที่ของคุณ ขอเชื่อมต่อคุณกับศูนย์บริการ GAC ในท้องถิ่น หากคุณฝากเบอร์โทรหรืออีเมล เจ้าหน้าที่บริการจะติดตามให้ครับ/ค่ะ",
+        "es": "No tengo aquí el procedimiento exacto de servicio, disponibilidad de recambios ni horarios de cita en su zona. Para darle una atención precisa, ¿puedo ponerle en contacto con un centro de servicio GAC local? Si comparte su teléfono o correo, el equipo local le hará el seguimiento.",
     },
     # usage-guide / emergency 不补留资引导:售后类走 hotline,紧急救援走 rescue
 }
@@ -430,22 +430,22 @@ _KNOWLEDGE_GAP_LEAD = {
 # (结构对齐 _KNOWLEDGE_GAP_LEAD,只是文案不同)
 _KNOWLEDGE_GAP_LEAD_COLLECTED = {
     "product-inquiry": {
-        "zh": "针对该市场的具体在售车型和价格，我们这边暂时没有更详细的信息。我们已收到您留的联系方式，当地 AION 专员将按当地在售车型与实际报价与您联系。",
-        "en": "I do not have the exact on-sale models and pricing for your market here. We've already noted your contact — a local AION specialist will follow up with the right local models and pricing for you.",
-        "th": "ดิฉันไม่มีข้อมูลรุ่นและราคาที่วางจำหน่ายในพื้นที่ของคุณ เราได้รับข้อมูลติดต่อของคุณแล้ว เจ้าหน้าที่ AION ในท้องถิ่นจะติดตามเรื่องรุ่นและราคาในท้องถิ่นให้ครับ/ค่ะ",
-        "es": "No tengo aquí la lista exacta de modelos y precios disponibles en su mercado. Ya hemos registrado sus datos: un especialista local de AION le hará seguimiento con los modelos y precios disponibles en su zona.",
+        "zh": "针对该市场的具体在售车型和价格，我们这边暂时没有更详细的信息。我们已收到您留的联系方式，当地 GAC 专员将按当地在售车型与实际报价与您联系。",
+        "en": "I do not have the exact on-sale models and pricing for your market here. We've already noted your contact — a local GAC specialist will follow up with the right local models and pricing for you.",
+        "th": "ดิฉันไม่มีข้อมูลรุ่นและราคาที่วางจำหน่ายในพื้นที่ของคุณ เราได้รับข้อมูลติดต่อของคุณแล้ว เจ้าหน้าที่ GAC ในท้องถิ่นจะติดตามเรื่องรุ่นและราคาในท้องถิ่นให้ครับ/ค่ะ",
+        "es": "No tengo aquí la lista exacta de modelos y precios disponibles en su mercado. Ya hemos registrado sus datos: un especialista local de GAC le hará seguimiento con los modelos y precios disponibles en su zona.",
     },
     "dealer-lookup": {
-        "zh": "针对您所在区域的授权经销商名单，我们这边暂时没有更详细的信息。我们已收到您留的联系方式，当地 AION 专员会按您所在区域的授权门店与您联系。",
-        "en": "I do not have the exact list of authorized dealers for your area here. We've already noted your contact — a local AION specialist will follow up with the authorized dealer list for your area.",
-        "th": "ดิฉันไม่มีรายชื่อตัวแทนจำหน่ายที่ได้รับอนุญาตในพื้นที่ของคุณ เราได้รับข้อมูลติดต่อของคุณแล้ว เจ้าหน้าที่ AION ในท้องถิ่นจะส่งรายชื่อตัวแทนจำหน่ายที่ได้รับอนุญาตในพื้นที่ของคุณให้ครับ/ค่ะ",
-        "es": "No tengo aquí la lista exacta de concesionarios autorizados en su zona. Ya hemos registrado sus datos: un especialista local de AION le hará seguimiento con la lista de concesionarios autorizados en su zona.",
+        "zh": "针对您所在区域的授权经销商名单，我们这边暂时没有更详细的信息。我们已收到您留的联系方式，当地 GAC 专员会按您所在区域的授权门店与您联系。",
+        "en": "I do not have the exact list of authorized dealers for your area here. We've already noted your contact — a local GAC specialist will follow up with the authorized dealer list for your area.",
+        "th": "ดิฉันไม่มีรายชื่อตัวแทนจำหน่ายที่ได้รับอนุญาตในพื้นที่ของคุณ เราได้รับข้อมูลติดต่อของคุณแล้ว เจ้าหน้าที่ GAC ในท้องถิ่นจะส่งรายชื่อตัวแทนจำหน่ายที่ได้รับอนุญาตในพื้นที่ของคุณให้ครับ/ค่ะ",
+        "es": "No tengo aquí la lista exacta de concesionarios autorizados en su zona. Ya hemos registrado sus datos: un especialista local de GAC le hará seguimiento con la lista de concesionarios autorizados en su zona.",
     },
     "after-sales": {
-        "zh": "针对您当地的具体服务流程/配件库存/预约时段，我们这边暂时没有更详细信息。我们已收到您留的联系方式，当地 AION 服务专员将按当地服务流程与配件库存与您联系。",
-        "en": "I do not have the exact local service procedure, parts availability or appointment slots here. We've already noted your contact — a local AION service specialist will follow up with the local procedure and parts availability for you.",
-        "th": "ดิฉันไม่มีข้อมูลขั้นตอนการบริการ/อะไหล่/ช่วงเวลานัดหมายในพื้นที่ของคุณ เราได้รับข้อมูลติดต่อของคุณแล้ว เจ้าหน้าที่บริการ AION ในท้องถิ่นจะติดตามเรื่องขั้นตอนการบริการและอะไหล่ในท้องถิ่นให้ครับ/ค่ะ",
-        "es": "No tengo aquí el procedimiento exacto de servicio, disponibilidad de recambios ni horarios de cita en su zona. Ya hemos registrado sus datos: un especialista de servicio AION local le hará seguimiento con el procedimiento y la disponibilidad de recambios en su zona.",
+        "zh": "针对您当地的具体服务流程/配件库存/预约时段，我们这边暂时没有更详细信息。我们已收到您留的联系方式，当地 GAC 服务专员将按当地服务流程与配件库存与您联系。",
+        "en": "I do not have the exact local service procedure, parts availability or appointment slots here. We've already noted your contact — a local GAC service specialist will follow up with the local procedure and parts availability for you.",
+        "th": "ดิฉันไม่มีข้อมูลขั้นตอนการบริการ/อะไหล่/ช่วงเวลานัดหมายในพื้นที่ของคุณ เราได้รับข้อมูลติดต่อของคุณแล้ว เจ้าหน้าที่บริการ GAC ในท้องถิ่นจะติดตามเรื่องขั้นตอนการบริการและอะไหล่ในท้องถิ่นให้ครับ/ค่ะ",
+        "es": "No tengo aquí el procedimiento exacto de servicio, disponibilidad de recambios ni horarios de cita en su zona. Ya hemos registrado sus datos: un especialista de servicio GAC local le hará seguimiento con el procedimiento y la disponibilidad de recambios en su zona.",
     },
 }
 
@@ -490,18 +490,18 @@ def _no_knowledge_lead(lang, collected_already=False):
     """
     m_ask = {
         "en": "AION UT is a 5-seat model and doesn't currently offer 6 seats. I don't have information "
-              "beyond that here — may I connect you with an AION specialist, or could you leave your contact "
+              "beyond that here — may I connect you with a GAC specialist, or could you leave your contact "
               "details for a follow-up?",
-        "zh": "AION UT 是 5 座车型，目前没有 6 座版本。这边暂时没有更多信息——我可以帮您转接 AION 专员，"
+        "zh": "AION UT 是 5 座车型，目前没有 6 座版本。这边暂时没有更多信息——我可以帮您转接 GAC 专员，"
               "或者您方便留个联系方式，让专员为您跟进吗？",
         "th": "AION UT เป็นรุ่น 5 ที่นั่ง และยังไม่มีรุ่น 6 ที่นั่งในตอนนี้ ตรงนี้ยังไม่มีข้อมูลเพิ่มเติม—"
-              "ขอเชื่อมต่อคุณกับผู้เชี่ยวชาญ AION หรือฝากข้อมูลติดต่อเพื่อให้เจ้าหน้าที่ติดตามได้ไหม?",
+              "ขอเชื่อมต่อคุณกับผู้เชี่ยวชาญ GAC หรือฝากข้อมูลติดต่อเพื่อให้เจ้าหน้าที่ติดตามได้ไหม?",
         "es": "El AION UT es un modelo de 5 plazas y no ofrece 6 plazas actualmente. No tengo más información "
-              "al respecto: ¿le conecto con un especialista de AION o podría dejar sus datos de contacto para un seguimiento?",
+              "al respecto: ¿le conecto con un especialista de GAC o podría dejar sus datos de contacto para un seguimiento?",
     }
     m_done = {
         "en": "The AION UT is a 5-seat model and doesn't currently offer 6 seats. We've already noted your contact — "
-              "a local AION specialist will follow up with the right local details for you.",
+              "a local GAC specialist will follow up with the right local details for you.",
         "zh": "AION UT 是 5 座车型，目前没有 6 座版本。我们已收到您留的联系方式，当地专员会按当地实际与您联系。",
         "th": "AION UT เป็นรุ่น 5 ที่นั่ง และยังไม่มีรุ่น 6 ที่นั่งในตอนนี้ เราได้รับข้อมูลติดต่อของคุณแล้ว "
               "เจ้าหน้าที่ในท้องถิ่นจะติดตามด้วยข้อมูลที่ถูกต้องในท้องถิ่นให้ครับ/ค่ะ",

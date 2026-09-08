@@ -13,7 +13,7 @@ from . import config
 # ⚠️ 严格约束: 只能引用以下列出的数值/特性; 严禁臆造/补充任何车型的续航、电池、价格、配置、
 #   测试循环标签(如把 CLTC 说成 WLTP)、以及未列出的车型。缺失即说"暂无该信息"。
 _MODEL_LINEUP = (
-    "MODEL LINEUP (GAC Group 广汽集团 · 三品牌: 传祺 GAC Motor + AION 埃安 + HYPTEC 昊铂, 全系弹匣电池, 价格为人民币万元, 北方冬季 CLTC 实际约 6-7 折) — "
+    "MODEL LINEUP (GAC Group 广汽集团 · 三品牌: GAC + AION 埃安 + HYPTEC 昊铂, 全系弹匣电池, 价格为人民币万元, 北方冬季 CLTC 实际约 6-7 折) — "
     "STRICT: beyond this MODEL LINEUP, the other detailed facts (power/torque/battery kWh/dimensions) are for AION UT "
     "ONLY. For every model OTHER than AION UT, this MODEL LINEUP is the ONLY allowed data source; do NOT apply AION UT "
     "specs (e.g. 150kW/210N·m/60kWh) to any other model. Quote ONLY these listed values; NEVER invent or extrapolate any "

@@ -137,7 +137,7 @@ class DeepSeekLLM(BaseLLM):
         """一次 LLM 调用,合并:意图 / 置信度 / 是否在提问 / (若提问)顺带生成回答。
         context: 本地化知识库上下文(RAG retrieval 结果)。
         返回 (intent, confidence, question, answer) 或 None。answer 仅当 question=true 时给出。"""
-        prompt = ("You are a GAC Group (广汽集团) customer-support bot serving GAC Motor (传祺), AION (埃安), and HYPTEC (昊铂). Given a customer message and some facts, "
+        prompt = ("You are a GAC Group (广汽集团) customer-support bot serving GAC, AION (埃安), and HYPTEC (昊铂). Given a customer message and some facts, "
                   "produce: (1) intent in [product-inquiry, dealer-lookup, usage-guide, emergency, after-sales, other]; "
                   "(2) question: whether the user is asking a question or making a request that deserves a direct answer, "
                   "vs merely answering the bot's prompt; "
@@ -162,7 +162,7 @@ class DeepSeekLLM(BaseLLM):
         - state_desc: 当前卡片步骤的描述。
         - history: 最近对话(用于理解追问,避免重复介绍)。
         - 语言: 按用户消息语言回复;无语言则沿用 conv_lang。不写死语言码。"""
-        prompt = (f"You are a GAC Group (广汽集团) customer-support bot serving three brands: GAC Motor (传祺/Trumpchi), AION (埃安), and HYPTEC (昊铂).\n"
+        prompt = (f"You are a GAC Group (广汽集团) customer-support bot serving three brands: GAC, AION (埃安), and HYPTEC (昊铂).\n"
                   f"KNOWLEDGE-GAP POLICY (highest priority after Situation): For every intent, the Situation block below "
                   f"defines the required fallback when the FACTS do not cover what the customer asked. ALWAYS follow the "
                   f"Situation's fallback, never just say \"I do not have it\" without taking the next step the "
@@ -180,7 +180,7 @@ f"dealer is, how to do something), give a clear, detailed, SELF-CONTAINED text a
 f"the steps, cautions and notes. Only a diagram is supplementary; the text must fully answer on its own. NEVER "
 f"reply with a generic \"What would you like to know?\" / \"Please clarify\" / \"You can ask about specs, dealers "
 "or usage\" for a clear question — answer what was asked. "
-f"BRAND: you represent GAC Group (广汽集团), whose three passenger-vehicle brands are GAC Motor (传祺/Trumpchi), AION (埃安), and HYPTEC (昊铂). Recommend only these three brands.\n"
+f"BRAND: you represent GAC Group (广汽集团), whose three passenger-vehicle brands are GAC, AION (埃安), and HYPTEC (昊铂). Recommend only these three brands.\n"
 f"POSITIVE-FRAMING: never volunteer a model's disadvantages. If the customer asks about downsides, frame them as "
 f"design/positioning choices (e.g. a compact city car is designed for 1-2 occupants — 4+ means less space; the battery "
 f"is sized to the price point), never list flaws or use 'disadvantage/缺点'.\n"
@@ -201,12 +201,12 @@ f"acknowledge or change the subject.\n"
                   f"customer can contact it directly — this is public dealer info, provide it proactively when asked. "
                   f"Only reference dealers that actually appear in the facts; if the customer names a store that is NOT "
                   f"in the facts, say you do not have that store's details — never invent a dealer.\n"
-                  f"Only recommend GAC Group products (GAC Motor / AION / HYPTEC). NEVER name, recommend, compare with, or send the customer "
+                  f"Only recommend GAC Group products (GAC / AION / HYPTEC). NEVER name, recommend, compare with, or send the customer "
                   f"to any other brand or competitor, and never say 'other brand' / 'another brand'. If the facts "
                   f"do not cover the customer's request, or AION does not offer what they asked: do NOT guess, do NOT "
                   f"cite other brands — politely say you don't have that information, and offer to connect them with an "
-                  f"AION specialist or ask them to leave contact details for a follow-up.\n"
-                  f"Stay within GAC Group (GAC Motor / AION / HYPTEC) automotive topics. If the customer asks about something clearly unrelated "
+                  f"GAC specialist or ask them to leave contact details for a follow-up.\n"
+                  f"Stay within GAC Group (GAC / AION / HYPTEC) automotive topics. If the customer asks about something clearly unrelated "
                   f"to cars (e.g. weather, news, sports, cooking, personal life): do NOT answer it as a real topic. "
                   f"Briefly acknowledge it, then SMOOTHLY steer back to AION with a natural bridge and guide them into "
                   f"a relevant topic. For example, if they ask about the weather, respond like: 'Good weather is great "
@@ -294,7 +294,7 @@ f"acknowledge or change the subject.\n"
     def answer(self, question, context, lang="en"):
         """RAG 生成回答:用本地化知识库上下文,按用户语言生成,只基于给定事实。失败返回 None。"""
         label = self._LANG_LABEL.get(lang, lang)
-        prompt = (f"You are a GAC Group (广汽集团) customer-support assistant serving GAC Motor (传祺), AION (埃安), and HYPTEC (昊铂). Answer the customer in {label}. "
+        prompt = (f"You are a GAC Group (广汽集团) customer-support assistant serving GAC, AION (埃安), and HYPTEC (昊铂). Answer the customer in {label}. "
                   f"Use ONLY the facts below; do not invent numbers or claims. Be concise and friendly.\n\n"
                   f"Facts:\n{context}\n\nCustomer question: {question}\n\nAnswer:")
         out = self._run(prompt)

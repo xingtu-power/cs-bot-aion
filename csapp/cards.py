@@ -34,7 +34,7 @@ _DEFAULT_CARD = {
                  "for a particular country/region), DO NOT just say 'I do not have it' or 'I cannot confirm'. Instead: "
                  "(1) share what you DO know from the global MODEL LINEUP and highlight 1-3 likely-relevant models; "
                  "(2) honestly note that the exact local availability / pricing / trim should be confirmed by a local "
-                 "dealer; (3) naturally offer to connect them with a local AION specialist/dealer and ask for a phone "
+                 "dealer; (3) naturally offer to connect them with a local GAC specialist/dealer and ask for a phone "
                  "or email so a dealer can follow up with accurate local information. Frame this as helpful "
                  "personalized service, not a sales push.",
          "expect": "question", "advance": 1},
@@ -50,13 +50,13 @@ _DEFAULT_CARD = {
                  "KNOWLEDGE-GAP FALLBACK (BEFORE-SALES): if no dealers are listed for the customer's market/location in "
                  "the FACTS, DO NOT just say 'I do not have that'. Instead: (1) acknowledge their location and confirm "
                  "you will help find one; (2) honestly note that the exact dealer list for their area should be confirmed "
-                 "by GAC's local team; (3) naturally offer to connect them with a local AION specialist and ask for a "
+                 "by GAC's local team; (3) naturally offer to connect them with a local GAC specialist and ask for a "
                  "phone or email so the local team can follow up with accurate dealer details for their area.",
          "expect": "contact", "goal": True},
     ],
     "usage-guide": [
         {"desc": "SOLVE first: give clear, step-by-step guidance from the facts, then ask if it was resolved. If not "
-                 "resolved, offer more troubleshooting or the AION hotline. ONLY give instructions for the EXACT thing "
+                 "resolved, offer more troubleshooting or the GAC hotline. ONLY give instructions for the EXACT thing "
                  "the customer asked about (e.g. tailgate vs front hood); if the facts do not clearly cover that exact "
                  "component/action, say you do not have that specific info rather than giving instructions for "
                  "something else. Aim for customer satisfaction. This is AFTER-SALES: do NOT offer a dealer visit, test "
@@ -64,13 +64,13 @@ _DEFAULT_CARD = {
                  "KNOWLEDGE-GAP FALLBACK (AFTER-SALES): when the FACTS do not cover the customer's exact usage / "
                  "troubleshooting question, DO NOT just say 'I do not have that'. Instead: (1) explain what general "
                  "guidance you CAN offer; (2) honestly note that the exact component / procedure should be confirmed by "
-                 "an AION specialist; (3) suggest the customer contact the AION hotline for precise guidance, or ask "
+                 "a GAC specialist; (3) suggest the customer contact the GAC hotline for precise guidance, or ask "
                  "if they would like to be connected to a human specialist. Do NOT push sales or collect contact details "
                  "in usage-guide context.",
          "expect": "confirm", "goal": True},
     ],
     "emergency": [
-{"desc": "SOLVE first: confirm the customer and passengers are safe and reassure them. Give the AION roadside-assistance hotline from the facts (state the exact number if present, e.g. a rescue-guide phone; if none, point them to the Emergency Rescue Guide). Then offer to dispatch a rescue ticket and ask for consent. Prioritize calm, clear, urgent support.",
+{"desc": "SOLVE first: confirm the customer and passengers are safe and reassure them. Give the GAC roadside-assistance hotline from the facts (state the exact number if present, e.g. a rescue-guide phone; if none, point them to the Emergency Rescue Guide). Then offer to dispatch a rescue ticket and ask for consent. Prioritize calm, clear, urgent support.",
          "expect": "consent_rescue", "goal": True},
     ],
     "after-sales": [
@@ -81,12 +81,12 @@ _DEFAULT_CARD = {
                  "component's repair procedure, or a specific part's availability), DO NOT just say 'I do not have that'. "
                  "Instead: (1) share what you DO know from the facts (e.g. general warranty principles); (2) honestly "
                  "note that the exact local procedure / part availability / scheduling should be confirmed by a local "
-                 "service center; (3) naturally offer to connect them with a local AION service center and ask for a "
+                 "service center; (3) naturally offer to connect them with a local GAC service center and ask for a "
                  "phone or email so the service team can follow up to schedule a visit if needed.",
          "expect": "contact", "goal": True},
     ],
     "other": [
-        {"desc": "Greet, introduce yourself as the GAC Group (广汽集团) assistant serving three brands — GAC Motor (传祺/Trumpchi), AION (埃安), and HYPTEC (昊铂) — and guide the customer into a topic with a friendly menu of options (specs / dealers / usage / after-sales / emergency). Do not force sales.",
+        {"desc": "Greet, introduce yourself as the GAC Group (广汽集团) assistant serving three brands — GAC, AION (埃安), and HYPTEC (昊铂) — and guide the customer into a topic with a friendly menu of options (specs / dealers / usage / after-sales / emergency). Do not force sales.",
          "expect": "none", "advance": 0},
     ],
 }
@@ -172,18 +172,18 @@ def _still_unresolved(text):
 # 槽位超限/无法满足时的交接兜底(非卡片引导话术;与 pipeline 的 inject/clarify 兜底一致)
 # 默认模板仅为 LLM 不可用时的回退;实际优先用 _nat() 由 LLM 生成自然话术。
 _HANDOFF = {
-    "en": "Alright — I'm connecting you to a human AION specialist now; they'll take it from here.",
-    "th": "ได้เลยครับ ผมกำลังเชื่อมต่อให้คุณกับผู้เชี่ยวชาญ AION แล้ว",
-    "es": "Perfecto — le estoy conectando con un especialista de AION ahora mismo.",
-    "zh": "好的，我这就为您转接 AION 人工专员，稍后专员会继续为您处理。",
+    "en": "Alright — I'm connecting you to a human GAC specialist now; they'll take it from here.",
+    "th": "ได้เลยครับ ผมกำลังเชื่อมต่อให้คุณกับผู้เชี่ยวชาญ GAC แล้ว",
+    "es": "Perfecto — le estoy conectando con un especialista de GAC ahora mismo.",
+    "zh": "好的，我这就为您转接 GAC 人工专员，稍后专员会继续为您处理。",
 }
 
 
 _CONFIRM_TEXT = {
-    "zh": "我这边可能还差一点信息才能帮您处理得更准确，需要我为您转接一位 AION 人工专员继续帮您吗？",
-    "en": "I might need a bit more to make sure I get this right for you — would you like me to connect you to a human AION specialist?",
-    "th": "ผมอาจต้องขอข้อมูลเพิ่มอีกนิดเพื่อช่วยคุณได้แม่นขึ้น ต้องการให้ผมเชื่อมต่อกับผู้เชี่ยวชาญ AION หรือไม่ครับ?",
-    "es": "Puede que necesite un poco más para ayudarle con precisión. ¿Quiere que le conecte con un especialista de AION humano?"}
+    "zh": "我这边可能还差一点信息才能帮您处理得更准确，需要我为您转接一位 GAC 人工专员继续帮您吗？",
+    "en": "I might need a bit more to make sure I get this right for you — would you like me to connect you to a human GAC specialist?",
+    "th": "ผมอาจต้องขอข้อมูลเพิ่มอีกนิดเพื่อช่วยคุณได้แม่นขึ้น ต้องการให้ผมเชื่อมต่อกับผู้เชี่ยวชาญ GAC หรือไม่ครับ?",
+    "es": "Puede que necesite un poco más para ayudarle con precisión. ¿Quiere que le conecte con un especialista de GAC humano?"}
 _CONFIRM_WORDS = re.compile(r"(转人工|人工|客服专员|要|需要|好|是|确认|对|yes|yeah|ok|sure|ใช่|sí|si|confirm|转接|专员)", re.I)
 # 否定/婉拒:绝不能当成"确认转人工"
 _DECLINE_RE = re.compile(
@@ -213,10 +213,10 @@ def _nat(session, lang, kind):
         try:
             if kind == "confirm":
                 sd = ("You have been unable to get the info you need from the customer. Warmly and naturally, in a short "
-                      "empathetic way, ask whether they would like you to connect them to a human AION specialist. "
+                      "empathetic way, ask whether they would like you to connect them to a human GAC specialist. "
                       "Do NOT mention you are an AI; be natural, not robotic.")
             else:
-                sd = ("Hand the customer over to a human AION specialist. Warmly confirm you are connecting them now, "
+                sd = ("Hand the customer over to a human GAC specialist. Warmly confirm you are connecting them now, "
                       "briefly reassure them, and say a specialist will help shortly. Natural and short; do NOT mention AI.")
             r = llm.respond("(escalation)", "", sd, lang, "")
             if r and len(r) > 3 and r[3]:
