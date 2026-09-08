@@ -200,11 +200,12 @@ FREE_GB=$((FREE_KB / 1024 / 1024))
 
 MEM_MB="$(free -m | awk '/^Mem:/ {print $2}')"
 SWAP_MB="$(free -m | awk '/^Swap:/ {print $2}')"
+SWAP_FREE_MB="$(free -m | awk '/^Swap:/ {print $4}')"
 AVAIL_MB="$(free -m | awk '/^Mem:/ {print $7}')"
 [ -n "$AVAIL_MB" ] && [ "$AVAIL_MB" -gt 0 ] || AVAIL_MB="$MEM_MB"
 if [ "$MEM_MB" -lt 4000 ] && [ "$SWAP_MB" -lt 512 ]; then
   echo "警告: 内存 ${MEM_MB}MB 且无 swap,e5 推理可能内存不足。建议:"
-  echo "  fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile"
+  echo "  fallocate -l 4G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile"
   echo "  echo '/swapfile none swap sw 0 0' >> /etc/fstab"
 fi
 
@@ -217,18 +218,25 @@ if [ "$TEST_MODE" -eq 1 ] && [ "$FORCE_TEST" -ne 1 ]; then
   fi
   # 所需 = (测试容器1份 + 线上在跑的1份) × e5单份 + 系统余量1GB
   NEED_GB="$(awk -v n=$((ONLINE_RUNNING + 1)) -v e="$E5_MEM_GB" 'BEGIN { printf "%.1f", n*e + 1 }')"
-  AVAIL_GB="$(awk -v a="$AVAIL_MB" 'BEGIN { printf "%.1f", a/1024 }')"
-  echo "==> 内存预检:可用 ${AVAIL_GB}GB,并行灰度需 ≥ ${NEED_GB}GB(e5 模型按进程各占 ${E5_MEM_GB}GB;线上在跑=${ONLINE_RUNNING})"
-  if awk -v a="$AVAIL_GB" -v n="$NEED_GB" 'BEGIN { exit !(a < n) }'; then
-    echo "错误: 内存不足以并行起测试容器(可用 ${AVAIL_GB}GB < 需要 ${NEED_GB}GB)。" >&2
-    echo "      e5 模型会被**每个容器各加载一份**,并行 = 内存翻倍,4GB 实例必 OOM。" >&2
+  # 可用容量 = 物理可用内存 + 空闲 swap(swap 兜底但性能下降,会打印提示)
+  EFF_GB="$(awk -v a="$AVAIL_MB" -v s="${SWAP_FREE_MB:-0}" 'BEGIN { printf "%.1f", (a + s)/1024 }')"
+  echo "==> 内存预检:可用 ${EFF_GB}GB(物理 ${AVAIL_MB}MB + 空闲swap ${SWAP_FREE_MB:-0}MB),并行灰度需 ≥ ${NEED_GB}GB(e5 按进程各占 ${E5_MEM_GB}GB;线上在跑=${ONLINE_RUNNING})"
+  if awk -v a="$EFF_GB" -v n="$NEED_GB" 'BEGIN { exit !(a < n) }'; then
+    echo "错误: 内存不足以并行起测试容器(可用 ${EFF_GB}GB < 需要 ${NEED_GB}GB)。" >&2
+    echo "      e5 模型会被**每个容器各加载一份**,并行 = 内存翻倍;物理内存不足时会吃 swap/可能 OOM。" >&2
     echo "      三种解决方式(任选):" >&2
     echo "        1) 加 swap 后重试: fallocate -l 4G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile" >&2
-    echo "        2) 停机灰度(推荐小内存):先停线上,再只跑一个测试容器 —— docker stop csbot && ./deploy/onekey-deploy.sh --test --force-test" >&2
+    echo "           并建议在 echo '/swapfile none swap sw 0 0' >> /etc/fstab 持久化" >&2
+    echo "        2) 停机灰度(最稳,无需等待):先停线上,再只跑一个测试容器 —— docker stop csbot && ./deploy/onekey-deploy.sh --test" >&2
     echo "           测完切换: docker rm -f csbot-test && ./deploy/onekey-deploy.sh" >&2
-    echo "        3) 升级实例内存(如 8GB)后再并行灰度" >&2
+    echo "        3) 升级实例内存或停掉其它占内存进程后再并行" >&2
     echo "      确知自己在做什么、可接受 OOM 风险: 加 --force-test 强行并行" >&2
     exit 1
+  fi
+  # 预检通过但需依赖 swap 时提示(物理 RAM 不足以全量常驻两份模型,推理可能变慢)
+  if awk -v a="$AVAIL_MB" -v n="$NEED_GB" 'BEGIN { n=n*1024; exit !(a < n) }'; then
+    echo "注意: 物理内存 ${AVAIL_MB}MB 略小于所需 ${NEED_GB}GB,将部分依赖 swap(推理可能变慢);"
+    echo "      若不想影响性能,可先 docker stop csbot 用停机灰度,或升内存。"
   fi
 fi
 
