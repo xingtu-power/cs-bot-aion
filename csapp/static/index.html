@@ -336,7 +336,8 @@ function renderLeadInputCard(c, sid){
     const btn=wrap.querySelector("button"); btn.disabled=true; btn.textContent="…";
     try{
       const r=await fetch("/api/v1/lead",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({sessionId:sid, phone, email, market, lang,
+        body:JSON.stringify({sessionId:sid, phone, email,
+          market:(market||(currentSessionMeta&&currentSessionMeta.market)||""), lang,
                             userId: (typeof userId!=="undefined")?userId:"",
                             consentVersion:c.consentVersion||"v1", source:"lead_input_card"})});
       const d=await r.json();

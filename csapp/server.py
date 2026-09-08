@@ -134,10 +134,25 @@ class Handler(BaseHTTPRequestHandler):
             lead = body.get("lead", {}) or {}
             _ph = lead.get("phone") or body.get("phone")
             _em = lead.get("email") or body.get("email")
-            _mk = lead.get("market") or body.get("market") or "AU"
+            # 市场解析:显式 market > 会话实际 market > 空。
+            # 前端市场下拉"自动"时 body 不带 market,若一律兜底 AU,中文会话(CN)
+            # 的 138…/泰会话(THA)的 08… 手机号会被 AU 规则误拒。
+            _mk = str(lead.get("market") or body.get("market") or "").strip().upper()
+            if not _mk:
+                try:
+                    from .state import StateStore as _SS
+                    _sid = body.get("sessionId")
+                    if _sid:
+                        _s = _SS().get(_sid)
+                        _mk = str(getattr(_s, "market", None) or "").strip().upper()
+                except Exception:
+                    _mk = ""
+            _mk_rec = _mk or "AU"     # 入库落一个确定市场(AU 兜底)
             _it = lead.get("intent") or body.get("intent")
             _nm = lead.get("name") or body.get("name")
             # ===== 联系方式格式校验 — 防止脏数据入 leads 表 =====
+            # 校验用真实市场;仍为空(既无 body 也无会话)时走 ANY 通用规则(7-15 位),
+            # 而不是错按 AU 规则拒掉合法国际号码。
             from . import cards as _cards_v
             _ok_v, _err = _cards_v.validate_contact(_ph, _em, _mk)
             if not _ok_v:
@@ -149,13 +164,13 @@ class Handler(BaseHTTPRequestHandler):
                 (body.get("userId") or "").strip(),
                 (re.sub(r"\s+", "", _ph or "")).strip() or "_",
                 (re.sub(r"\s+", "", _em or "")).strip().lower() or "_",
-                (_mk or "_").strip(),
+                (_mk_rec or "_").strip(),
             ])
             _ddk = hashlib.sha1(_key_src.encode("utf-8")).hexdigest()[:12]
             rec = {
                 "leadId":  lead.get("leadId") or ("lead_" + hashlib.sha1((body.get("sessionId") or "x").encode()).hexdigest()[:8]),
                 "sessionId": body.get("sessionId"),
-                "market":  _mk,
+                "market":  _mk_rec,
                 "channel": "web",
                 "intent":  _it,
                 "name":    _nm,
@@ -233,6 +248,8 @@ def main():
                     help="绑定地址;容器/公网部署传 0.0.0.0")
     ap.add_argument("--port", type=int, default=8000)
     args = ap.parse_args()
+    # 在接收请求前升级持久化数据库；失败时直接停止启动。
+    db.init_db()
     # 预热:启动时加载共享 e5 模型 + 向量索引,避免首条消息付 ~30s
     try:
         print("预热向量模型/索引(第一次约 30s)...")
