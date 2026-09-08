@@ -154,7 +154,8 @@ td.loading{padding:10px 14px;color:#8b9bb0}
 <div class="cover" id="cover">
   <div class="login">
     <div style="font-size:16px;font-weight:800">需要管理口令</div>
-    <div style="font-size:12px;color:var(--mut);margin-top:6px">分析台仅限内部使用，请输入 <span class="hl">CSAPP_ADMIN_TOKEN</span>（若未配置且从本机访问，可留空直接进入）</div>
+    <div style="font-size:12px;color:var(--mut);margin-top:6px">分析台仅限内部使用，请输入部署时设置的 <span class="hl">CSAPP_ADMIN_TOKEN</span><br>
+      快捷方式:访问 <span class="hl">/admin?token=你的口令</span> 可免输（地址栏会立即清除）</div>
     <input id="tokIn" type="password" placeholder="Admin token">
     <button class="primary" style="width:100%" onclick="tryLogin()">进入</button>
   </div>
@@ -472,13 +473,21 @@ async function exportCSV(){
 
 /* ---------- 初始化 ---------- */
 function init(){
+  // 支持 ?token=xxx 一次性快捷进入(存 sessionStorage 后清除 URL,不留痕迹在地址栏)
+  try{
+    const m=location.search.match(/[?&]token=([^&]+)/);
+    if(m){sessionStorage.setItem(TOKEN_KEY,decodeURIComponent(m[1]));
+      history.replaceState(null,"",location.pathname+location.hash);}
+  }catch(e){}
   $("hostTag").textContent=location.hostname+" · "+(new Date().toLocaleString());
   const ms=$("fMarket");
   MARKET_OPT.forEach(m=>{const o=document.createElement("option");o.value=m;o.textContent=m;ms.appendChild(o);});
   const is=$("fIssue");
   Object.keys(ISSUE_LABEL).forEach(code=>{const o=document.createElement("option");o.value=code;o.textContent=ISSUE_LABEL[code][0];is.appendChild(o);});
-  api("/api/v1/admin/summary").then(d=>renderSummary(d.summary)).catch(e=>{if(e.message!=="auth")toast("加载失败: "+e.message);});
+  api("/api/v1/admin/summary").then(d=>renderSummary(d.summary)).catch(e=>{if(e.message==="auth"){}else toast("加载失败: "+e.message);});
   $("fQ").addEventListener("keydown",e=>{if(e.key==="Enter")reloadAll();});
+  // 已存 token 则直接校验;否则弹登录框
+  if(!sessionStorage.getItem(TOKEN_KEY))showLogin();
 }
 init();
 </script>
