@@ -157,6 +157,103 @@ def record_turn(rec):
         c.close()
 
 
+def sync_ended(session_id, reason, meta=None):
+    """会话在“对话外”被标记结束时同步分析库摘要(幂等,旁路,失败静默)。
+
+    背景:a_sessions 平时只随每轮 record_turn 更新;用户关闭聊天/后台 idle
+    等事后结束不会再产生对话轮,导致看板一直显示“进行中/无结束原因”。
+    本函数把 end 事件(结束原因/结束时间/最终结果位)补写进摘要行;
+    行不存在时建最小行(会话可能从未成功落过 trace)。
+    """
+    try:
+        if not session_id:
+            return
+        meta = meta or {}
+        init_db()
+        now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        ts = int(time.time())
+        ended_at = meta.get("endedAt") or now
+        reason = reason or "ended"
+        c = _conn()
+        try:
+            with c:
+                row = c.execute("SELECT session_id FROM a_sessions WHERE session_id=?",
+                                (session_id,)).fetchone()
+                if row is None:
+                    emo = meta.get("avgEmotion")
+                    c.execute("""
+                        INSERT INTO a_sessions
+                        (session_id, user_hash, market, language, intent_main, created_at, ended_at,
+                         ended_reason, total_rounds, resolved, escalated, lead_captured, avg_emotion,
+                         flags_json, created_ts, updated_ts)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                        (session_id, user_hash(meta.get("userId")),
+                         meta.get("market"), meta.get("language"), meta.get("intent_main"), now,
+                         ended_at, reason, meta.get("rounds", 0),
+                         1 if meta.get("resolved") else 0, 1 if meta.get("escalated") else 0,
+                         1 if meta.get("lead") else 0, emo if emo is not None else 0,
+                         "{}", ts, ts))
+                else:
+                    sets = ["ended_reason=?", "ended_at=?", "updated_ts=?"]
+                    vals = [reason, ended_at, ts]
+                    if "rounds" in meta:
+                        sets.append("total_rounds=?"); vals.append(meta.get("rounds") or 0)
+                    if "resolved" in meta:
+                        sets.append("resolved=?"); vals.append(1 if meta.get("resolved") else 0)
+                    if "escalated" in meta:
+                        sets.append("escalated=?"); vals.append(1 if meta.get("escalated") else 0)
+                    if "lead" in meta:
+                        sets.append("lead_captured=?"); vals.append(1 if meta.get("lead") else 0)
+                    emo = meta.get("avgEmotion")
+                    if emo is not None:
+                        sets.append("avg_emotion=?"); vals.append(emo)
+                    if meta.get("market"):
+                        sets.append("market=?"); vals.append(meta.get("market"))
+                    if meta.get("language"):
+                        sets.append("language=?"); vals.append(meta.get("language"))
+                    if meta.get("intent_main"):
+                        sets.append("intent_main=?"); vals.append(meta.get("intent_main"))
+                    vals.append(session_id)
+                    c.execute("UPDATE a_sessions SET " + ", ".join(sets) +
+                              " WHERE session_id=?", vals)
+        finally:
+            c.close()
+    except Exception:
+        pass  # 旁路:失败不影响结束主流程
+
+
+def resync_ended():
+    """启动对账:把状态库已结束但分析库未同步(或缺结束原因)的会话补齐。幂等。"""
+    try:
+        import glob as _g
+        for p in _g.glob(os.path.join(config.STATE_DIR, "*.json")):
+            try:
+                with open(p, encoding="utf-8") as f:
+                    d = json.load(f)
+                if not d.get("ended"):
+                    continue
+                sid = d.get("id")
+                if not sid:
+                    continue
+                emos = [float(h.get("emotion_score", 0) or 0) for h in (d.get("history") or [])
+                        if h.get("emotion_score") is not None]
+                hist = d.get("history") or []
+                sync_ended(sid, d.get("ended_reason") or "ended", meta={
+                    "userId": d.get("user_id") or d.get("userId"),
+                    "market": d.get("market"), "language": d.get("language"),
+                    "intent_main": d.get("intent_main") or d.get("intent"),
+                    "resolved": bool(d.get("resolved")), "escalated": bool(d.get("escalated")),
+                    "lead": bool(d.get("lead_record") or d.get("lead_id")),
+                    "rounds": len(hist) or d.get("total_rounds", 0),
+                    "avgEmotion": round(sum(emos) / len(emos), 2) if emos else None,
+                    "endedAt": d.get("ended_at"),
+                })
+            except Exception:
+                continue
+    except Exception:
+        pass
+
+
 def cleanup(retention_days=None):
     """删除超过保留期的 trace/会话摘要。返回删除行数。"""
     retention_days = retention_days or config.ANALYTICS_RETENTION_DAYS
@@ -342,9 +439,47 @@ def get_session(session_id):
             except Exception:
                 d["trace"] = {}
             turns.append(d)
+        _reconcile_with_state(session_id, turns)
         return {"session": meta, "turns": turns}
     finally:
         c.close()
+
+
+def _reconcile_with_state(session_id, turns):
+    """对账:分析库 bot_reply 为空但会话状态库 history 存有当轮正文时,
+    以“用户实际看到的回复”为准回填(旁路,失败静默)。
+
+    背景:正常对话两库同源;但回放/迁移/补录场景下,状态文件可能是
+    最终真值而 a_turns.bot_reply 为空,导致分析台显示“无回复”误导排查。
+    回填内容与落库一致地做 PII 掩码。
+    """
+    try:
+        from . import state as _state_mod
+        st = _state_mod.StateStore().get_session(session_id)
+        hist = (st or {}).get("history") or []
+        if not hist:
+            return turns
+        for i, t in enumerate(turns):
+            h = None
+            r = t.get("round_idx")
+            if r and 0 < r <= len(hist):
+                h = hist[r - 1]
+            elif i < len(hist):
+                h = hist[i]
+            if not h:
+                continue
+            # 对齐校验:两处都有用户原文时应一致,否则宁可不回填
+            tum = (t.get("user_msg") or "").strip()
+            hum = (h.get("user") or "").strip()
+            if tum and hum and tum != hum and tum not in hum and hum not in tum:
+                continue
+            if not (t.get("bot_reply") or "").strip() and (h.get("bot") or "").strip():
+                t["bot_reply"] = mask_pii(h["bot"])
+            if not (t.get("user_msg") or "").strip() and hum:
+                t["user_msg"] = mask_pii(hum)
+        return turns
+    except Exception:
+        return turns
 
 
 def get_turn(trace_id):

@@ -8,6 +8,30 @@ import glob, json, os, time, uuid
 from . import config
 
 
+def _notify_analytics_ended(sess):
+    """旁路:会话在任意路径被标记结束时,把摘要同步给分析库(失败静默)。
+
+    分析库 a_sessions 平时只随“每轮对话 flush”更新;用户关闭/后台 idle 等
+    事后结束不再产生轮次,若不补同步,分析看板会一直显示进行中。
+    """
+    try:
+        from . import analytics as _an
+        hist = getattr(sess, "history", None) or []
+        emos = [float(h.get("emotion_score", 0) or 0) for h in hist
+                if h.get("emotion_score") is not None]
+        _an.sync_ended(sess.id, sess.ended_reason, meta={
+            "userId": sess.user_id, "market": sess.market, "language": sess.language,
+            "intent_main": sess.intent_main,
+            "resolved": bool(sess.resolved), "escalated": bool(sess.escalated),
+            "lead": bool(getattr(sess, "lead_record", None) or getattr(sess, "lead_id", None)),
+            "rounds": len(hist) or getattr(sess, "total_rounds", 0),
+            "avgEmotion": round(sum(emos) / len(emos), 2) if emos else None,
+            "endedAt": sess.ended_at,
+        })
+    except Exception:
+        pass
+
+
 def new_session_id() -> str:
     return "sess_" + uuid.uuid4().hex[:12]
 
@@ -126,6 +150,7 @@ class Session:
         self.ended_at = ended_at or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         self.updated_at = self.ended_at
         self.persist()
+        _notify_analytics_ended(self)
         return True
 
     def should_escalate(self):

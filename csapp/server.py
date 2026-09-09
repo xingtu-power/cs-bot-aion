@@ -340,6 +340,7 @@ def main():
         _n = _an.cleanup()
         if _n:
             print(f"分析库清理:删除了 {_n} 条过期记录")
+        _an.resync_ended()   # 把状态库已结束但分析库未同步的会话补齐
     except Exception as e:
         print("analytics init skipped:", e)
     # 预热:启动时加载共享 e5 模型 + 向量索引,避免首条消息付 ~30s
