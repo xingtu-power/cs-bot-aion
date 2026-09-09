@@ -171,14 +171,17 @@ def sync_ended(session_id, reason, meta=None):
             return
         meta = meta or {}
         init_db()
-        now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-        ts = int(time.time())
-        ended_at = meta.get("endedAt") or now
+        now_iso = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        now_ts = int(time.time())
+        ended_at = meta.get("endedAt") or now_iso
+        # updated_ts 用“真实事件时刻”(实际结束时间),而不是当前时刻:
+        # 否则启动/维护触发的补同步会把历史会话的更新时间推到每次部署的时间。
+        ev_ts = _iso_to_ts(ended_at) or now_ts
         reason = reason or "ended"
         c = _conn()
         try:
             with c:
-                row = c.execute("SELECT session_id FROM a_sessions WHERE session_id=?",
+                row = c.execute("SELECT session_id, updated_ts FROM a_sessions WHERE session_id=?",
                                 (session_id,)).fetchone()
                 if row is None:
                     emo = meta.get("avgEmotion")
@@ -189,14 +192,17 @@ def sync_ended(session_id, reason, meta=None):
                          flags_json, created_ts, updated_ts)
                         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                         (session_id, user_hash(meta.get("userId")),
-                         meta.get("market"), meta.get("language"), meta.get("intent_main"), now,
+                         meta.get("market"), meta.get("language"), meta.get("intent_main"), now_iso,
                          ended_at, reason, meta.get("rounds", 0),
                          1 if meta.get("resolved") else 0, 1 if meta.get("escalated") else 0,
                          1 if meta.get("lead") else 0, emo if emo is not None else 0,
-                         "{}", ts, ts))
+                         "{}", ev_ts, ev_ts))
                 else:
-                    sets = ["ended_reason=?", "ended_at=?", "updated_ts=?"]
-                    vals = [reason, ended_at, ts]
+                    sets = ["ended_reason=?", "ended_at=?"]
+                    vals = [reason, ended_at]
+                    # updated_ts 只增不减:以真实事件时刻为准,维护/补写不得回拨或前移
+                    up = max(row["updated_ts"] or 0, ev_ts)
+                    sets.append("updated_ts=?"); vals.append(up)
                     if "rounds" in meta:
                         sets.append("total_rounds=?"); vals.append(meta.get("rounds") or 0)
                     if "resolved" in meta:
@@ -263,18 +269,21 @@ def mark_lead(session_id, meta=None):
     /api/v1/lead 只写 leads 库与状态文件、不产生对话轮,record_turn 不会被触发;
     若不补同步,分析台“留资会话”KPI / 列表芯片永不更新。lead 位只增不降,
     后续轮次的 record_turn / end 同步都不会把它改回 0。
+    meta.occurredAt:留资发生的真实时刻(ISO)。运行时=提交时刻;启动对账时=
+    leads 库里的 consent_at/created_at,避免把历史会话的更新时间推到部署时刻。
     """
     try:
         if not session_id:
             return
         meta = meta or {}
         init_db()
-        now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-        ts = int(time.time())
+        now_iso = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        now_ts = int(time.time())
+        occ = _iso_to_ts(meta.get("occurredAt")) or now_ts
         c = _conn()
         try:
             with c:
-                row = c.execute("SELECT session_id FROM a_sessions WHERE session_id=?",
+                row = c.execute("SELECT session_id, updated_ts FROM a_sessions WHERE session_id=?",
                                 (session_id,)).fetchone()
                 if row is None:
                     c.execute("""
@@ -284,11 +293,15 @@ def mark_lead(session_id, meta=None):
                          flags_json, created_ts, updated_ts)
                         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                         (session_id, user_hash(meta.get("userId")),
-                         meta.get("market"), meta.get("language"), meta.get("intent_main"), now,
-                         None, None, 0, 0, 0, 1, 0, "{}", ts, ts))
+                         meta.get("market"), meta.get("language"), meta.get("intent_main"), now_iso,
+                         None, None, 0, 0, 0, 1, 0, "{}", occ, occ))
                 else:
-                    sets = ["lead_captured=1", "updated_ts=?"]
-                    vals = [ts]
+                    sets = ["lead_captured=1"]
+                    vals = []
+                    # updated_ts 只增不减:以真实留资时刻为准,维护/补写不得把
+                    # 历史会话的更新时间前移到每次部署/启动的时刻
+                    up = max(row["updated_ts"] or 0, occ)
+                    sets.append("updated_ts=?"); vals.append(up)
                     for col, key in (("market", "market"), ("language", "language"),
                                      ("intent_main", "intent_main")):
                         v = meta.get(key)
@@ -312,12 +325,59 @@ def resync_leads():
         try:
             conn.row_factory = _sq.Row
             for r in conn.execute(
-                    "SELECT DISTINCT session_id FROM leads WHERE session_id IS NOT NULL AND trim(session_id)<>''"):
-                mark_lead(r["session_id"])
+                    "SELECT DISTINCT session_id, consent_at, created_at FROM leads "
+                    "WHERE session_id IS NOT NULL AND trim(session_id)<>''"):
+                # 用真实留资时间作为 updated_ts 依据,避免把历史会话推到部署时刻
+                mark_lead(r["session_id"], meta={
+                    "occurredAt": r["consent_at"] or r["created_at"],
+                })
         finally:
             conn.close()
     except Exception:
         pass  # kd 库不可用时跳过
+
+
+def resync_activity_ts():
+    """修复 updated_ts:被“启动对账/维护写入”抬到部署时刻的历史会话,
+    恢复到真实活动时间 = MAX(最近一轮 ts, 状态文件里的真实结束时间)。幂等。
+
+    背景:a_sessions.updated_ts 是会话检索的时间/排序/范围过滤依据,
+    必须反映真实活动;若维护补写用了“当前时刻”,每次重新部署都会把
+    历史会话的时间推到最新,导致概览与列表数量口径漂移、列表时间失真。
+    """
+    try:
+        init_db()
+        c = _conn()
+        try:
+            rows = c.execute("SELECT session_id, updated_ts FROM a_sessions").fetchall()
+            fix = []
+            for r in rows:
+                sid = r["session_id"]
+                cur = r["updated_ts"] or 0
+                real = c.execute("SELECT MAX(ts) m FROM a_turns WHERE session_id=?",
+                                 (sid,)).fetchone()["m"] or 0
+                if not real:
+                    continue
+                try:
+                    from . import state as _st
+                    d = _st.StateStore().get_session(sid)
+                    if d and d.get("ended_at"):
+                        et = _iso_to_ts(d["ended_at"])
+                        if et:
+                            real = max(real, et)
+                except Exception:
+                    pass
+                if cur > real:
+                    fix.append((real, sid))
+            if fix:
+                with c:
+                    for real, sid in fix:
+                        c.execute("UPDATE a_sessions SET updated_ts=? WHERE session_id=? "
+                                  "AND updated_ts>?", (real, sid, real))
+        finally:
+            c.close()
+    except Exception:
+        pass
 
 
 def cleanup(retention_days=None):
@@ -404,10 +464,13 @@ def summary(from_ts=None, to_ts=None, market=None, language=None, intent=None):
     try:
         wf, af = _filters(from_ts, to_ts, market, language, intent)
         row = c.execute(
-            "SELECT COUNT(*) n, COUNT(DISTINCT session_id) sess, "
-            "AVG(latency_ms) avg_ms FROM a_turns WHERE " + wf, af).fetchone()
-        kpi = {"turns": row["n"], "sessions": row["sess"],
-               "avgLatencyMs": round(row["avg_ms"] or 0)}
+            "SELECT COUNT(*) n, AVG(latency_ms) avg_ms FROM a_turns WHERE " + wf, af).fetchone()
+        kpi = {"turns": row["n"], "avgLatencyMs": round(row["avg_ms"] or 0)}
+        # 会话数与「会话检索」同口径:都按 a_sessions(updated_ts 范围)计数,
+        # 保证概览「会话数」与列表 total 一致(旧口径按 a_turns 去重,两者会偏差)
+        ws, as_ = _session_filters(from_ts, to_ts, market, language, intent)
+        kpi["sessions"] = c.execute(
+            "SELECT COUNT(*) n FROM a_sessions WHERE " + ws, as_).fetchone()["n"]
         # 分桶延迟(近似 p50/p95)
         lat = [r["latency_ms"] for r in c.execute(
             "SELECT latency_ms FROM a_turns WHERE latency_ms IS NOT NULL AND " + wf, af)]
@@ -419,8 +482,7 @@ def summary(from_ts=None, to_ts=None, market=None, language=None, intent=None):
             kpi["slowTurns"] = sum(1 for v in lat if v >= config.SLOW_MS)
         else:
             kpi["latencyP50"] = kpi["latencyP95"] = kpi["slowTurns"] = 0
-        # 结果分布(按 round 数=1 的会话摘要近似:直接查 a_sessions)
-        ws, as_ = _session_filters(from_ts, to_ts, market, language, intent)
+        # 结果分布(直接查 a_sessions,与会话检索同口径)
         srow = c.execute("SELECT COUNT(*) n, SUM(resolved) resolved, SUM(escalated) escalated,"
                          " SUM(lead_captured) leads,"
                          " AVG(total_rounds) avg_rounds, AVG(avg_emotion) avg_emo"

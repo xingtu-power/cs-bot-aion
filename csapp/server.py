@@ -351,6 +351,7 @@ def main():
         _n = _an.cleanup()
         if _n:
             print(f"分析库清理:删除了 {_n} 条过期记录")
+        _an.resync_activity_ts()  # 先把被维护写入抬高的 updated_ts 修复回真实活动时间
         _an.resync_ended()   # 把状态库已结束但分析库未同步的会话补齐
         _an.resync_leads()   # 把 leads 库已留资但分析库未标记的会话补齐
     except Exception as e:

@@ -408,9 +408,10 @@ function renderSessions(d){
   h+='<span class="pager"><button onclick="loadSessions('+(state.page-1)+')" '+(state.page<=1?"disabled":"")+'>‹ 上一页</button><button onclick="loadSessions('+(state.page+1)+')" '+(state.page*d.size>=d.total?"disabled":"")+'>下一页 ›</button></span></div>';
   if(!rows.length){h+='<div class="empty">没有匹配的会话</div></div>';$("v-sessions").innerHTML=h;return;}
   h+='<div class="hintline">点击会话行展开对话回放 · 每行一轮「客户原话 → AI 回复 → 内部 trace」,展开区顶部附列说明</div>';
-  h+='<table id="sessTbl"><tr><th></th><th>时间</th><th>会话</th><th>市场/语言</th><th>意图</th><th>轮数</th><th>结果</th><th>问题信号</th><th>最近消息</th></tr>';
+  h+='<table id="sessTbl"><tr><th></th><th title="会话最近一次活动时刻:最后对话轮 / 留资 / 结束,按此倒序排序(时间来自服务端落库的真实事件,不受部署影响)">时间(最近活动)</th><th>会话</th><th>市场/语言</th><th>意图</th><th>轮数</th><th>结果</th><th>问题信号</th><th>最近消息</th></tr>';
   rows.forEach(s=>{
-    const when=new Date(s.updated_ts*1000).toLocaleString("zh-CN",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
+    const when=new Date(s.updated_ts*1000).toLocaleString("zh-CN",{year:"2-digit",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
+    const whenTip=new Date(s.updated_ts*1000).toLocaleString("zh-CN");
     let res="";
     if(s.ended_reason)res+=`<span class="chip gray">${esc(s.ended_reason)}</span>`;
     if(s.resolved)res+=`<span class="chip ok">解决</span>`;
@@ -421,7 +422,7 @@ function renderSessions(d){
     const sid=s.session_id;
     h+=`<tr class="clickable" id="row_${sid}" data-sid="${esc(sid)}" onclick="toggleSession('${esc(sid)}',this)">
       <td><span class="xarrow">▸</span></td>
-      <td class="mono" style="white-space:nowrap">${when}</td>
+      <td class="mono" style="white-space:nowrap" title="${whenTip}">${when}</td>
       <td class="mono">${esc(String(sid).slice(-14))}</td>
       <td>${esc(s.market||"-")} / ${esc(s.language||"-")}</td>
       <td>${intentHTML(s.intent_main)}</td>
