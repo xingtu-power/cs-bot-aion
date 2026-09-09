@@ -138,7 +138,8 @@ def record_turn(rec):
                                    ELSE a_sessions.intent_main END,
                   ended_at=excluded.ended_at, ended_reason=excluded.ended_reason,
                   total_rounds=excluded.total_rounds, resolved=excluded.resolved,
-                  escalated=excluded.escalated, lead_captured=excluded.lead_captured,
+                  escalated=excluded.escalated,
+                  lead_captured=MAX(a_sessions.lead_captured, excluded.lead_captured),
                   avg_emotion=excluded.avg_emotion, flags_json=excluded.flags_json,
                   updated_ts=excluded.updated_ts""",
                 (rec.get("sessionId"), user_hash(sess.get("userId")),
@@ -202,8 +203,10 @@ def sync_ended(session_id, reason, meta=None):
                         sets.append("resolved=?"); vals.append(1 if meta.get("resolved") else 0)
                     if "escalated" in meta:
                         sets.append("escalated=?"); vals.append(1 if meta.get("escalated") else 0)
-                    if "lead" in meta:
-                        sets.append("lead_captured=?"); vals.append(1 if meta.get("lead") else 0)
+                    # lead 只增不降:卡片留资可能走 /api/v1/lead(状态文件无 lead_record),
+                    # 由 mark_lead 单独置位;此处仅在确为真时写 1,避免把它改回 0
+                    if meta.get("lead"):
+                        sets.append("lead_captured=?"); vals.append(1)
                     emo = meta.get("avgEmotion")
                     if emo is not None:
                         sets.append("avg_emotion=?"); vals.append(emo)
@@ -252,6 +255,69 @@ def resync_ended():
                 continue
     except Exception:
         pass
+
+
+def mark_lead(session_id, meta=None):
+    """卡片式留资(/api/v1/lead 提交)成功后,把会话摘要的留资位置 1(幂等,旁路)。
+
+    /api/v1/lead 只写 leads 库与状态文件、不产生对话轮,record_turn 不会被触发;
+    若不补同步,分析台“留资会话”KPI / 列表芯片永不更新。lead 位只增不降,
+    后续轮次的 record_turn / end 同步都不会把它改回 0。
+    """
+    try:
+        if not session_id:
+            return
+        meta = meta or {}
+        init_db()
+        now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        ts = int(time.time())
+        c = _conn()
+        try:
+            with c:
+                row = c.execute("SELECT session_id FROM a_sessions WHERE session_id=?",
+                                (session_id,)).fetchone()
+                if row is None:
+                    c.execute("""
+                        INSERT INTO a_sessions
+                        (session_id, user_hash, market, language, intent_main, created_at, ended_at,
+                         ended_reason, total_rounds, resolved, escalated, lead_captured, avg_emotion,
+                         flags_json, created_ts, updated_ts)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                        (session_id, user_hash(meta.get("userId")),
+                         meta.get("market"), meta.get("language"), meta.get("intent_main"), now,
+                         None, None, 0, 0, 0, 1, 0, "{}", ts, ts))
+                else:
+                    sets = ["lead_captured=1", "updated_ts=?"]
+                    vals = [ts]
+                    for col, key in (("market", "market"), ("language", "language"),
+                                     ("intent_main", "intent_main")):
+                        v = meta.get(key)
+                        if v:
+                            sets.append(col + "=?"); vals.append(v)
+                    vals.append(session_id)
+                    c.execute("UPDATE a_sessions SET " + ", ".join(sets) +
+                              " WHERE session_id=?", vals)
+        finally:
+            c.close()
+    except Exception:
+        pass  # 旁路:失败不影响 lead 主流程
+
+
+def resync_leads():
+    """启动对账:leads 库已有留资但分析库摘要未标记的会话补齐(幂等)。"""
+    try:
+        from . import db as _db
+        import sqlite3 as _sq
+        conn = _sq.connect(_db.DB_PATH, timeout=10)
+        try:
+            conn.row_factory = _sq.Row
+            for r in conn.execute(
+                    "SELECT DISTINCT session_id FROM leads WHERE session_id IS NOT NULL AND trim(session_id)<>''"):
+                mark_lead(r["session_id"])
+        finally:
+            conn.close()
+    except Exception:
+        pass  # kd 库不可用时跳过
 
 
 def cleanup(retention_days=None):
