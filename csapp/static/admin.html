@@ -10,22 +10,37 @@
       --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.55 -apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif}
-header{display:flex;align-items:center;gap:14px;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--card);position:sticky;top:0;z-index:5;flex-wrap:wrap}
-.logo{font-weight:800;font-size:17px;letter-spacing:.3px}
+/* ---- 应用壳: 左侧导航栏 + 右侧主区 ---- */
+.shell{display:flex;min-height:100vh;align-items:stretch}
+.side{width:228px;flex:0 0 228px;background:#0e141d;border-right:1px solid var(--line);
+      position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:16px 12px 12px;z-index:6}
+.brand{display:flex;flex-direction:column;gap:7px;padding:2px 8px 14px;border-bottom:1px solid #202b39;margin-bottom:12px}
+.logo{font-weight:800;font-size:16px;letter-spacing:.3px;line-height:1.35}
 .logo b{color:var(--acc)}
-.tag{font-size:11px;color:#ffb3ad;border:1px solid #6b2a26;background:#2b1513;border-radius:999px;padding:1px 9px}
-.sub{font-size:11px;color:var(--mut)}
+.tag{font-size:10.5px;color:#ffb3ad;border:1px solid #6b2a26;background:#2b1513;border-radius:999px;padding:1px 9px;align-self:flex-start}
+.nav{display:flex;flex-direction:column;gap:2px}
+.navitem{display:flex;align-items:center;gap:10px;width:100%;border:1px solid transparent;background:transparent;
+         color:#9aaaba;text-align:left;border-radius:9px;padding:9px 11px;font-size:13.5px;cursor:pointer;font-family:inherit;
+         transition:background .12s,color .12s}
+.navitem svg{flex:none}
+.navitem:hover{background:#18222f;color:#fff}
+.navitem.on{background:#16283c;border-color:#2c5f96;color:#fff;font-weight:700}
+.navitem.on svg{color:var(--acc)}
+.side-note{margin-top:auto;padding:12px 8px 2px;font-size:10.5px;line-height:1.7;color:#5c6d81;border-top:1px solid #202b39}
+.sub{font-size:11px;color:var(--mut);white-space:nowrap}
 .spacer{flex:1}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;gap:14px;padding:12px 22px;border-bottom:1px solid var(--line);background:var(--card);
+        position:sticky;top:0;z-index:5}
+.viewtitle{font-size:16.5px;font-weight:800;letter-spacing:.2px}
 button{background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:5px 11px;font-size:12.5px;cursor:pointer;font-family:inherit}
 button:hover{border-color:var(--acc);color:#fff}
 button.primary{background:#1f4f86;border-color:#2f6fb0}
+button:disabled{opacity:.45;cursor:default}
 input,select{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:7px;padding:5px 8px;font-size:12.5px;font-family:inherit;outline:0}
 input:focus,select:focus{border-color:var(--acc)}
 input[type=date]{color-scheme:dark}
-.tabs{display:flex;gap:4px}
-.tabs button{font-size:13px;padding:6px 14px}
-.tabs button.on{background:#1f4f86;border-color:#2f6fb0;font-weight:700}
-.wrap{padding:16px 18px 60px;max-width:1500px;margin:0 auto}
+.wrap{width:100%;padding:16px 22px 60px;max-width:1600px;margin:0 auto}
 .filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:14px}
 .filters label{font-size:11px;color:var(--mut);margin-right:-3px}
 .filters select{max-width:140px}
@@ -95,18 +110,69 @@ pre{background:#0a0f16;border:1px solid #233041;border-radius:6px;padding:8px;ov
 .login input{width:100%;margin:12px 0}
 .hl{color:var(--warn)}
 td.loading{padding:10px 14px;color:#8b9bb0}
+/* ---- 概览:KPI 分组卡片(规模/结果/质量) ---- */
+.kgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:16px}
+.kgroup{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:0}
+.kgroup h3{margin:0 0 10px;font-size:12.5px;color:#c9d6e4;letter-spacing:.4px;text-transform:uppercase;
+           display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.kg-sub{font-size:10.5px;font-weight:400;color:#5f7188;letter-spacing:.2px;text-transform:none}
+.kgp{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.kgp .kpi{margin:0;padding:9px 11px;border-radius:10px;min-width:0}
+.kgp .kpi .v{font-size:20px;line-height:1.3}
+.kgp .kpi .v .pct{font-size:11px;font-weight:700;color:var(--mut);margin-left:5px;vertical-align:2px}
+.kgp .kpi .k{font-size:10.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .v.gok{color:var(--ok)}
+.kpi .v.gvio{color:var(--violet)}
+.kpi .v.gwarn{color:var(--warn)}
+@media(max-width:1180px){.kgrid{grid-template-columns:1fr}}
+/* ---- 会话展开:三列阅读引导 ---- */
+.exp-guide{background:#101722;border:1px dashed #31415a;border-radius:10px;padding:9px 13px;margin-bottom:12px;font-size:12px;color:#c3d1e0}
+.eg-h{font-size:10.5px;color:#5f7188;letter-spacing:.5px;margin-bottom:6px}
+.eg{display:inline-flex;align-items:baseline;gap:6px;margin:0 22px 4px 0;line-height:1.7}
+.eg b{font-weight:800;white-space:nowrap}
+.eg .g1{color:#5fb2ff}
+.eg .g2{color:#53d6a6}
+.eg .g3{color:#f2c14e}
+/* ---- 窄屏: 侧边栏收成顶部横向导航 ---- */
+@media(max-width:920px){
+  .shell{flex-direction:column}
+  .side{width:100%;height:auto;flex:0 0 auto;position:static;flex-direction:row;align-items:center;
+        justify-content:space-between;flex-wrap:wrap;row-gap:8px;
+        padding:10px 14px;border-right:0;border-bottom:1px solid var(--line);z-index:auto}
+  .brand{flex-direction:row;align-items:center;gap:10px;border-bottom:0;margin:0;padding:0}
+  .brand .tag{display:none}
+  .nav{flex-direction:row;gap:4px}
+  .navitem{white-space:nowrap;padding:7px 13px}
+  .side-note{display:none}
+  .topbar{padding:10px 14px}
+  .wrap{padding:12px 14px 40px}
+}
 </style>
 </head>
 <body>
-<header>
-  <div class="logo">咨询<b>效果分析台</b></div>
-  <span class="tag">内部 · 只读</span>
-  <span class="sub" id="hostTag"></span>
-  <div class="spacer"></div>
-  <div class="tabs" id="tabs">
-    <button data-v="overview" class="on">概览</button>
-    <button data-v="sessions">会话检索</button>
+<div class="shell">
+<aside class="side">
+  <div class="brand">
+    <div class="logo">咨询<b>效果分析台</b></div>
+    <span class="tag">内部 · 只读</span>
   </div>
+  <nav class="nav" id="nav" aria-label="主导航">
+    <button class="navitem on" data-v="overview">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg>
+      <span>概览</span>
+    </button>
+    <button class="navitem" data-v="sessions">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.7a8.2 8.2 0 0 1-8.4 8.2c-1.5 0-2.9-.4-4.1-1L3.6 20l1.1-4.7a8.2 8.2 0 1 1 16.3-3.6z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/></svg>
+      <span>会话检索</span>
+    </button>
+  </nav>
+  <div class="side-note">只读分析台 · 数据来自会话旁路采样<br>查看 / 回放不影响线上服务</div>
+</aside>
+<main class="main">
+<header class="topbar">
+  <div class="viewtitle" id="viewTitle">概览</div>
+  <div class="spacer"></div>
+  <span class="sub" id="hostTag"></span>
 </header>
 
 <div class="wrap">
@@ -149,6 +215,8 @@ td.loading{padding:10px 14px;color:#8b9bb0}
 
   <div id="v-overview"></div>
   <div id="v-sessions" style="display:none"></div>
+</div>
+</main>
 </div>
 
 <div class="cover" id="cover">
@@ -231,15 +299,17 @@ function filtersObj(){
   return o;
 }
 function qs(o){return Object.keys(o).filter(k=>o[k]).map(k=>k+"="+encodeURIComponent(o[k])).join("&");}
+const VIEW_TITLE={overview:"概览",sessions:"会话检索"};
 function setTab(t){
   state.tab=t;
-  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===t));
+  document.querySelectorAll("#nav .navitem").forEach(b=>b.classList.toggle("on",b.dataset.v===t));
   $("v-overview").style.display=t==="overview"?"":"none";
   $("v-sessions").style.display=t==="sessions"?"":"none";
+  $("viewTitle").textContent=VIEW_TITLE[t]||"";
   if(t==="overview")loadSummary();
   else if(t==="sessions")loadSessions(1);
 }
-document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>setTab(b.dataset.v));
+document.querySelectorAll("#nav .navitem").forEach(b=>b.onclick=()=>setTab(b.dataset.v));
 function reloadAll(){setTab(state.tab);}
 function resetFilters(){
   ["fMarket","fLang","fIntent","fIssue","fEnded","fQ"].forEach(id=>$(id).value="");
@@ -255,10 +325,31 @@ async function loadSummary(){
   }catch(e){ if(e.message!=="auth")toast("概览加载失败: "+e.message); }
 }
 function renderSummary(s){
-  const kpis=[["会话数",s.sessions],["消息轮数",s.turns],["已结束",s.sessionsEnded],["解决(goal)",s.resolvedSessions],
-    ["留资会话",s.leadSessions],["转人工",s.escalatedSessions],["平均轮数",s.avgRounds],["平均情绪",s.avgEmotion],
-    ["平均延迟(ms)",s.avgLatencyMs],["P50(ms)",s.latencyP50],["P95(ms)",s.latencyP95],["慢回复(≥8s)",s.slowTurns]];
-  let h='<div class="kpis">'+kpis.map(([k,v])=>`<div class="kpi"><div class="v">${v}</div><div class="k">${esc(k)}</div></div>`).join("")+'</div>';
+  const total=s.sessions||0, ended=s.sessionsEnded||0;
+  const fmt=v=>(v==null||isNaN(v)?"-":v);
+  const one=v=>(v==null||isNaN(v)?"-":String(Math.round(v*10)/10));
+  const pct=(n,b)=>(b>0?Math.round((n||0)/b*100)+"%":"—");
+  const card=([k,v,sub,cls,tip])=>`<div class="kpi" title="${esc(tip)}"><div class="v${cls?(" g"+cls):""}">${esc(fmt(v))}${sub?'<span class="pct">'+esc(sub)+'</span>':""}</div><div class="k">${esc(k)}</div></div>`;
+  const grp=[
+    {t:"会话规模",sub:"发起量与对话深度(范围随上方筛选)",items:[
+      ["会话数",total,null,null,"筛选范围内发起的会话总量"],
+      ["消息轮数",s.turns,null,null,"用户与 AI 的消息轮次合计(含无文本的组件轮)"],
+      ["平均轮数",one(s.avgRounds),null,null,"平均每个会话包含的对话轮数"],
+      ["进行中",total-ended,null,null,"尚未结束、仍可继续的会话数"]]},
+    {t:"结果达成",sub:"会话的最终落点 · 比率口径悬停可看",items:[
+      ["已结束",ended,pct(ended,total),"ok","已正常结束的会话数(含告别/无进展/转人工等);结束率 = 已结束 / 会话数"],
+      ["解决(goal)",fmt(s.resolvedSessions),pct(s.resolvedSessions,ended),"ok","达成业务目标(用户需求被满足)的会话;比率 = 解决 / 已结束"],
+      ["留资会话",fmt(s.leadSessions),pct(s.leadSessions,total),"ok","成功留下联系方式/线索的会话;比率 = 留资 / 会话数"],
+      ["转人工",fmt(s.escalatedSessions),pct(s.escalatedSessions,total),"vio","触发转人工(真人接手)的会话;比率 = 转人工 / 会话数"]]},
+    {t:"质量与体验",sub:"回复性能与用户情绪 · 悬停看定义",items:[
+      ["平均情绪",one(s.avgEmotion),null,null,"会话平均用户情绪分,范围 -1(消极)~ +1(积极)"],
+      ["平均延迟(ms)",one(s.avgLatencyMs),null,null,"每轮回复的平均端到端耗时"],
+      ["P50 / P95(ms)",fmt(s.latencyP50)+" / "+fmt(s.latencyP95),null,null,"延迟分布:一半 / 95% 的回复快于对应数值"],
+      ["慢回复(≥8s)",fmt(s.slowTurns),null,(s.slowTurns>0?"warn":"ok"),"单轮耗时超过 8s 的回复次数(0 = 无慢回复)"]]}
+  ];
+  let h='<div class="kgrid">'+grp.map(g=>
+    `<section class="kgroup"><h3>${g.t}<span class="kg-sub">${g.sub}</span></h3>`+
+    `<div class="kgp">${g.items.map(card).join("")}</div></section>`).join("")+'</div>';
   h+='<div class="grid2">';
   const iss=Object.entries(s.issues||{}).filter(([,n])=>n>0).sort((a,b)=>b[1]-a[1]);
   h+='<div class="panel"><h3>问题信号分布(点击下钻到会话检索)</h3>';
@@ -316,7 +407,7 @@ function renderSessions(d){
   let h='<div class="panel"><div class="sess-title"><span>共 '+d.total+' 个会话 · 第 '+d.page+'/'+(Math.ceil(d.total/d.size)||1)+' 页</span>';
   h+='<span class="pager"><button onclick="loadSessions('+(state.page-1)+')" '+(state.page<=1?"disabled":"")+'>‹ 上一页</button><button onclick="loadSessions('+(state.page+1)+')" '+(state.page*d.size>=d.total?"disabled":"")+'>下一页 ›</button></span></div>';
   if(!rows.length){h+='<div class="empty">没有匹配的会话</div></div>';$("v-sessions").innerHTML=h;return;}
-  h+='<div class="hintline">点击会话行展开 · 展开后按「用户咨询 | AI 回复 | AI trace 分析」三列逐轮展示</div>';
+  h+='<div class="hintline">点击会话行展开对话回放 · 每行一轮「客户原话 → AI 回复 → 内部 trace」,展开区顶部附列说明</div>';
   h+='<table id="sessTbl"><tr><th></th><th>时间</th><th>会话</th><th>市场/语言</th><th>意图</th><th>轮数</th><th>结果</th><th>问题信号</th><th>最近消息</th></tr>';
   rows.forEach(s=>{
     const when=new Date(s.updated_ts*1000).toLocaleString("zh-CN",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
@@ -390,6 +481,13 @@ function renderExpanded(s,turns){
     <span><b>平均情绪</b>${s.avg_emotion}</span>
     <span><b>开始</b>${new Date((s.created_ts||0)*1000).toLocaleString("zh-CN")}</span>
   </div>`;
+  if(turns&&turns.length){
+    h+='<div class="exp-guide"><div class="eg-h">阅读方式:每一行 = 一次对话轮次,自左向右看 —</div>'
+      +'<span class="eg"><b class="g1">① 用户咨询</b>客户发来的原话</span>'
+      +'<span class="eg"><b class="g2">② AI 回复</b>机器人当场返回给客户的原话(标题附该轮意图与耗时;正文为空时,该轮以卡片/动作回复,见列内提示)</span>'
+      +'<span class="eg"><b class="g3">③ AI trace 分析</b>机器人后台内部流转,客户不可见;彩色小标签 = 命中问题信号,悬停看含义</span>'
+      +'</div>';
+  }
   (turns||[]).forEach((t,i)=>{
     const issues=(t.issues||[]);
     const tr=t.trace||{};
@@ -399,24 +497,36 @@ function renderExpanded(s,turns){
     const ms=t.latency_ms!=null?`${t.latency_ms}ms`:"";
     h+=`<div class="trow">
       <div class="cell user">
-        <div class="ct">用户咨询<span class="rn">轮 ${i+1}${t.t?" · "+esc(String(t.t).slice(11,16)):""}</span></div>
+        <div class="ct">用户咨询 · 客户原话<span class="rn">轮 ${i+1}${t.t?" · "+esc(String(t.t).slice(11,16)):""}</span></div>
         <div class="body">${t.user_msg?esc(t.user_msg):'<span class="empty">(无文本,仅组件轮)</span>'}</div>
       </div>
       <div class="cell bot">
-        <div class="ct">AI 回复
+        <div class="ct">AI 回复 · 发给客户
           <span style="font-weight:400;color:#5f7188">intent: ${intentText(t.intent)}${ms?" · "+ms:""}</span>
         </div>
-        <div class="body">${t.bot_reply?esc(t.bot_reply):'<span class="empty">(无回复)</span>'}</div>
+        <div class="body">${t.bot_reply?esc(t.bot_reply):(replyHTML(t,tr))}</div>
         ${chips?`<div style="margin-top:6px">${chips}</div>`:""}
       </div>
       <div class="cell trace">
-        <div class="ct">AI trace 分析<span class="rn">市场 ${esc(t.market||"-")} · ${esc(t.language||"-")}</span></div>
+        <div class="ct">AI trace · 内部流转<span class="rn">市场 ${esc(t.market||"-")} · ${esc(t.language||"-")}</span></div>
         <div class="trace-box">${renderTraceAnalysis(t,steps,llm,tr)}</div>
       </div>
     </div>`;
   });
   if(!turns||!turns.length)h+='<div class="empty">该会话暂无轮次记录</div>';
   return h;
+}
+function replyHTML(t,tr){
+  /* bot_reply 为空时的原因提示:卡片/动作回复等,避免“无回复”误导 */
+  const out=(tr&&tr.outcome)||{};
+  const comps=out.componentTypes||[];
+  const steps=(tr&&tr.steps)||[];
+  let why="本轮没有正文文本回复";
+  if(comps.length)why=`本轮以卡片/组件回复(${comps.join("、")}),无正文文本`;
+  else if(out.escalated)why="本轮触发转人工,只发转人工引导,无正文文本";
+  else if(steps.some(s=>s.stage==="card"))why="本轮走引导卡片/动作流程,无正文文本(实际呈现见聊天界面)";
+  else why="本轮无回复正文:模型输出被用于卡片或动作,详见右侧 trace";
+  return '<span class="empty">'+why+'。</span>';
 }
 function analysisText(t,steps,tr){
   const issues=(t.issues||[]);
@@ -450,7 +560,7 @@ function renderTraceAnalysis(t,steps,llm,tr){
   });
   if(llm&&(llm.rawOutput||llm.failed||llm.parseFail||llm.retried)){
     const flags=[llm.failed?'<span class="chip bad">调用失败</span>':"",llm.parseFail?'<span class="chip bad">解析失败</span>':"",llm.retried?'<span class="chip warn">有重试</span>':"",llm.callCount>1?`<span class="chip gray">共${llm.callCount}次</span>`:""].filter(Boolean).join(" ");
-    h+=`<div class="tl"><span class="nm">模型原始输出</span><span class="ms"></span><span class="dt"><details class="dd"><summary>展开原始输出${flags}</summary><pre>${esc(llm.rawOutput||"(无)")}</pre></details></span></div>`;
+    h+=`<div class="tl"><span class="nm">模型原始输出</span><span class="ms"></span><span class="dt"><details class="dd" title="模型某次调用的完整原文,属于中间产物:可能被护栏改写/用于卡片动作,不一定原样发给客户;客户实际看到的文案以左侧『AI 回复』列为准"><summary>展开模型原文(中间产物)${flags}</summary><pre>${esc(llm.rawOutput||"(无)")}</pre></details></span></div>`;
   }
   const escKey=out.escalated?"转人工"+(out.escalateReason?"("+out.escalateReason+")":""):"否";
   h+=`<div class="tl"><span class="nm">终态</span><span class="ms"></span><span class="dt">结束:${out.ended?esc(out.endedReason||"是"):"否"} · 转人工:${esc(escKey)} · 情绪:${out.emotionScore!=null?out.emotionScore:"-"}</span></div>`;
